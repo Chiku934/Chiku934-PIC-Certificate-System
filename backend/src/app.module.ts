@@ -4,10 +4,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EquipmentModule } from './modules/equipment.module';
 import { LocationModule } from './modules/location.module';
+import { CertificateModule } from './modules/certificate.module';
 import { User } from './entities/user.entity';
 import { Company } from './entities/company.entity';
 import { Equipment } from './entities/equipment.entity';
 import { Location } from './entities/location.entity';
+import { Certificate } from './entities/certificate.entity';
+import { EquipmentHistory } from './entities/equipment-history.entity';
+import { MaintenanceSchedule } from './entities/maintenance-schedule.entity';
 
 @Module({
   imports: [
@@ -18,7 +22,15 @@ import { Location } from './entities/location.entity';
       username: 'DRS@2026',
       password: 'DRS@2026',
       database: 'PIC_Certificates_Angular',
-      entities: [User, Company, Equipment, Location],
+      entities: [
+        User,
+        Company,
+        Equipment,
+        Location,
+        Certificate,
+        EquipmentHistory,
+        MaintenanceSchedule,
+      ],
       synchronize: true,
       options: {
         encrypt: false, // for local
@@ -26,6 +38,7 @@ import { Location } from './entities/location.entity';
     }),
     EquipmentModule,
     LocationModule,
+    CertificateModule,
   ],
   controllers: [AppController],
   providers: [AppService],
