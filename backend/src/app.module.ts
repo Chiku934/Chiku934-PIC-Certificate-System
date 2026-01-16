@@ -3,9 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EquipmentModule } from './modules/equipment.module';
+import { LocationModule } from './modules/location.module';
 import { User } from './entities/user.entity';
 import { Company } from './entities/company.entity';
 import { Equipment } from './entities/equipment.entity';
+import { Location } from './entities/location.entity';
 
 @Module({
   imports: [
@@ -16,13 +18,14 @@ import { Equipment } from './entities/equipment.entity';
       username: 'DRS@2026',
       password: 'DRS@2026',
       database: 'PIC_Certificates_Angular',
-      entities: [User, Company, Equipment],
+      entities: [User, Company, Equipment, Location],
       synchronize: true,
       options: {
         encrypt: false, // for local
       },
     }),
     EquipmentModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
