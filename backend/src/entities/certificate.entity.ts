@@ -25,20 +25,13 @@ export enum CertificateStatus {
 
 @Entity('Certificates')
 export class Certificate extends BaseEntity {
-  @Column({
-    type: 'enum',
-    enum: CertificateType,
-  })
+  @Column({ type: 'varchar', length: 50 })
   CertificateType: CertificateType;
 
   @Column({ length: 100, unique: true })
   CertificateNumber: string;
 
-  @Column({
-    type: 'enum',
-    enum: CertificateStatus,
-    default: CertificateStatus.DRAFT,
-  })
+  @Column({ type: 'varchar', length: 50, default: CertificateStatus.DRAFT })
   Status: CertificateStatus;
 
   @Column({ type: 'date' })

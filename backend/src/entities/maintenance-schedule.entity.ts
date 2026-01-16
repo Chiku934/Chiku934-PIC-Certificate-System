@@ -34,24 +34,13 @@ export class MaintenanceSchedule extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   Description?: string;
 
-  @Column({
-    type: 'enum',
-    enum: MaintenanceType,
-  })
+  @Column({ type: 'varchar', length: 50 })
   MaintenanceType: MaintenanceType;
 
-  @Column({
-    type: 'enum',
-    enum: MaintenanceStatus,
-    default: MaintenanceStatus.SCHEDULED,
-  })
+  @Column({ type: 'varchar', length: 50, default: MaintenanceStatus.SCHEDULED })
   Status: MaintenanceStatus;
 
-  @Column({
-    type: 'enum',
-    enum: MaintenancePriority,
-    default: MaintenancePriority.MEDIUM,
-  })
+  @Column({ type: 'varchar', length: 20, default: MaintenancePriority.MEDIUM })
   Priority: MaintenancePriority;
 
   @Column({ type: 'datetime' })
