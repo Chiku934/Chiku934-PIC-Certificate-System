@@ -26,8 +26,8 @@ export class EquipmentHistory extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   NewValue?: string;
 
-  @Column({ type: 'json', nullable: true })
-  AdditionalData?: Record<string, any>;
+  @Column({ type: 'nvarchar', length: 'max', nullable: true })
+  AdditionalData?: string;
 
   // Foreign keys
   @Column()

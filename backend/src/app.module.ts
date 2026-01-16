@@ -5,6 +5,9 @@ import { AppService } from './app.service';
 import { EquipmentModule } from './modules/equipment.module';
 import { LocationModule } from './modules/location.module';
 import { CertificateModule } from './modules/certificate.module';
+import { UserModule } from './modules/user.module';
+import { AuthModule } from './auth/auth.module';
+import { SeederModule } from './modules/seeder.module';
 import { User } from './entities/user.entity';
 import { Company } from './entities/company.entity';
 import { Equipment } from './entities/equipment.entity';
@@ -39,6 +42,9 @@ import { MaintenanceSchedule } from './entities/maintenance-schedule.entity';
     EquipmentModule,
     LocationModule,
     CertificateModule,
+    UserModule,
+    AuthModule,
+    SeederModule,
   ],
   controllers: [AppController],
   providers: [AppService],
