@@ -14,10 +14,7 @@ export enum EquipmentHistoryType {
 
 @Entity('EquipmentHistory')
 export class EquipmentHistory extends BaseEntity {
-  @Column({
-    type: 'enum',
-    enum: EquipmentHistoryType,
-  })
+  @Column({ type: 'varchar', length: 50 })
   HistoryType: EquipmentHistoryType;
 
   @Column({ type: 'text' })
