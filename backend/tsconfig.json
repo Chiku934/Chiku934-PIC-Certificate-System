@@ -2,15 +2,16 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES2021",
-    "outDir": "dist",
+    "outDir": "./dist",
+    "rootDir": "./",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    "strict": false,
+    "forceConsistentCasingInFileNames": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
