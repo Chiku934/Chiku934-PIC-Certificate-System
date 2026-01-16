@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@nestjs/typeorm": "^11.0.0",
+    "mssql": "^12.2.0",
+    "ts-node": "^10.9.2",
+    "typeorm": "^0.3.28"
+  }
+}
