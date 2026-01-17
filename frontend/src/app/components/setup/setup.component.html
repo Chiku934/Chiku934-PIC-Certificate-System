@@ -215,22 +215,26 @@
                 </div>
 
                 <div class="config-item">
-                  <div class="config-icon">
+                  <div class="config-icon" [class.active]="stats.emailDomains > 0">
                     <i class="fas fa-globe"></i>
                   </div>
                   <div class="config-info">
                     <h6>Email Domains</h6>
-                    <span class="config-status-text">Coming Soon</span>
+                    <span class="config-status-text" [class.configured]="stats.emailDomains > 0">
+                      {{ stats.emailDomains > 0 ? stats.emailDomains + ' Configured' : 'Not Configured' }}
+                    </span>
                   </div>
                 </div>
 
                 <div class="config-item">
-                  <div class="config-icon">
+                  <div class="config-icon" [class.active]="stats.emailAccounts > 0">
                     <i class="fas fa-envelope"></i>
                   </div>
                   <div class="config-info">
                     <h6>Email Accounts</h6>
-                    <span class="config-status-text">Coming Soon</span>
+                    <span class="config-status-text" [class.configured]="stats.emailAccounts > 0">
+                      {{ stats.emailAccounts > 0 ? stats.emailAccounts + ' Configured' : 'Not Configured' }}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CompanyDetails } from '../entities/company-details.entity';
 import { LetterHead } from '../entities/letter-head.entity';
+import { EmailDomain } from '../entities/email-domain.entity';
+import { EmailAccount } from '../entities/email-account.entity';
 import { User } from '../entities/user.entity';
 import { CreateCompanyDetailsDto } from '../dto/create-company-details.dto';
 import { UpdateCompanyDetailsDto } from '../dto/update-company-details.dto';
@@ -14,6 +16,10 @@ export class SetupService {
     private readonly companyDetailsRepository: Repository<CompanyDetails>,
     @InjectRepository(LetterHead)
     private readonly letterHeadRepository: Repository<LetterHead>,
+    @InjectRepository(EmailDomain)
+    private readonly emailDomainRepository: Repository<EmailDomain>,
+    @InjectRepository(EmailAccount)
+    private readonly emailAccountRepository: Repository<EmailAccount>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
@@ -98,10 +104,12 @@ export class SetupService {
 
   // Dashboard Statistics
   async getDashboardStats() {
-    const [allUsers, activeUsers, inactiveUsers] = await Promise.all([
+    const [allUsers, activeUsers, inactiveUsers, emailDomains, emailAccounts] = await Promise.all([
       this.userRepository.count({ where: { DeletedDate: null } }),
       this.userRepository.count({ where: { IsActive: true, DeletedDate: null } }),
       this.userRepository.count({ where: { IsActive: false, DeletedDate: null } }),
+      this.emailDomainRepository.count({ where: { DeletedDate: null } }),
+      this.emailAccountRepository.count({ where: { DeletedDate: null } }),
     ]);
 
     const companyDetails = await this.findCompanyDetails();
@@ -114,6 +122,8 @@ export class SetupService {
       systemUsers: 0, // TODO: Implement user types
       companyConfigured: !!companyDetails,
       letterHeadConfigured: !!letterHead,
+      emailDomains,
+      emailAccounts,
     };
   }
 }

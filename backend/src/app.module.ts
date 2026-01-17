@@ -23,6 +23,8 @@ import { RoleAndApplicationWisePermission } from './entities/role-and-applicatio
 import { AuditLog } from './entities/audit-log.entity';
 import { CompanyDetails } from './entities/company-details.entity';
 import { LetterHead } from './entities/letter-head.entity';
+import { EmailDomain } from './entities/email-domain.entity';
+import { EmailAccount } from './entities/email-account.entity';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { LetterHead } from './entities/letter-head.entity';
         AuditLog,
         CompanyDetails,
         LetterHead,
+        EmailDomain,
+        EmailAccount,
       ],
       synchronize: true,
       options: {
