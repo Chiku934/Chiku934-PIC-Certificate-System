@@ -1,11 +1,13 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { Application } from '../entities/application.entity';
+import { RoleAndApplicationWisePermission } from '../entities/role-and-application-wise-permission.entity';
 
 @Injectable()
 export class UserService {
@@ -45,6 +47,16 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+
+  async findOneForAuth(id: number): Promise<User | null> {
+    try {
+      const user = await this.userRepository.findOne({ where: { Id: id } });
+      return user;
+    } catch (error) {
+      console.error('Error finding user for auth:', error);
+      return null;
+    }
   }
 
   async findByEmail(email: string): Promise<User> {
@@ -130,5 +142,82 @@ export class UserService {
         lastName: user.LastName,
       },
     };
+  }
+
+  async getUserMenu(userId: number): Promise<Application[]> {
+    console.log('getUserMenu called for userId:', userId);
+
+    const user = await this.userRepository.findOne({
+      where: { Id: userId },
+      relations: ['UserRoleMappings', 'UserRoleMappings.Role']
+    });
+
+    console.log('User found:', user ? 'Yes' : 'No');
+    console.log('User role mappings:', user?.UserRoleMappings?.length || 0);
+
+    if (!user || !user.UserRoleMappings) {
+      console.log('No user or no role mappings found');
+      return [];
+    }
+
+    const roleIds = user.UserRoleMappings.map(urm => urm.RoleId);
+    console.log('Role IDs:', roleIds);
+
+    // Get parent applications that user has access to
+    const permissions = await this.userRepository.manager
+      .getRepository(RoleAndApplicationWisePermission)
+      .find({
+        where: {
+          RoleId: In(roleIds),
+          Application: { Parent: null }
+        },
+        relations: ['Application'],
+      });
+
+    console.log('Permissions found:', permissions.length);
+    permissions.forEach(p => console.log('Permission:', p.ApplicationId, p.Application?.ApplicationName));
+
+    const applications: Application[] = [];
+
+    for (const permission of permissions) {
+      if (!applications.find(app => app.Id === permission.ApplicationId)) {
+        const app = permission.Application;
+        app.Children = [];
+
+        // Get child applications
+        const childPermissions = await this.userRepository.manager
+          .getRepository(RoleAndApplicationWisePermission)
+          .find({
+            where: {
+              RoleId: In(roleIds),
+              Application: { Parent: app.Id }
+            },
+            relations: ['Application'],
+          });
+
+        for (const childPerm of childPermissions) {
+          const childApp = childPerm.Application;
+          childApp.Children = [];
+
+          // Get grandchild applications
+          const grandChildPermissions = await this.userRepository.manager
+            .getRepository(RoleAndApplicationWisePermission)
+            .find({
+              where: {
+                RoleId: In(roleIds),
+                Application: { Parent: childApp.Id }
+              },
+              relations: ['Application'],
+            });
+
+          childApp.Children = grandChildPermissions.map(gcp => gcp.Application);
+          app.Children.push(childApp);
+        }
+
+        applications.push(app);
+      }
+    }
+
+    return applications;
   }
 }

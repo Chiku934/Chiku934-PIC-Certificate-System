@@ -1,7 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+
+interface Application {
+  Id: number;
+  ApplicationName: string;
+  Url?: string;
+  IconImageUrl?: string;
+  IconClass?: string;
+  Children?: Application[];
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -12,20 +22,63 @@ import { AuthService } from '../../services/auth.service';
 })
 export class DashboardComponent implements OnInit {
   currentUser: any = null;
+  applications: Application[] = [];
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      if (user) {
+        this.loadUserMenu();
+      } else {
+        this.applications = [];
+      }
     });
+  }
+
+  loadUserMenu() {
+    const token = this.authService.getToken();
+    if (token) {
+      this.http.get<Application[]>('http://localhost:3000/users/menu', {
+        headers: { Authorization: `Bearer ${token}` }
+      }).subscribe({
+        next: (apps) => {
+          this.applications = apps || [];
+          this.cdr.detectChanges(); // Force change detection
+        },
+        error: (error) => {
+          console.error('Error loading user menu:', error);
+          this.applications = [];
+        }
+      });
+    } else {
+      this.applications = [];
+    }
   }
 
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  navigateToApp(app: Application) {
+    if (app.Url) {
+      // Handle navigation based on URL
+      if (app.Url.startsWith('/')) {
+        this.router.navigate([app.Url]);
+      } else {
+        window.open(app.Url, '_blank');
+      }
+    }
+  }
+
+  trackByAppId(index: number, app: Application): number {
+    return app.Id;
   }
 }

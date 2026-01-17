@@ -1,5 +1,6 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { UserRoleMapping } from './user-role-mapping.entity';
 
 @Entity('Users')
 export class User extends BaseEntity {
@@ -30,4 +31,7 @@ export class User extends BaseEntity {
   // Relations will be added as we create related entities
   // @OneToMany(() => Certificate, certificate => certificate.CreatedBy)
   // certificates: Certificate[];
+
+  @OneToMany(() => UserRoleMapping, userRoleMapping => userRoleMapping.User)
+  UserRoleMappings: UserRoleMapping[];
 }

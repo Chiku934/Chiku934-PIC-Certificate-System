@@ -31,9 +31,30 @@ export class AuthService {
 
   constructor(private http: HttpClient) {
     const token = localStorage.getItem('access_token');
+    console.log('AuthService constructor - token exists:', !!token);
     if (token) {
-      // Decode token to get user info, or fetch from API
-      this.loadUserProfile();
+      // Decode token to get user info without API call
+      this.decodeTokenAndSetUser(token);
+    }
+  }
+
+  private decodeTokenAndSetUser(token: string) {
+    try {
+      // Simple JWT decode (without verification on client side)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('Decoded token payload:', payload);
+      const user = {
+        id: payload.sub,
+        username: payload.username,
+        email: payload.email,
+        firstName: payload.firstName || null,
+        lastName: payload.lastName || null,
+      };
+      this.currentUserSubject.next(user);
+      console.log('User set from token:', user);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      this.logout();
     }
   }
 
@@ -76,9 +97,16 @@ export class AuthService {
   }
 
   private loadUserProfile(): void {
+    console.log('Loading user profile...');
     this.http.get<User>(`${this.API_URL}/users/profile`).subscribe({
-      next: (user) => this.currentUserSubject.next(user),
-      error: () => this.logout()
+      next: (user) => {
+        console.log('User profile loaded:', user);
+        this.currentUserSubject.next(user);
+      },
+      error: (error) => {
+        console.log('Error loading user profile:', error);
+        this.logout();
+      }
     });
   }
 }

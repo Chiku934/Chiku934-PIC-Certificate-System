@@ -8,6 +8,7 @@ import { CertificateModule } from './modules/certificate.module';
 import { UserModule } from './modules/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SeederModule } from './modules/seeder.module';
+import { SetupModule } from './modules/setup.module';
 import { User } from './entities/user.entity';
 import { Company } from './entities/company.entity';
 import { Equipment } from './entities/equipment.entity';
@@ -15,6 +16,13 @@ import { Location } from './entities/location.entity';
 import { Certificate } from './entities/certificate.entity';
 import { EquipmentHistory } from './entities/equipment-history.entity';
 import { MaintenanceSchedule } from './entities/maintenance-schedule.entity';
+import { Role } from './entities/role.entity';
+import { UserRoleMapping } from './entities/user-role-mapping.entity';
+import { Application } from './entities/application.entity';
+import { RoleAndApplicationWisePermission } from './entities/role-and-application-wise-permission.entity';
+import { AuditLog } from './entities/audit-log.entity';
+import { CompanyDetails } from './entities/company-details.entity';
+import { LetterHead } from './entities/letter-head.entity';
 
 @Module({
   imports: [
@@ -33,6 +41,13 @@ import { MaintenanceSchedule } from './entities/maintenance-schedule.entity';
         Certificate,
         EquipmentHistory,
         MaintenanceSchedule,
+        Role,
+        UserRoleMapping,
+        Application,
+        RoleAndApplicationWisePermission,
+        AuditLog,
+        CompanyDetails,
+        LetterHead,
       ],
       synchronize: true,
       options: {
@@ -45,6 +60,7 @@ import { MaintenanceSchedule } from './entities/maintenance-schedule.entity';
     UserModule,
     AuthModule,
     SeederModule,
+    SetupModule,
   ],
   controllers: [AppController],
   providers: [AppService],
