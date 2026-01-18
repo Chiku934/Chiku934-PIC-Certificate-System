@@ -1,31 +1,41 @@
 .dashboard {
-  height: calc(100vh - 64px); // Fixed height to prevent scrolling
+  height: calc(100vh - 64px);
+  max-height: calc(100vh - 64px);
+  overflow: hidden;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  overflow: hidden;
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 
 .dashboard-content {
   width: 100%;
+  height: 100%;
   max-width: 1200px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .apps {
   width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   .row {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
-    padding: 1rem;
+    padding: 0.5rem;
+    max-height: 100%;
+    overflow: hidden;
   }
 
   .app-card {
@@ -35,14 +45,15 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
 
     &::before {
       content: '';
@@ -58,8 +69,8 @@
     }
 
     &:hover {
-      transform: translateY(-12px) scale(1.05);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
       border-color: rgba(234, 179, 8, 0.3);
 
       &::before {
@@ -67,23 +78,23 @@
       }
 
       .app-icon {
-        transform: scale(1.1);
+        transform: scale(1.08);
         filter: brightness(1.1);
       }
 
       .app-name {
         color: #1a2332;
-        transform: translateY(-2px);
+        transform: translateY(-1px);
       }
     }
 
     &:active {
-      transform: translateY(-8px) scale(1.02);
+      transform: translateY(-4px) scale(1.01);
     }
 
     .app-icon {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       object-fit: contain;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       filter: brightness(0.9);
@@ -93,9 +104,9 @@
     .app-name {
       font-weight: 700;
       color: #374151;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       text-align: center;
-      margin-top: 0.75rem;
+      margin-top: 0.5rem;
       line-height: 1.3;
       transition: all 0.3s ease;
       z-index: 1;
@@ -107,11 +118,11 @@
 .text-center {
   text-align: center;
   width: 100%;
-  padding: 2rem;
+  padding: 1rem;
 
   p {
     color: #6c757d;
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin: 0;
     font-weight: 500;
   }
@@ -121,27 +132,28 @@
 @media (max-width: 768px) {
   .dashboard {
     height: calc(100vh - 56px);
-    padding: 0.5rem;
+    max-height: calc(100vh - 56px);
+    padding: 0.25rem;
   }
 
   .apps {
     .row {
-      gap: 1rem;
-      padding: 0.5rem;
+      gap: 0.75rem;
+      padding: 0.25rem;
     }
 
     .app-card {
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
 
       .app-icon {
-        width: 50px;
-        height: 50px;
+        width: 45px;
+        height: 45px;
       }
 
       .app-name {
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        margin-top: 0.4rem;
       }
     }
   }
@@ -150,21 +162,21 @@
 @media (max-width: 480px) {
   .apps {
     .row {
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .app-card {
-      width: 110px;
-      height: 110px;
+      width: 100px;
+      height: 100px;
 
       .app-icon {
-        width: 40px;
-        height: 40px;
+        width: 35px;
+        height: 35px;
       }
 
       .app-name {
-        font-size: 0.75rem;
-        margin-top: 0.4rem;
+        font-size: 0.7rem;
+        margin-top: 0.3rem;
       }
     }
   }
