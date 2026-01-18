@@ -2,10 +2,19 @@
   <main class="dashboard-content">
     <div class="apps container" *ngIf="applications && applications.length > 0">
       <div class="apps">
-        <div role="listbox" class="row user-select-none mt-5">
-          <div *ngFor="let app of applications; trackBy: trackByAppId" class="col-4 col-sm-3 col-md-2 p-2 mb-3 d-flex flex-column rounded justify-content-center align-items-center app-card" (click)="navigateToApp(app)">
-            <img class="rounded app-icon" [src]="app.IconImageUrl || '/assets/default-app-icon.png'" width="100px" height="100px" [alt]="app.ApplicationName">
-            <div class="w-100 text-center text-truncate mt-2 app-name">{{ app.ApplicationName }}</div>
+        <div role="listbox" class="row user-select-none">
+          <div 
+            *ngFor="let app of applications; trackBy: trackByAppId" 
+            class="app-card" 
+            (click)="navigateToApp(app)"
+            role="option"
+            tabindex="0"
+            [attr.aria-label]="app.ApplicationName">
+            <img 
+              class="app-icon" 
+              [src]="app.IconImageUrl || '/assets/default-app-icon.png'" 
+              [alt]="app.ApplicationName">
+            <div class="app-name">{{ app.ApplicationName }}</div>
           </div>
         </div>
       </div>
