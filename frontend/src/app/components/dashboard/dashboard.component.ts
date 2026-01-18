@@ -49,7 +49,10 @@ export class DashboardComponent implements OnInit {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
         next: (apps) => {
-          this.applications = apps || [];
+          this.applications = (apps || []).map(app => ({
+            ...app,
+            IconImageUrl: this.getAppIcon(app.ApplicationName)
+          }));
           this.cdr.detectChanges(); // Force change detection
         },
         error: (error) => {
@@ -60,6 +63,16 @@ export class DashboardComponent implements OnInit {
     } else {
       this.applications = [];
     }
+  }
+
+  getAppIcon(appName: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Audit': '/assets/icons/audit.png',
+      'Certification': '/assets/icons/certification.png',
+      'Setup': '/assets/icons/setup.png'
+    };
+
+    return iconMap[appName] || '/assets/images/default-profile-icon.png';
   }
 
   logout() {
