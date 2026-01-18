@@ -14,20 +14,23 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
 
   // Serve static files from frontend
-  const frontendPath = join(process.cwd(), 'frontend', 'src');
+  const frontendPath = join(__dirname, '..', '..', 'frontend', 'src');
   console.log('Serving static files from:', frontendPath);
   expressApp.use(express.static(frontendPath));
 
-  // Serve index.html for all non-API routes (SPA fallback)
-  expressApp.get('*', (req, res, next) => {
-    // Skip API routes (users, setup, etc.)
+  // Handle SPA routing - serve index.html for non-API routes
+  expressApp.use((req, res, next) => {
+    // Skip API routes
     if (req.path.startsWith('/users') ||
         req.path.startsWith('/setup') ||
         req.path.startsWith('/equipment') ||
         req.path.startsWith('/location') ||
-        req.path.startsWith('/certificate')) {
+        req.path.startsWith('/certificate') ||
+        req.path.startsWith('/auth')) {
       return next();
     }
+
+    // For all other routes, serve the Angular app
     res.sendFile(join(frontendPath, 'index.html'));
   });
 
