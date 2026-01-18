@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import * as express from 'express';
+import { Express, Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,7 +12,7 @@ async function bootstrap() {
   });
 
   // Get the Express instance and serve static files
-  const expressApp = app.getHttpAdapter().getInstance();
+  const expressApp = app.getHttpAdapter().getInstance() as Express;
 
   // Serve static files from frontend
   const frontendPath = join(__dirname, '..', '..', 'frontend', 'src');
@@ -19,7 +20,7 @@ async function bootstrap() {
   expressApp.use(express.static(frontendPath));
 
   // Handle SPA routing - serve index.html for non-API routes
-  expressApp.use((req, res, next) => {
+  expressApp.use((req: Request, res: Response, next: NextFunction) => {
     // Skip API routes
     if (req.path.startsWith('/users') ||
         req.path.startsWith('/setup') ||
