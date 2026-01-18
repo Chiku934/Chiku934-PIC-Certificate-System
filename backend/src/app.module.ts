@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EquipmentModule } from './modules/equipment.module';
@@ -30,10 +28,6 @@ import { EmailAccount } from './entities/email-account.entity';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'frontend', 'src'),
-      exclude: ['/api*'],
-    }),
     TypeOrmModule.forRoot({
       type: 'mssql',
       host: 'localhost',
