@@ -25,7 +25,7 @@ interface User {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly API_URL = '/api'; // Proxied to backend API server
+  private readonly API_URL = 'http://localhost:3000'; // Backend API server
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -64,13 +64,9 @@ export class AuthService {
     );
   }
 
-  login(credentials: { email: string; password: string }): Observable<LoginResponse> {
-    console.log('AuthService login called with:', credentials);
+  login(credentials: { email: string; password: string; rememberMe?: boolean }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_URL}/users/login`, credentials).pipe(
-      tap(response => {
-        console.log('AuthService login response:', response);
-        this.handleAuthentication(response);
-      })
+      tap(response => this.handleAuthentication(response))
     );
   }
 

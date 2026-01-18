@@ -15,7 +15,7 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance() as Express;
 
   // Serve static files from frontend
-  const frontendPath = join(__dirname, '..', '..', 'frontend', 'src');
+  const frontendPath = join(process.cwd(), 'frontend', 'src');
   console.log('Serving static files from:', frontendPath);
   expressApp.use(express.static(frontendPath));
 

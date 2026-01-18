@@ -29,28 +29,21 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    console.log('LoginComponent onSubmit called');
-    console.log('Form valid:', this.loginForm.valid);
-    console.log('Form value:', this.loginForm.value);
-
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
 
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
-          console.log('Login successful, navigating to dashboard');
           this.isLoading = false;
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          console.log('Login error:', error);
           this.isLoading = false;
           this.errorMessage = error.error?.message || 'Login failed. Please try again.';
         }
       });
     } else {
-      console.log('Form is invalid');
       this.markFormGroupTouched();
     }
   }
