@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, signal, OnInit } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { Title } from '@angular/platform-browser';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +9,27 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('frontend');
+
+  constructor(private router: Router, private titleService: Title) {}
+
+  ngOnInit() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      const route = this.getCurrentRoute();
+      const pageTitle = route?.snapshot?.data?.['title'] || '';
+      const fullTitle = pageTitle ? `ERP - ${pageTitle}` : 'ERP - My Applications';
+      this.titleService.setTitle(fullTitle);
+    });
+  }
+
+  private getCurrentRoute() {
+    let route = this.router.routerState.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    return route;
+  }
 }
