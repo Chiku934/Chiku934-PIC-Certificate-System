@@ -45,7 +45,7 @@ export class DashboardComponent implements OnInit {
   loadUserMenu() {
     const token = this.authService.getToken();
     if (token) {
-      this.http.get<Application[]>('http://localhost:3000/users/menu', {
+      this.http.get<Application[]>('/api/users/menu', {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
         next: (apps) => {
