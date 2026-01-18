@@ -12,8 +12,26 @@ async function bootstrap() {
 
   // Get the Express instance and serve static files
   const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.use(express.static(join(__dirname, '..', '..', 'frontend', 'src')));
+
+  // Serve static files from frontend
+  const frontendPath = join(process.cwd(), 'frontend', 'src');
+  console.log('Serving static files from:', frontendPath);
+  expressApp.use(express.static(frontendPath));
+
+  // Serve index.html for all non-API routes (SPA fallback)
+  expressApp.get('*', (req, res, next) => {
+    // Skip API routes (users, setup, etc.)
+    if (req.path.startsWith('/users') ||
+        req.path.startsWith('/setup') ||
+        req.path.startsWith('/equipment') ||
+        req.path.startsWith('/location') ||
+        req.path.startsWith('/certificate')) {
+      return next();
+    }
+    res.sendFile(join(frontendPath, 'index.html'));
+  });
 
   await app.listen(process.env.PORT ?? 3000);
+  console.log('Server running on port', process.env.PORT ?? 3000);
 }
 bootstrap();
