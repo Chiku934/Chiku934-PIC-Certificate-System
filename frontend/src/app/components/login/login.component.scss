@@ -2,8 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: #f8f9fa;
+  min-height: 90vh;
   padding: 1rem;
 }
 
@@ -219,12 +218,7 @@ label {
   transform: scale(1);
 }
 
-.checkbox-label:hover .checkmark {
-  border-color: #eab308;
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  transform: scale(1.02);
-  box-shadow: 0 2px 6px rgba(234, 179, 8, 0.15);
-}
+
 
 .checkbox-input:checked ~ .checkmark:hover {
   transform: scale(1.08);
