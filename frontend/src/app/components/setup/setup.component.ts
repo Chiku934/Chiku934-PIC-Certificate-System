@@ -53,7 +53,7 @@ export class SetupComponent implements OnInit {
     console.log('Setup loadDashboard - token exists:', !!token);
     if (token) {
       console.log('Making request to /setup/dashboard');
-      this.http.get<{ stats: SetupStats; user: any }>('/setup/dashboard', {
+      this.http.get<{ stats: SetupStats; user: any }>('http://localhost:3000/setup/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
         next: (response) => {

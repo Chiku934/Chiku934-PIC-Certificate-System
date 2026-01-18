@@ -25,7 +25,7 @@ interface User {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly API_URL = ''; // Relative URLs since frontend is served by backend
+  private readonly API_URL = 'http://localhost:3000'; // Backend API server
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
