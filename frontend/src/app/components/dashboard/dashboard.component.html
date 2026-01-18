@@ -1,12 +1,4 @@
 <div class="dashboard">
-  <header class="dashboard-header">
-    <h1>PIC Certificate System</h1>
-    <div class="user-info">
-      <span *ngIf="currentUser">Welcome, {{ currentUser.firstName || currentUser.username }}!</span>
-      <button (click)="logout()" class="btn btn-secondary">Logout</button>
-    </div>
-  </header>
-
   <main class="dashboard-content">
     <div class="apps container" *ngIf="applications && applications.length > 0">
       <div class="apps">
