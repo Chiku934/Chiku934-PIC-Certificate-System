@@ -41,11 +41,14 @@ export class SetupComponent implements OnInit {
 
   loadDashboard() {
     const token = this.authService.getToken();
+    console.log('Setup loadDashboard - token exists:', !!token);
     if (token) {
+      console.log('Making request to setup/dashboard');
       this.http.get<{ stats: SetupStats; user: any }>('http://localhost:3000/setup/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
         next: (response) => {
+          console.log('Setup dashboard response:', response);
           this.stats = response.stats;
         },
         error: (error) => {
@@ -54,6 +57,7 @@ export class SetupComponent implements OnInit {
         }
       });
     } else {
+      console.log('No token available for setup dashboard');
       this.stats = null;
     }
   }
