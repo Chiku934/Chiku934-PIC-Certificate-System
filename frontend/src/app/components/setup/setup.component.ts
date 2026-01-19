@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
@@ -24,14 +24,19 @@ interface SetupStats {
 export class SetupComponent implements OnInit {
   stats: SetupStats | null = null;
   currentUser: any = null;
+  loading = true;
+  error = false;
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    console.log('SetupComponent ngOnInit');
     this.authService.currentUser$.subscribe(user => {
+      console.log('SetupComponent currentUser subscription:', user);
       this.currentUser = user;
       if (user) {
         this.loadDashboard();
@@ -40,20 +45,31 @@ export class SetupComponent implements OnInit {
   }
 
   loadDashboard() {
+    console.log('loadDashboard called');
     const token = this.authService.getToken();
+    console.log('Token present:', !!token);
     if (token) {
-      this.http.get<{ stats: SetupStats; user: any }>('http://localhost:3000/setup/dashboard', {
+      console.log('Making HTTP request to /api/setup/dashboard');
+      this.http.get<{ stats: SetupStats; user: any }>('/api/setup/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
         next: (response) => {
+          console.log('HTTP request successful, response:', response);
           this.stats = response.stats;
+          this.loading = false;
+          this.error = false;
+          console.log('Stats set to:', this.stats);
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error loading setup dashboard:', error);
-          this.stats = null; // Set to null to show error state
+          this.loading = false;
+          this.error = true;
+          this.stats = null;
         }
       });
     } else {
+      console.log('No token, setting stats to null');
       this.stats = null;
     }
   }

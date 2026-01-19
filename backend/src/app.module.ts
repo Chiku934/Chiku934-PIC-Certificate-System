@@ -56,6 +56,10 @@ import { EmailAccount } from './entities/email-account.entity';
       synchronize: true,
       options: {
         encrypt: false, // for local
+        trustServerCertificate: true, // Add this to trust self-signed certificates
+      },
+      extra: {
+        trustServerCertificate: true, // Additional option for mssql driver
       },
     }),
     EquipmentModule,

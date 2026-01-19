@@ -1,259 +1,134 @@
-<div class="setup-content" *ngIf="stats !== null">
+<div class="setup-container" *ngIf="stats !== null">
   <div class="container-fluid">
-    <!-- Welcome Section -->
-    <div class="welcome-card">
-      <div class="row align-items-center">
-        <div class="col-lg-8">
-          <h2 class="welcome-title">Welcome to Setup Center</h2>
-          <p class="welcome-text">Configure and manage your system settings, users, and organizational information.</p>
+    <!-- Header -->
+    <div class="page-header">
+      <div class="breadcrumb-nav">
+        <span class="breadcrumb-item">Admin</span>
+        <span class="separator">/</span>
+        <span class="breadcrumb-item active">Set-Up Dashboard</span>
+      </div>
+    </div>
+
+    <!-- TO DO Section -->
+    <div class="todo-section">
+      <h2 class="section-title">TO DO</h2>
+      <div class="todo-cards">
+        <div class="todo-card" [class.completed]="stats.companyConfigured">
+          <div class="todo-icon">
+            <i class="fas fa-building"></i>
+          </div>
+          <div class="todo-content">
+            <h3>Company - Progressive Industrial Consultants</h3>
+            <span class="status-badge" *ngIf="stats.companyConfigured">
+              <i class="fas fa-check-circle"></i> Completed
+            </span>
+          </div>
         </div>
-        <div class="col-lg-4 text-end">
-          <div class="welcome-icon">
-            <i class="fas fa-tools"></i>
+
+        <div class="todo-card" [class.completed]="stats.letterHeadConfigured">
+          <div class="todo-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="todo-content">
+            <h3>Letter Head Setup</h3>
+            <span class="status-badge" *ngIf="stats.letterHeadConfigured">
+              <i class="fas fa-check-circle"></i> Completed
+            </span>
+          </div>
+        </div>
+
+        <div class="todo-card" [class.completed]="stats.emailDomains > 0">
+          <div class="todo-icon">
+            <i class="fas fa-globe"></i>
+          </div>
+          <div class="todo-content">
+            <h3>Email Domain Setup</h3>
+            <span class="status-badge" *ngIf="stats.emailDomains > 0">
+              <i class="fas fa-check-circle"></i> Completed
+            </span>
+          </div>
+        </div>
+
+        <div class="todo-card" [class.completed]="stats.emailAccounts > 0">
+          <div class="todo-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="todo-content">
+            <h3>Email Account Setup</h3>
+            <span class="status-badge" *ngIf="stats.emailAccounts > 0">
+              <i class="fas fa-check-circle"></i> Completed
+            </span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <div class="row g-3">
-        <div class="col-lg-3 col-md-6">
-          <div class="action-card" [class.configured]="stats.companyConfigured">
-            <div class="action-icon">
-              <i class="fas fa-building"></i>
-            </div>
-            <div class="action-content">
-              <h5>Company Setup</h5>
-              <p>Configure company information and branding</p>
-              <div class="action-status">
-                <span class="status-badge" [class.completed]="stats.companyConfigured">
-                  <i class="fas" [class]="stats.companyConfigured ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
-                  {{ stats.companyConfigured ? 'Configured' : 'Pending' }}
-                </span>
-              </div>
-            </div>
-          </div>
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+      <!-- User Statistics Row -->
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-users"></i>
         </div>
-
-        <div class="col-lg-3 col-md-6">
-          <div class="action-card" [class.configured]="stats.letterHeadConfigured">
-            <div class="action-icon">
-              <i class="fas fa-file-alt"></i>
-            </div>
-            <div class="action-content">
-              <h5>Letter Head</h5>
-              <p>Set up document headers and footers</p>
-              <div class="action-status">
-                <span class="status-badge" [class.completed]="stats.letterHeadConfigured">
-                  <i class="fas" [class]="stats.letterHeadConfigured ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
-                  {{ stats.letterHeadConfigured ? 'Configured' : 'Pending' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6">
-          <div class="action-card">
-            <div class="action-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="action-content">
-              <h5>User Management</h5>
-              <p>Create and manage system users</p>
-              <div class="action-status">
-                <span class="status-badge info">
-                  <i class="fas fa-users"></i>
-                  {{ stats.totalUsers }} Users
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6">
-          <div class="action-card">
-            <div class="action-icon">
-              <i class="fas fa-shield-alt"></i>
-            </div>
-            <div class="action-content">
-              <h5>Role Management</h5>
-              <p>Configure permissions and access control</p>
-              <div class="action-status">
-                <span class="status-badge info">
-                  <i class="fas fa-shield-alt"></i>
-                  Access Control
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="stat-value">{{ stats.totalUsers }}</div>
+        <div class="stat-label">Total Users</div>
       </div>
-    </div>
 
-    <!-- Statistics Overview -->
-    <div class="stats-overview">
-      <div class="row g-4">
-        <!-- User Statistics -->
-        <div class="col-lg-8">
-          <div class="stats-card">
-            <div class="card-header">
-              <h5 class="card-title">
-                <i class="fas fa-users me-2"></i>User Statistics
-              </h5>
-            </div>
-            <div class="card-body">
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <div class="stat-icon total">
-                    <i class="fas fa-users"></i>
-                  </div>
-                  <div class="stat-info">
-                    <h3>{{ stats.totalUsers }}</h3>
-                    <p>Total Users</p>
-                  </div>
-                </div>
-
-                <div class="stat-item">
-                  <div class="stat-icon active">
-                    <i class="fas fa-user-check"></i>
-                  </div>
-                  <div class="stat-info">
-                    <h3>{{ stats.activeUsers }}</h3>
-                    <p>Active Users</p>
-                  </div>
-                </div>
-
-                <div class="stat-item">
-                  <div class="stat-icon inactive">
-                    <i class="fas fa-user-times"></i>
-                  </div>
-                  <div class="stat-info">
-                    <h3>{{ stats.inactiveUsers }}</h3>
-                    <p>Inactive Users</p>
-                  </div>
-                </div>
-
-                <div class="stat-item">
-                  <div class="stat-icon system">
-                    <i class="fas fa-crown"></i>
-                  </div>
-                  <div class="stat-info">
-                    <h3>{{ stats.systemUsers }}</h3>
-                    <p>System Users</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-users"></i>
         </div>
-
-        <!-- Configuration Status -->
-        <div class="col-lg-4">
-          <div class="stats-card">
-            <div class="card-header">
-              <h5 class="card-title">
-                <i class="fas fa-cogs me-2"></i>Configuration Status
-              </h5>
-            </div>
-            <div class="card-body">
-              <div class="config-status">
-                <div class="config-item">
-                  <div class="config-icon" [class.active]="stats.companyConfigured">
-                    <i class="fas fa-building"></i>
-                  </div>
-                  <div class="config-info">
-                    <h6>Company Details</h6>
-                    <span class="config-status-text" [class.configured]="stats.companyConfigured">
-                      {{ stats.companyConfigured ? 'Configured' : 'Not Configured' }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="config-item">
-                  <div class="config-icon" [class.active]="stats.letterHeadConfigured">
-                    <i class="fas fa-file-alt"></i>
-                  </div>
-                  <div class="config-info">
-                    <h6>Letter Head</h6>
-                    <span class="config-status-text" [class.configured]="stats.letterHeadConfigured">
-                      {{ stats.letterHeadConfigured ? 'Configured' : 'Not Configured' }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="config-item">
-                  <div class="config-icon" [class.active]="stats.emailDomains > 0">
-                    <i class="fas fa-globe"></i>
-                  </div>
-                  <div class="config-info">
-                    <h6>Email Domains</h6>
-                    <span class="config-status-text" [class.configured]="stats.emailDomains > 0">
-                      {{ stats.emailDomains > 0 ? stats.emailDomains + ' Configured' : 'Not Configured' }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="config-item">
-                  <div class="config-icon" [class.active]="stats.emailAccounts > 0">
-                    <i class="fas fa-envelope"></i>
-                  </div>
-                  <div class="config-info">
-                    <h6>Email Accounts</h6>
-                    <span class="config-status-text" [class.configured]="stats.emailAccounts > 0">
-                      {{ stats.emailAccounts > 0 ? stats.emailAccounts + ' Configured' : 'Not Configured' }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="stat-value">{{ stats.systemUsers }}</div>
+        <div class="stat-label">System Users</div>
       </div>
-    </div>
 
-    <!-- Recent Activity -->
-    <div class="recent-activity">
-      <div class="stats-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="fas fa-history me-2"></i>Recent Activity
-          </h5>
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-users"></i>
         </div>
-        <div class="card-body">
-          <div class="activity-timeline">
-            <div class="activity-item">
-              <div class="activity-icon">
-                <i class="fas fa-user-plus"></i>
-              </div>
-              <div class="activity-content">
-                <p class="activity-text">System initialized with default administrator account</p>
-                <span class="activity-time">Just now</span>
-              </div>
-            </div>
+        <div class="stat-value">{{ stats.activeUsers }}</div>
+        <div class="stat-label">Active Users</div>
+      </div>
 
-            <div class="activity-item">
-              <div class="activity-icon">
-                <i class="fas fa-cog"></i>
-              </div>
-              <div class="activity-content">
-                <p class="activity-text">Setup dashboard loaded successfully</p>
-                <span class="activity-time">Just now</span>
-              </div>
-            </div>
-
-            <div class="activity-item">
-              <div class="activity-icon">
-                <i class="fas fa-shield-alt"></i>
-              </div>
-              <div class="activity-content">
-                <p class="activity-text">Role-based access control initialized</p>
-                <span class="activity-time">Just now</span>
-              </div>
-            </div>
-          </div>
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-users"></i>
         </div>
+        <div class="stat-value">{{ stats.inactiveUsers }}</div>
+        <div class="stat-label">Inactive Users</div>
+      </div>
+
+      <!-- Configuration Statistics Row -->
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="stat-value">{{ stats.companyConfigured ? '1' : '0' }}</div>
+        <div class="stat-label">Company</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-value">{{ stats.letterHeadConfigured ? '1' : '0' }}</div>
+        <div class="stat-label">Letter Head</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-globe"></i>
+        </div>
+        <div class="stat-value">{{ stats.emailDomains }}</div>
+        <div class="stat-label">Email Domains</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-circle">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div class="stat-value">{{ stats.emailAccounts }}</div>
+        <div class="stat-label">Email Accounts</div>
       </div>
     </div>
   </div>
@@ -261,24 +136,8 @@
 
 <!-- Loading State -->
 <div *ngIf="stats === null" class="loading-container">
-  <div class="loading-spinner">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-3">Loading setup dashboard...</p>
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
   </div>
-</div>
-
-<!-- Error State -->
-<div *ngIf="stats === undefined" class="error-container">
-  <div class="error-card">
-    <div class="error-icon">
-      <i class="fas fa-exclamation-triangle"></i>
-    </div>
-    <h4>Error Loading Dashboard</h4>
-    <p>Unable to load setup dashboard. Please check the console for details.</p>
-    <button class="btn btn-primary" (click)="loadDashboard()">
-      <i class="fas fa-redo me-1"></i>Retry
-    </button>
-  </div>
+  <p class="loading-text">Loading setup dashboard...</p>
 </div>

@@ -104,26 +104,39 @@ export class SetupService {
 
   // Dashboard Statistics
   async getDashboardStats() {
-    const [allUsers, activeUsers, inactiveUsers, emailDomains, emailAccounts] = await Promise.all([
-      this.userRepository.count({ where: { DeletedDate: null } }),
-      this.userRepository.count({ where: { IsActive: true, DeletedDate: null } }),
-      this.userRepository.count({ where: { IsActive: false, DeletedDate: null } }),
-      this.emailDomainRepository.count({ where: { DeletedDate: null } }),
-      this.emailAccountRepository.count({ where: { DeletedDate: null } }),
-    ]);
+    console.log('getDashboardStats called');
+    try {
+      const [allUsers, activeUsers, inactiveUsers, emailDomains, emailAccounts] = await Promise.all([
+        this.userRepository.count({ where: { DeletedDate: null } }),
+        this.userRepository.count({ where: { IsActive: true, DeletedDate: null } }),
+        this.userRepository.count({ where: { IsActive: false, DeletedDate: null } }),
+        this.emailDomainRepository.count({ where: { DeletedDate: null } }),
+        this.emailAccountRepository.count({ where: { DeletedDate: null } }),
+      ]);
 
-    const companyDetails = await this.findCompanyDetails();
-    const letterHead = await this.findLetterHead();
+      console.log('Counts retrieved:', { allUsers, activeUsers, inactiveUsers, emailDomains, emailAccounts });
 
-    return {
-      totalUsers: allUsers,
-      activeUsers,
-      inactiveUsers,
-      systemUsers: 0, // TODO: Implement user types
-      companyConfigured: !!companyDetails,
-      letterHeadConfigured: !!letterHead,
-      emailDomains,
-      emailAccounts,
-    };
+      const companyDetails = await this.findCompanyDetails();
+      const letterHead = await this.findLetterHead();
+
+      console.log('Company and letter head retrieved:', { companyDetails: !!companyDetails, letterHead: !!letterHead });
+
+      const result = {
+        totalUsers: allUsers,
+        activeUsers,
+        inactiveUsers,
+        systemUsers: 0, // TODO: Implement user types
+        companyConfigured: !!companyDetails,
+        letterHeadConfigured: !!letterHead,
+        emailDomains,
+        emailAccounts,
+      };
+
+      console.log('Dashboard stats result:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in getDashboardStats:', error);
+      throw error;
+    }
   }
 }

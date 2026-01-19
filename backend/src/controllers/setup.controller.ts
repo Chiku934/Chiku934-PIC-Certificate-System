@@ -22,7 +22,9 @@ export class SetupController {
   // Dashboard
   @Get('dashboard')
   async getDashboard(@Request() req) {
+    console.log('getDashboard called, user:', req.user);
     const stats = await this.setupService.getDashboardStats();
+    console.log('getDashboard returning stats:', stats);
     return {
       stats,
       user: req.user,
