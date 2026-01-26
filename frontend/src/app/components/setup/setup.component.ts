@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 interface SetupStats {
   totalUsers: number;
@@ -17,7 +18,7 @@ interface SetupStats {
 @Component({
   selector: 'app-setup',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SidebarComponent],
   templateUrl: './setup.component.html',
   styleUrls: ['./setup.component.scss']
 })
@@ -48,8 +49,12 @@ export class SetupComponent implements OnInit {
     console.log('loadDashboard called');
     const token = this.authService.getToken();
     console.log('Token present:', !!token);
+    
     if (token) {
       console.log('Making HTTP request to /api/setup/dashboard');
+      this.loading = true;
+      this.error = false;
+      
       this.http.get<{ stats: SetupStats; user: any }>('/api/setup/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
@@ -66,11 +71,22 @@ export class SetupComponent implements OnInit {
           this.loading = false;
           this.error = true;
           this.stats = null;
+          this.cdr.detectChanges();
         }
       });
     } else {
       console.log('No token, setting stats to null');
+      this.loading = false;
       this.stats = null;
+    }
+  }
+
+  toggleSidebar() {
+    // This will be used to toggle sidebar on mobile
+    // You can implement a service or use ViewChild to communicate with sidebar
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('mobile-open');
     }
   }
 }

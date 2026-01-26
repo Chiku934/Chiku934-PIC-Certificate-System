@@ -1,143 +1,230 @@
-<div class="setup-container" *ngIf="stats !== null">
-  <div class="container-fluid">
+<div class="setup-container">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
     <!-- Header -->
-    <div class="page-header">
-      <div class="breadcrumb-nav">
-        <span class="breadcrumb-item">Admin</span>
-        <span class="separator">/</span>
-        <span class="breadcrumb-item active">Set-Up Dashboard</span>
+    <div class="content-header">
+      <button class="mobile-menu-toggle" (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1 class="header-title">Setup Dashboard</h1>
+      <div class="header-actions">
+        <button class="back-btn">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back</span>
+        </button>
       </div>
     </div>
 
-    <!-- TO DO Section -->
-    <div class="todo-section">
-      <h2 class="section-title">TO DO</h2>
-      <div class="todo-cards">
-        <div class="todo-card" [class.completed]="stats.companyConfigured">
-          <div class="todo-icon">
-            <i class="fas fa-building"></i>
-          </div>
-          <div class="todo-content">
-            <h3>Company - Progressive Industrial Consultants</h3>
-            <span class="status-badge" *ngIf="stats.companyConfigured">
-              <i class="fas fa-check-circle"></i> Completed
-            </span>
-          </div>
-        </div>
-
-        <div class="todo-card" [class.completed]="stats.letterHeadConfigured">
-          <div class="todo-icon">
-            <i class="fas fa-file-alt"></i>
-          </div>
-          <div class="todo-content">
-            <h3>Letter Head Setup</h3>
-            <span class="status-badge" *ngIf="stats.letterHeadConfigured">
-              <i class="fas fa-check-circle"></i> Completed
-            </span>
-          </div>
-        </div>
-
-        <div class="todo-card" [class.completed]="stats.emailDomains > 0">
-          <div class="todo-icon">
-            <i class="fas fa-globe"></i>
-          </div>
-          <div class="todo-content">
-            <h3>Email Domain Setup</h3>
-            <span class="status-badge" *ngIf="stats.emailDomains > 0">
-              <i class="fas fa-check-circle"></i> Completed
-            </span>
-          </div>
-        </div>
-
-        <div class="todo-card" [class.completed]="stats.emailAccounts > 0">
-          <div class="todo-icon">
-            <i class="fas fa-envelope"></i>
-          </div>
-          <div class="todo-content">
-            <h3>Email Account Setup</h3>
-            <span class="status-badge" *ngIf="stats.emailAccounts > 0">
-              <i class="fas fa-check-circle"></i> Completed
-            </span>
-          </div>
-        </div>
-      </div>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-section">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="javascript:void(0)">Admin</a></li>
+          <li class="breadcrumb-item active">Setup Dashboard</li>
+        </ol>
+      </nav>
     </div>
 
-    <!-- Statistics Grid -->
-    <div class="stats-grid">
-      <!-- User Statistics Row -->
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-value">{{ stats.totalUsers }}</div>
-        <div class="stat-label">Total Users</div>
+    <!-- Loading State -->
+    <div *ngIf="loading" class="state-container">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
+      <p>Loading dashboard...</p>
+    </div>
 
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-value">{{ stats.systemUsers }}</div>
-        <div class="stat-label">System Users</div>
-      </div>
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="state-container error">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>Failed to load dashboard</p>
+      <button class="btn-retry" (click)="loadDashboard()">Retry</button>
+    </div>
 
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-value">{{ stats.activeUsers }}</div>
-        <div class="stat-label">Active Users</div>
-      </div>
+    <!-- Main Content -->
+    <div class="content-body" *ngIf="stats !== null && !loading && !error">
+      <div class="dashboard-grid">
+        
+        <!-- TO DO Section -->
+        <div class="card todo-card">
+          <div class="card-header">
+            <h2 class="card-title">Setup Tasks</h2>
+          </div>
+          <div class="card-body">
+            <ul class="todo-list">
+              <li>
+                <a [href]="stats.companyConfigured ? '/setup/company' : '/setup/company'" class="todo-item" [class.completed]="stats.companyConfigured">
+                  <div class="todo-icon">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <div class="todo-content">
+                    <h3>Company Setup</h3>
+                    <p *ngIf="!stats.companyConfigured">Configure your company details</p>
+                    <p *ngIf="stats.companyConfigured" class="completed-text">Progressive Industrial Consultants</p>
+                  </div>
+                  <i class="fas" [ngClass]="stats.companyConfigured ? 'fa-check-circle completed-icon' : 'fa-arrow-right'"></i>
+                </a>
+              </li>
 
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-value">{{ stats.inactiveUsers }}</div>
-        <div class="stat-label">Inactive Users</div>
-      </div>
+              <li>
+                <a href="/setup/letterhead" class="todo-item" [class.completed]="stats.letterHeadConfigured">
+                  <div class="todo-icon">
+                    <i class="fas fa-file-alt"></i>
+                  </div>
+                  <div class="todo-content">
+                    <h3>Letter Head</h3>
+                    <p *ngIf="!stats.letterHeadConfigured">Setup your letterhead template</p>
+                    <p *ngIf="stats.letterHeadConfigured" class="completed-text">Configured</p>
+                  </div>
+                  <i class="fas" [ngClass]="stats.letterHeadConfigured ? 'fa-check-circle completed-icon' : 'fa-arrow-right'"></i>
+                </a>
+              </li>
 
-      <!-- Configuration Statistics Row -->
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-building"></i>
-        </div>
-        <div class="stat-value">{{ stats.companyConfigured ? '1' : '0' }}</div>
-        <div class="stat-label">Company</div>
-      </div>
+              <li>
+                <a href="/setup/emaildomain" class="todo-item" [class.completed]="stats.emailDomains > 0">
+                  <div class="todo-icon">
+                    <i class="fas fa-globe"></i>
+                  </div>
+                  <div class="todo-content">
+                    <h3>Email Domain</h3>
+                    <p *ngIf="stats.emailDomains === 0">Configure email domain</p>
+                    <p *ngIf="stats.emailDomains > 0" class="completed-text">{{ stats.emailDomains }} domain(s) configured</p>
+                  </div>
+                  <i class="fas" [ngClass]="stats.emailDomains > 0 ? 'fa-check-circle completed-icon' : 'fa-arrow-right'"></i>
+                </a>
+              </li>
 
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-file-alt"></i>
-        </div>
-        <div class="stat-value">{{ stats.letterHeadConfigured ? '1' : '0' }}</div>
-        <div class="stat-label">Letter Head</div>
-      </div>
+              <li>
+                <a href="/setup/emailaccount" class="todo-item" [class.completed]="stats.emailAccounts > 0">
+                  <div class="todo-icon">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div class="todo-content">
+                    <h3>Email Account</h3>
+                    <p *ngIf="stats.emailAccounts === 0">Setup email account</p>
+                    <p *ngIf="stats.emailAccounts > 0" class="completed-text">{{ stats.emailAccounts }} account(s) configured</p>
+                  </div>
+                  <i class="fas" [ngClass]="stats.emailAccounts > 0 ? 'fa-check-circle completed-icon' : 'fa-arrow-right'"></i>
+                </a>
+              </li>
 
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-globe"></i>
+              <li>
+                <a href="/setup/users" class="todo-item">
+                  <div class="todo-icon">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="todo-content">
+                    <h3>Manage Users</h3>
+                    <p>Add and manage system users</p>
+                  </div>
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="stat-value">{{ stats.emailDomains }}</div>
-        <div class="stat-label">Email Domains</div>
-      </div>
 
-      <div class="stat-card">
-        <div class="stat-icon-circle">
-          <i class="fas fa-envelope"></i>
+        <!-- Stats Section -->
+        <div class="stats-section">
+          
+          <!-- User Stats -->
+          <div class="card stats-card">
+            <div class="card-header">
+              <h2 class="card-title">User Statistics</h2>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-icon blue">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.totalUsers }}</h3>
+                    <p>Total Users</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon purple">
+                    <i class="fas fa-user-cog"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.systemUsers }}</h3>
+                    <p>System Users</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon green">
+                    <i class="fas fa-user-check"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.activeUsers }}</h3>
+                    <p>Active Users</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon red">
+                    <i class="fas fa-user-times"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.inactiveUsers }}</h3>
+                    <p>Inactive Users</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Configuration Stats -->
+          <div class="card stats-card">
+            <div class="card-header">
+              <h2 class="card-title">Configuration Status</h2>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-icon orange">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.companyConfigured ? '1' : '0' }}</h3>
+                    <p>Company</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon teal">
+                    <i class="fas fa-file-alt"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.letterHeadConfigured ? '1' : '0' }}</h3>
+                    <p>Letter Head</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon indigo">
+                    <i class="fas fa-globe"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.emailDomains }}</h3>
+                    <p>Email Domains</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon pink">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.emailAccounts }}</h3>
+                    <p>Email Accounts</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div class="stat-value">{{ stats.emailAccounts }}</div>
-        <div class="stat-label">Email Accounts</div>
       </div>
     </div>
   </div>
-</div>
-
-<!-- Loading State -->
-<div *ngIf="stats === null" class="loading-container">
-  <div class="spinner-border text-primary" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-  <p class="loading-text">Loading setup dashboard...</p>
 </div>
