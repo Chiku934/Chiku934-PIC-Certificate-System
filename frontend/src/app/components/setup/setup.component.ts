@@ -25,6 +25,7 @@ interface SetupStats {
 export class SetupComponent implements OnInit {
   stats: SetupStats | null = null;
   currentUser: any = null;
+  currentYear: number = new Date().getFullYear();
   loading = true;
   error = false;
 
