@@ -11,13 +11,28 @@
 }
 
 .header-content {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+// Left Section: Hamburger & Title
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+// Right Section: User Profile
+.right-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 // Hamburger Section
@@ -34,16 +49,12 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: none; /* Hidden on desktop */
+  display: flex; /* Always show */
   flex-direction: column;
   gap: 4px;
   width: 40px;
   height: 40px;
   position: relative;
-
-  @media (max-width: 1024px) {
-    display: flex; /* Show on mobile */
-  }
 
   &:hover {
     background-color: #f3f4f6;
@@ -86,15 +97,11 @@
   letter-spacing: -0.025em;
 }
 
-// User Section (Desktop only)
+// User Section (Always visible)
 .user-section {
   position: relative;
   display: flex;
   align-items: center;
-
-  @media (max-width: 1024px) {
-    display: none; /* Hide on mobile */
-  }
 }
 
 .user-profile {

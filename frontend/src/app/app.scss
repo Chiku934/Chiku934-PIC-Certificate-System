@@ -40,6 +40,21 @@
   flex-direction: column;
   min-width: 0; /* Prevents flex item overflow */
   width: 100%;
+  margin-left: 0; /* Will be adjusted by sidebar state */
+  
+  /* Adjust margin based on sidebar state */
+  @media (min-width: 1025px) {
+    margin-left: 70px; /* Collapsed sidebar width */
+    
+    &.sidebar-expanded {
+      margin-left: 260px; /* Expanded sidebar width */
+    }
+    
+    /* No sidebar - full width */
+    &.no-sidebar {
+      margin-left: 0;
+    }
+  }
 }
 
 /* Header Styles */

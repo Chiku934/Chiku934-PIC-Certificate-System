@@ -1,10 +1,10 @@
 <!-- Layout Wrapper -->
 <div class="layout-wrapper">
-  <!-- Sidebar -->
-  <app-sidebar></app-sidebar>
+  <!-- Sidebar - Only show on setup pages -->
+  <app-sidebar *ngIf="showSidebar()"></app-sidebar>
   
   <!-- Main Layout Container -->
-  <div class="layout-container">
+  <div class="layout-container" [class.no-sidebar]="!showSidebar()">
     <!-- Header -->
     <app-header></app-header>
     

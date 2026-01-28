@@ -1,48 +1,53 @@
 <header class="app-header" *ngIf="currentUser && !isLoginPage">
   <div class="header-content">
-    <!-- Hamburger Button for Mobile -->
-    <div class="hamburger-section">
-      <button class="hamburger-btn" (click)="toggleSidebar()" [title]="isMobileOpen ? 'Close Menu' : 'Open Menu'" [class.active]="isMobileOpen">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-      </button>
+    <!-- Left Section: Hamburger & Title -->
+    <div class="left-section">
+      <div class="hamburger-section">
+        <button class="hamburger-btn" (click)="toggleSidebar()" [title]="isMobileOpen ? 'Close Menu' : 'Open Menu'" [class.active]="isMobileOpen">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
       <h1 class="app-title">PIC Certificate System</h1>
     </div>
 
-    <div class="user-section">
-      <div class="user-profile" (click)="toggleDropdown()" [class.active]="isDropdownOpen">
-        <div class="profile-image">
-          <img [src]="getProfileImageUrl()" [alt]="currentUser?.firstName || 'User'" class="user-avatar" (error)="onImageError($event)">
-          <div class="user-initials" *ngIf="!hasProfileImage">
-            {{ getUserInitials() }}
+    <!-- Right Section: User Profile -->
+    <div class="right-section">
+      <div class="user-section">
+        <div class="user-profile" (click)="toggleDropdown()" [class.active]="isDropdownOpen">
+          <div class="profile-image">
+            <img [src]="getProfileImageUrl()" [alt]="currentUser?.firstName || 'User'" class="user-avatar" (error)="onImageError($event)">
+            <div class="user-initials" *ngIf="!hasProfileImage">
+              {{ getUserInitials() }}
+            </div>
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{ currentUser?.firstName || currentUser?.username || 'User' }}</span>
+            <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" width="12" height="12" viewBox="0 0 12 12">
+              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
           </div>
         </div>
-        <div class="user-info">
-          <span class="user-name">{{ currentUser?.firstName || currentUser?.username || 'User' }}</span>
-          <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" width="12" height="12" viewBox="0 0 12 12">
-            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
-          </svg>
-        </div>
-      </div>
 
-      <!-- Dropdown Menu -->
-      <div class="dropdown-menu" [class.show]="isDropdownOpen" (clickOutside)="closeDropdown()">
-        <div class="dropdown-item" (click)="navigateToProfile()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-          <span>Profile</span>
-        </div>
-        <div class="dropdown-divider"></div>
-        <div class="dropdown-item logout" (click)="logout()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16,17 21,12 16,7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-          <span>Logout</span>
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" [class.show]="isDropdownOpen" (clickOutside)="closeDropdown()">
+          <div class="dropdown-item" (click)="navigateToProfile()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Profile</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item logout" (click)="logout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16,17 21,12 16,7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span>Logout</span>
+          </div>
         </div>
       </div>
     </div>
