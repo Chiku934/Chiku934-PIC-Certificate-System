@@ -9,58 +9,36 @@ $border-color: #e5e7eb;
 $background: #f8fafc;
 $card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 $sidebar-width: 260px;
+$sidebar-collapsed-width: 70px;
 $icon-bg: #dcfce7;
 $icon-color: #22c55e;
 $card-radius: 12px;
 $stat-radius: 12px;
-$header-height: 60px;
+$header-height: 50px;
+$footer-height: 50px;
 
-.setup-container {
+// Setup Page Layout
+.setup-page {
   display: flex;
-  height: 100vh;
+  flex-direction: column;
+  min-height: 100vh;
   background-color: $background;
-  overflow: hidden;
 }
 
-.content-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  width: calc(100% - #{$sidebar-width});
-  height: 100vh;
-  overflow: hidden;
-
-  @media (max-width: 1024px) {
-    margin-left: 0;
-    width: 100%;
-  }
-}
-
-// Main Content Container
-.main-content-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  height: 100%;
-}
-
-// Page Header - Fixed at top
-.page-header {
-  position: relative;
-  flex-shrink: 0;
-  background: $background;
-  z-index: 100;
-}
-
-// Breadcrumb
+// Breadcrumb Section
 .breadcrumb-section {
   background: #ffffff;
   border-bottom: 1px solid $border-color;
   padding: 1rem 1.5rem;
-  width: 100%;
+  position: sticky;
+  top: $header-height;
+  z-index: 99;
+  transition: all 0.3s ease;
+  
+  @media (max-width: 1024px) {
+    position: relative;
+    top: 0;
+  }
   
   @media (max-width: 768px) {
     padding: 0.875rem 1rem;
@@ -109,41 +87,23 @@ $header-height: 60px;
   }
 }
 
-// Content Area - Scrollable middle section
+// Content Area
 .content-area {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem 3rem 1.5rem; // Top, sides, bottom padding
+  min-height: calc(100vh - #{$header-height} - #{$footer-height} - 60px); // Account for header, footer, and breadcrumb
+  position: relative;
   
-  // Custom Scrollbar
-  &::-webkit-scrollbar {
-    width: 8px;
+  @media (max-width: 1024px) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 10px;
-    
-    &:hover {
-      background: #a8a8a8;
-    }
-  }
-  
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 #f1f1f1;
   
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 1.5rem 1rem 2.5rem 1rem;
   }
 
   @media (max-width: 480px) {
-    padding: 0.75rem;
+    padding: 1rem 0.75rem 2rem 0.75rem;
   }
 }
 
@@ -183,8 +143,8 @@ $header-height: 60px;
 
 // Main Content
 .content-body {
-  padding: 0;
-  margin: 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .dashboard-grid {
@@ -192,7 +152,6 @@ $header-height: 60px;
   grid-template-columns: 35% 1fr;
   gap: 1.5rem;
   width: 100%;
-  margin-bottom: 1.5rem; // Space before footer
   
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
@@ -201,12 +160,10 @@ $header-height: 60px;
 
   @media (max-width: 768px) {
     gap: 1rem;
-    margin-bottom: 1rem;
   }
 
   @media (max-width: 480px) {
     gap: 0.75rem;
-    margin-bottom: 0.75rem;
   }
 }
 
@@ -428,7 +385,7 @@ $header-height: 60px;
   }
 }
 
-// Stats Section - ALWAYS 4 columns, 2 rows
+// Stats Section
 .stats-section {
   display: flex;
   flex-direction: column;
@@ -703,22 +660,6 @@ $header-height: 60px;
   }
 }
 
-// Footer - Fixed at bottom
-.content-footer {
-  flex-shrink: 0;
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.8125rem;
-  color: $text-secondary;
-  border-top: 1px solid $border-color;
-  background: #fff;
-  
-  @media (max-width: 480px) {
-    padding: 0.75rem;
-    font-size: 0.75rem;
-  }
-}
-
 // Utilities
 .visually-hidden {
   position: absolute;
@@ -740,4 +681,20 @@ html {
 // Ensure proper box sizing
 * {
   box-sizing: border-box;
+}
+
+// Responsive adjustments
+@media (min-width: 1025px) {
+  .breadcrumb-section {
+    position: sticky;
+    top: $header-height;
+  }
+}
+
+// Mobile adjustments
+@media (max-width: 1024px) {
+  .breadcrumb-section {
+    position: relative;
+    top: 0;
+  }
 }

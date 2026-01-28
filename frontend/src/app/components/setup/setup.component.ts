@@ -1,8 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { SidebarService } from '../../services/sidebar.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { Subscription } from 'rxjs';
 
 interface SetupStats {
   totalUsers: number;
@@ -22,21 +24,32 @@ interface SetupStats {
   templateUrl: './setup.component.html',
   styleUrls: ['./setup.component.scss']
 })
-export class SetupComponent implements OnInit {
+export class SetupComponent implements OnInit, OnDestroy {
   stats: SetupStats | null = null;
   currentUser: any = null;
   currentYear: number = new Date().getFullYear();
   loading = true;
   error = false;
+  isSidebarCollapsed = false;
+  
+  private sidebarSubscription!: Subscription;
 
   constructor(
     private http: HttpClient,
     private authService: AuthService,
+    private sidebarService: SidebarService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     console.log('SetupComponent ngOnInit');
+    
+    // Subscribe to sidebar state changes
+    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
+      this.isSidebarCollapsed = isCollapsed;
+      this.cdr.detectChanges();
+    });
+
     this.authService.currentUser$.subscribe(user => {
       console.log('SetupComponent currentUser subscription:', user);
       this.currentUser = user;
@@ -44,6 +57,12 @@ export class SetupComponent implements OnInit {
         this.loadDashboard();
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.sidebarSubscription) {
+      this.sidebarSubscription.unsubscribe();
+    }
   }
 
   loadDashboard() {
@@ -83,11 +102,6 @@ export class SetupComponent implements OnInit {
   }
 
   toggleSidebar() {
-    // This will be used to toggle sidebar on mobile
-    // You can implement a service or use ViewChild to communicate with sidebar
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
-      sidebar.classList.toggle('mobile-open');
-    }
+    this.sidebarService.toggle();
   }
 }

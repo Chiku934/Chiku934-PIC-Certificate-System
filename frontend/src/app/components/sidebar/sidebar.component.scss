@@ -2,7 +2,6 @@
 $sidebar-width: 260px;
 $sidebar-collapsed-width: 70px;
 $sidebar-bg: #ffffff;
-$sidebar-hover: #22c55e;
 $text-primary: #1f2937;
 $text-secondary: #6b7280;
 $border-color: #e5e7eb;
@@ -15,12 +14,9 @@ $danger-color: #ef4444;
   width: $sidebar-width;
   height: 100vh;
   background: $sidebar-bg;
-  position: fixed;
-  left: 0;
-  top: 0;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   overflow-y: auto;
   overflow-x: hidden;
@@ -44,9 +40,22 @@ $danger-color: #ef4444;
     }
   }
 
+  // Desktop: Always visible
+  @media (min-width: 1025px) {
+    position: relative;
+    transform: none;
+    box-shadow: $card-shadow;
+  }
+
+  // Mobile: Hidden by default, slides in
   @media (max-width: 1024px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
     transform: translateX(-100%);
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
 
     &.mobile-open {
       transform: translateX(0);
@@ -74,6 +83,34 @@ $danger-color: #ef4444;
       justify-content: center;
       padding-left: 0;
       padding-right: 0;
+    }
+  }
+
+  // Active link styles
+  .nav-link.active {
+    background: #f3f4f6;
+    color: #1f2937;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #3b82f6;
+      border-radius: 0 3px 3px 0;
+    }
+  }
+
+  // Mobile collapsed state
+  @media (max-width: 1024px) {
+    &.collapsed {
+      transform: translateX(-100%);
+
+      &.mobile-open {
+        transform: translateX(0);
+      }
     }
   }
 }
@@ -139,7 +176,7 @@ $danger-color: #ef4444;
   }
 
   &.active {
-    background: $sidebar-hover;
+    background: #3b82f6;
     color: white;
 
     &::before {
@@ -149,7 +186,7 @@ $danger-color: #ef4444;
       top: 0;
       bottom: 0;
       width: 3px;
-      background: $sidebar-hover;
+      background: #3b82f6;
       border-radius: 0 3px 3px 0;
     }
   }
@@ -217,8 +254,8 @@ $danger-color: #ef4444;
     }
 
     &.active {
-      background: rgba($sidebar-hover, 0.2);
-      color: $sidebar-hover;
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
 
       &::before {
         content: '';
@@ -227,7 +264,7 @@ $danger-color: #ef4444;
         top: 0;
         bottom: 0;
         width: 3px;
-        background: $sidebar-hover;
+        background: #3b82f6;
       }
     }
 

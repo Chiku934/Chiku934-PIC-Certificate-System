@@ -1,8 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
+import { Subscription } from 'rxjs';
 
 interface MenuItem {
   label: string;
@@ -19,9 +20,12 @@ interface MenuItem {
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
-  @Input() isCollapsed = false;
+export class SidebarComponent implements OnInit, OnDestroy {
   currentUser: any = null;
+  isCollapsed = false;
+  isMobileOpen = false;
+  private sidebarSubscription!: Subscription;
+  private mobileSubscription!: Subscription;
 
   menuItems: MenuItem[] = [
     {
@@ -88,6 +92,17 @@ export class SidebarComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
+
+    // Subscribe to sidebar state changes
+    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
+      this.isCollapsed = isCollapsed;
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.sidebarSubscription) {
+      this.sidebarSubscription.unsubscribe();
+    }
   }
 
   toggleSubmenu(item: MenuItem) {

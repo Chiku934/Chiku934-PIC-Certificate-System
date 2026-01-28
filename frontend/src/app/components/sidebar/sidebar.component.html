@@ -1,4 +1,6 @@
-<div class="sidebar" [class.collapsed]="sidebarService.isCollapsed$ | async">
+<div class="sidebar" 
+     [class.collapsed]="isCollapsed"
+     [class.mobile-open]="isMobileOpen">
   <div class="sidebar-header">
     <div class="logo-section">
       <img src="/assets/logos/PIC_Logo-removebg-preview.png" alt="PIC Logo" class="logo">
@@ -43,20 +45,4 @@
       </li>
     </ul>
   </nav>
-
-  <div class="sidebar-footer" *ngIf="currentUser">
-    <div class="user-info" *ngIf="!(sidebarService.isCollapsed$ | async)">
-      <div class="user-avatar">
-        <img [src]="currentUser?.profileImage || '/assets/images/default-profile-icon.png'" [alt]="currentUser?.firstName">
-      </div>
-      <div class="user-details">
-        <span class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
-        <span class="user-role">{{ currentUser?.role || 'User' }}</span>
-      </div>
-    </div>
-    <button class="logout-btn" (click)="logout()" [title]="(sidebarService.isCollapsed$ | async) ? 'Logout' : ''">
-      <i class="fas fa-sign-out-alt"></i>
-      <span *ngIf="!(sidebarService.isCollapsed$ | async)">Logout</span>
-    </button>
-  </div>
 </div>

@@ -20,40 +20,81 @@
   justify-content: space-between;
 }
 
-.logo-section {
+// Hamburger Section
+.hamburger-section {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
 
-  .sidebar-toggle {
-    background: transparent;
-    border: none;
-    padding: 0.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #6b7280;
-    font-size: 1.125rem;
+.hamburger-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: none; /* Hidden on desktop */
+  flex-direction: column;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  position: relative;
 
-    &:hover {
-      background-color: #f3f4f6;
-      color: #374151;
-    }
+  @media (max-width: 1024px) {
+    display: flex; /* Show on mobile */
   }
 
-  .app-title {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1a2332;
-    letter-spacing: -0.025em;
+  &:hover {
+    background-color: #f3f4f6;
+  }
+
+  &.active {
+    .hamburger-line:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    
+    .hamburger-line:nth-child(2) {
+      opacity: 0;
+      transform: scale(0);
+    }
+    
+    .hamburger-line:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
   }
 }
 
+.hamburger-line {
+  width: 24px;
+  height: 2px;
+  background: #6b7280;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+  
+  &:nth-child(2) {
+    width: 18px;
+    margin: 0 auto;
+  }
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a2332;
+  letter-spacing: -0.025em;
+}
+
+// User Section (Desktop only)
 .user-section {
   position: relative;
   display: flex;
   align-items: center;
+
+  @media (max-width: 1024px) {
+    display: none; /* Hide on mobile */
+  }
 }
 
 .user-profile {
@@ -217,7 +258,7 @@
     padding: 0 1rem;
   }
 
-  .logo-section .app-title {
+  .app-title {
     font-size: 1.125rem;
   }
 
@@ -244,7 +285,7 @@
     padding: 0 0.75rem;
   }
 
-  .logo-section .app-title {
+  .app-title {
     font-size: 1rem;
   }
 
