@@ -17,6 +17,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isDropdownOpen = false;
   isMobileOpen = false;
   isLoginPage = false;
+  isSetupPage = false;
   private authSubscription!: Subscription;
   private routerSubscription!: Subscription;
   private sidebarSubscription!: Subscription;
@@ -34,6 +35,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.routerSubscription = this.router.events.subscribe(() => {
       this.isLoginPage = this.router.url === '/login';
+      this.isSetupPage = this.router.url.includes('/setup');
     });
 
     // Subscribe to sidebar state changes

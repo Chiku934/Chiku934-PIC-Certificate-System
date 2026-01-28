@@ -1,19 +1,75 @@
 <!-- Layout Wrapper -->
 <div class="layout-wrapper">
-  <!-- Sidebar - Only show on setup pages -->
-  <app-sidebar *ngIf="showSidebar()"></app-sidebar>
-  
-  <!-- Main Layout Container -->
-  <div class="layout-container" [class.no-sidebar]="!showSidebar()">
-    <!-- Header -->
-    <app-header></app-header>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-      <router-outlet />
-    </main>
-    
-    <!-- Footer -->
-    <app-footer></app-footer>
+  <!-- Sidebar Layout - Only for setup pages -->
+  <div class="sidebar-layout" *ngIf="showSidebar()">
+    <!-- Layout Container acts as sidebar -->
+    <div class="layout-container sidebar-mode">
+      <div class="sidebar-content">
+        <div class="sidebar-header">
+          <div class="logo-section">
+            <img src="/assets/logos/PIC_Logo-removebg-preview.png" alt="PIC Logo" class="logo">
+            <span class="logo-text" *ngIf="!(sidebarService.isCollapsed$ | async)">PIC Certificate</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <ul class="nav-list">
+            <li *ngFor="let item of menuItems" class="nav-item">
+              <a
+                *ngIf="!item.children"
+                [routerLink]="item.route"
+                class="nav-link"
+                [class.active]="isActive(item.route!)">
+                <i [class]="item.icon" class="nav-icon"></i>
+                <span class="nav-text" *ngIf="!(sidebarService.isCollapsed$ | async)">{{ item.label }}</span>
+              </a>
+
+              <div *ngIf="item.children" class="nav-item-group">
+                <a
+                  href="javascript:void(0)"
+                  class="nav-link nav-link-group"
+                  (click)="toggleSubmenu(item)">
+                  <i [class]="item.icon" class="nav-icon"></i>
+                <span class="nav-text" *ngIf="!(sidebarService.isCollapsed$ | async)">{{ item.label }}</span>
+                <i class="fas fa-chevron-down toggle-icon" [class.rotated]="item.isExpanded" *ngIf="!(sidebarService.isCollapsed$ | async)"></i>
+                </a>
+
+                <ul class="submenu" [class.expanded]="item.isExpanded">
+                  <li *ngFor="let child of item.children" class="submenu-item">
+                    <a
+                      [routerLink]="child.route"
+                      class="submenu-link"
+                      [class.active]="isActive(child.route!)">
+                      <i [class]="child.icon" class="submenu-icon"></i>
+                      <span class="submenu-text">{{ child.label }}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content Area for setup pages -->
+    <div class="main-content-area">
+      <app-header></app-header>
+      <main class="main-content">
+        <router-outlet />
+      </main>
+      <app-footer></app-footer>
+    </div>
+  </div>
+
+  <!-- Normal Layout - For non-setup pages -->
+  <div class="normal-layout" *ngIf="!showSidebar()">
+    <div class="layout-container no-sidebar">
+      <app-header></app-header>
+      <main class="main-content">
+        <router-outlet />
+      </main>
+      <app-footer></app-footer>
+    </div>
   </div>
 </div>

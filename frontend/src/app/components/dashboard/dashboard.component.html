@@ -1,21 +1,19 @@
 <div class="dashboard">
   <main class="dashboard-content">
-    <div class="apps container" *ngIf="applications && applications.length > 0">
-      <div class="apps">
-        <div role="listbox" class="row user-select-none">
-          <div 
-            *ngFor="let app of applications; trackBy: trackByAppId" 
-            class="app-card" 
-            (click)="navigateToApp(app)"
-            role="option"
-            tabindex="0"
-            [attr.aria-label]="app.ApplicationName">
-            <img 
-              class="app-icon" 
-              [src]="app.IconImageUrl || '/assets/default-app-icon.png'" 
-              [alt]="app.ApplicationName">
-            <div class="app-name">{{ app.ApplicationName }}</div>
-          </div>
+    <div class="apps" *ngIf="applications && applications.length > 0">
+      <div role="listbox" class="row user-select-none">
+        <div 
+          *ngFor="let app of applications; trackBy: trackByAppId" 
+          class="app-card" 
+          (click)="navigateToApp(app)"
+          role="option"
+          tabindex="0"
+          [attr.aria-label]="app.ApplicationName">
+          <img 
+            class="app-icon" 
+            [src]="app.IconImageUrl || '/assets/default-app-icon.png'" 
+            [alt]="app.ApplicationName">
+          <div class="app-name">{{ app.ApplicationName }}</div>
         </div>
       </div>
     </div>
