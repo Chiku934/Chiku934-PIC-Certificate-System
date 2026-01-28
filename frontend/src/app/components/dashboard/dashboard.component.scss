@@ -34,7 +34,7 @@
     max-height: 90%;
     flex-wrap: wrap;
     width: 100%;
-    max-width: 1000px;
+    max-width: 900px; /* Reduced width for 3 apps */
   }
 
   .app-card {
@@ -44,8 +44,8 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    width: 160px;
-    height: 160px;
+    width: 180px; /* Medium size */
+    height: 180px; /* Medium size */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -92,8 +92,8 @@
     }
 
     .app-icon {
-      width: 100px;
-      height: 100px;
+      width: 110px; /* Larger icon for medium cards */
+      height: 110px;
       object-fit: contain;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       filter: brightness(0.9);
@@ -103,7 +103,7 @@
     .app-name {
       font-weight: 700;
       color: #374151;
-      font-size: 0.9rem;
+      font-size: 1rem; /* Slightly larger text */
       text-align: center;
       margin-top: 0.75rem;
       line-height: 1.3;

@@ -20,9 +20,9 @@ interface SetupStats {
 @Component({
   selector: 'app-setup',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule],
   templateUrl: './setup.component.html',
-  styleUrls: ['./setup.component.scss']
+  styleUrl: './setup.component.scss'
 })
 export class SetupComponent implements OnInit, OnDestroy {
   stats: SetupStats | null = null;
