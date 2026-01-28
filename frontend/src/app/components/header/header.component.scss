@@ -9,14 +9,8 @@
   z-index: 1200; /* Higher than sidebar navigation */
   height: 50px;
 
-  /* Adjust for sidebar on large desktop */
-  @media (min-width: 1400px) {
-    left: 260px; /* Offset by sidebar width */
-    width: calc(100% - 260px);
-  }
-
-  /* Adjust for sidebar on laptop/medium screens when open */
-  @media (min-width: 1025px) and (max-width: 1399px) {
+  /* Adjust for sidebar on all larger screens when open */
+  @media (min-width: 1025px) {
     /* Header stays full width, content adjusts when sidebar is open */
   }
 }

@@ -67,20 +67,8 @@
         transform: translateX(0);
       }
 
-      /* Desktop adjustments - sidebar always visible but content adjusts */
-      @media (min-width: 1400px) {
-        position: fixed;
-        transform: translateX(0);
-        z-index: 999; /* Lower than header */
-        
-        /* Content area should adjust for sidebar */
-        ~ .main-content-area {
-          margin-left: 260px;
-        }
-      }
-
-      /* Laptop/Medium screens - sidebar controllable */
-      @media (min-width: 1025px) and (max-width: 1399px) {
+      /* All larger screens - sidebar controllable by hamburger */
+      @media (min-width: 1025px) {
         position: fixed;
         z-index: 999; /* Lower than header */
         
