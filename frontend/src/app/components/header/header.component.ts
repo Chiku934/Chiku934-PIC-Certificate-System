@@ -121,13 +121,62 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getGreeting(): string {
     const currentHour = new Date().getHours();
+    let greeting = '';
     
     if (currentHour < 12) {
-      return 'Good Morning';
+      greeting = 'Good Morning';
     } else if (currentHour < 17) {
-      return 'Good Afternoon';
+      greeting = 'Good Afternoon';
     } else {
-      return 'Good Evening';
+      greeting = 'Good Evening';
     }
+
+    // Add user role if available
+    if (this.currentUser) {
+      // Try to get role from different possible properties
+      const role = this.currentUser.role || 
+                   this.currentUser.userRole || 
+                   this.currentUser.roleName || 
+                   this.currentUser.userType || 
+                   'User';
+      
+      // Format role with proper capitalization
+      const formattedRole = this.formatRole(role);
+      return `${greeting}, ${formattedRole}`;
+    }
+    
+    return greeting;
+  }
+
+  private formatRole(role: string): string {
+    if (!role) return 'User';
+    
+    // Convert to title case and handle common role variations
+    const roleStr = role.toString().toLowerCase();
+    
+    // Common role mappings
+    const roleMap: { [key: string]: string } = {
+      'admin': 'Admin',
+      'administrator': 'Administrator',
+      'superadmin': 'Super Admin',
+      'super-admin': 'Super Admin',
+      'super_admin': 'Super Admin',
+      'user': 'User',
+      'viewer': 'Viewer',
+      'editor': 'Editor',
+      'manager': 'Manager',
+      'supervisor': 'Supervisor'
+    };
+
+    // Check if we have a mapped role
+    if (roleMap[roleStr]) {
+      return roleMap[roleStr];
+    }
+
+    // Default title case formatting
+    return roleStr
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 }
