@@ -1,8 +1,8 @@
-<div class="sidebar" [class.collapsed]="isCollapsed">
+<div class="sidebar" [class.collapsed]="sidebarService.isCollapsed$ | async">
   <div class="sidebar-header">
     <div class="logo-section">
       <img src="/assets/logos/PIC_Logo-removebg-preview.png" alt="PIC Logo" class="logo">
-      <span class="logo-text" *ngIf="!isCollapsed">PIC Certificate</span>
+      <span class="logo-text" *ngIf="!(sidebarService.isCollapsed$ | async)">PIC Certificate</span>
     </div>
   </div>
 
@@ -15,7 +15,7 @@
           class="nav-link"
           [class.active]="isActive(item.route!)">
           <i [class]="item.icon" class="nav-icon"></i>
-          <span class="nav-text" *ngIf="!isCollapsed">{{ item.label }}</span>
+          <span class="nav-text" *ngIf="!(sidebarService.isCollapsed$ | async)">{{ item.label }}</span>
         </a>
 
         <div *ngIf="item.children" class="nav-item-group">
@@ -24,8 +24,8 @@
             class="nav-link nav-link-group"
             (click)="toggleSubmenu(item)">
             <i [class]="item.icon" class="nav-icon"></i>
-            <span class="nav-text" *ngIf="!isCollapsed">{{ item.label }}</span>
-            <i class="fas fa-chevron-down toggle-icon" [class.rotated]="item.isExpanded" *ngIf="!isCollapsed"></i>
+          <span class="nav-text" *ngIf="!(sidebarService.isCollapsed$ | async)">{{ item.label }}</span>
+          <i class="fas fa-chevron-down toggle-icon" [class.rotated]="item.isExpanded" *ngIf="!(sidebarService.isCollapsed$ | async)"></i>
           </a>
 
           <ul class="submenu" [class.expanded]="item.isExpanded">
@@ -45,7 +45,7 @@
   </nav>
 
   <div class="sidebar-footer" *ngIf="currentUser">
-    <div class="user-info" *ngIf="!isCollapsed">
+    <div class="user-info" *ngIf="!(sidebarService.isCollapsed$ | async)">
       <div class="user-avatar">
         <img [src]="currentUser?.profileImage || '/assets/images/default-profile-icon.png'" [alt]="currentUser?.firstName">
       </div>
@@ -54,9 +54,9 @@
         <span class="user-role">{{ currentUser?.role || 'User' }}</span>
       </div>
     </div>
-    <button class="logout-btn" (click)="logout()" [title]="isCollapsed ? 'Logout' : ''">
+    <button class="logout-btn" (click)="logout()" [title]="(sidebarService.isCollapsed$ | async) ? 'Logout' : ''">
       <i class="fas fa-sign-out-alt"></i>
-      <span *ngIf="!isCollapsed">Logout</span>
+      <span *ngIf="!(sidebarService.isCollapsed$ | async)">Logout</span>
     </button>
   </div>
 </div>

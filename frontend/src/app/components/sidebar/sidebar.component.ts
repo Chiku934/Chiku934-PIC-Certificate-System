@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SidebarService } from '../../services/sidebar.service';
 
 interface MenuItem {
   label: string;
@@ -79,7 +80,8 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    public sidebarService: SidebarService
   ) {}
 
   ngOnInit() {

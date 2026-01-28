@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SidebarService } from '../../services/sidebar.service';
 import { filter, Subscription } from 'rxjs';
 
 @Component({
@@ -20,7 +21,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    public sidebarService: SidebarService
   ) {}
 
   ngOnInit() {
@@ -50,6 +52,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  toggleSidebar() {
+    this.sidebarService.toggle();
   }
 
   closeDropdown() {

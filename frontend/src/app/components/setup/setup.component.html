@@ -114,95 +114,83 @@
 
             <!-- Stats Section -->
             <div class="stats-section">
+              <div class="stats-grid">
+                <!-- User Stats -->
+                <div class="stat-item">
+                  <div class="stat-icon blue">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.totalUsers }}</h3>
+                    <p>Total Users</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon purple">
+                    <i class="fas fa-user-cog"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.systemUsers }}</h3>
+                    <p>System Users</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon green">
+                    <i class="fas fa-user-check"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.activeUsers }}</h3>
+                    <p>Active Users</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon red">
+                    <i class="fas fa-user-times"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.inactiveUsers }}</h3>
+                    <p>Inactive Users</p>
+                  </div>
+                </div>
 
-              <!-- User Stats -->
-              <div class="card stats-card">
-                <div class="card-body">
-                  <div class="stats-grid">
-                    <div class="stat-item">
-                      <div class="stat-icon blue">
-                        <i class="fas fa-users"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.totalUsers }}</h3>
-                        <p>Total Users</p>
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <div class="stat-icon purple">
-                        <i class="fas fa-user-cog"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.systemUsers }}</h3>
-                        <p>System Users</p>
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <div class="stat-icon green">
-                        <i class="fas fa-user-check"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.activeUsers }}</h3>
-                        <p>Active Users</p>
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <div class="stat-icon red">
-                        <i class="fas fa-user-times"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.inactiveUsers }}</h3>
-                        <p>Inactive Users</p>
-                      </div>
-                    </div>
+                <!-- Configuration Stats -->
+                <div class="stat-item">
+                  <div class="stat-icon orange">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.companyConfigured ? '1' : '0' }}</h3>
+                    <p>Company</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon teal">
+                    <i class="fas fa-file-alt"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.letterHeadConfigured ? '1' : '0' }}</h3>
+                    <p>Letter Head</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon indigo">
+                    <i class="fas fa-globe"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.emailDomains }}</h3>
+                    <p>Email Domains</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon pink">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3>{{ stats.emailAccounts }}</h3>
+                    <p>Email Accounts</p>
                   </div>
                 </div>
               </div>
-
-              <!-- Configuration Stats -->
-              <div class="card stats-card">
-                <div class="card-body">
-                  <div class="stats-grid">
-                    <div class="stat-item">
-                      <div class="stat-icon orange">
-                        <i class="fas fa-building"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.companyConfigured ? '1' : '0' }}</h3>
-                        <p>Company</p>
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <div class="stat-icon teal">
-                        <i class="fas fa-file-alt"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.letterHeadConfigured ? '1' : '0' }}</h3>
-                        <p>Letter Head</p>
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <div class="stat-icon indigo">
-                        <i class="fas fa-globe"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.emailDomains }}</h3>
-                        <p>Email Domains</p>
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <div class="stat-icon pink">
-                        <i class="fas fa-envelope"></i>
-                      </div>
-                      <div class="stat-details">
-                        <h3>{{ stats.emailAccounts }}</h3>
-                        <p>Email Accounts</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>

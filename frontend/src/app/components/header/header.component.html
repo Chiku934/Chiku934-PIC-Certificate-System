@@ -1,6 +1,9 @@
 <header class="app-header" *ngIf="currentUser && !isLoginPage">
   <div class="header-content">
     <div class="logo-section">
+      <button class="sidebar-toggle" (click)="toggleSidebar()" [title]="(sidebarService.isCollapsed$ | async) ? 'Expand Sidebar' : 'Collapse Sidebar'">
+        <i class="fas fa-bars"></i>
+      </button>
       <h1 class="app-title">PIC Certificate System</h1>
     </div>
 

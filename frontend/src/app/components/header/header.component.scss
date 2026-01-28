@@ -21,6 +21,26 @@
 }
 
 .logo-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  .sidebar-toggle {
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6b7280;
+    font-size: 1.125rem;
+
+    &:hover {
+      background-color: #f3f4f6;
+      color: #374151;
+    }
+  }
+
   .app-title {
     margin: 0;
     font-size: 1.25rem;
