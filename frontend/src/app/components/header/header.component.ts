@@ -21,12 +21,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private authSubscription!: Subscription;
   private routerSubscription!: Subscription;
   private sidebarSubscription!: Subscription;
+  public sidebarService: SidebarService;
 
   constructor(
     private authService: AuthService,
-    private sidebarService: SidebarService,
+    sidebarService: SidebarService,
     private router: Router
-  ) {}
+  ) {
+    this.sidebarService = sidebarService;
+  }
 
   ngOnInit() {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
@@ -57,11 +60,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleSidebar() {
-    // Toggle mobile sidebar state
-    this.isMobileOpen = !this.isMobileOpen;
-    
-    // Also toggle the service state for desktop
+    console.log('Hamburger button clicked - toggling sidebar');
+    // Toggle the service state (this will handle both mobile and desktop)
     this.sidebarService.toggle();
+    
+    // Debug hamburger button state
+    setTimeout(() => {
+      const hamburgerBtn = document.querySelector('.hamburger-btn');
+      if (hamburgerBtn) {
+        console.log('Hamburger button found');
+        console.log('Has active class:', hamburgerBtn.classList.contains('active'));
+        console.log('All classes:', hamburgerBtn.classList);
+      } else {
+        console.log('Hamburger button NOT found');
+      }
+    }, 100);
   }
 
   toggleDropdown() {

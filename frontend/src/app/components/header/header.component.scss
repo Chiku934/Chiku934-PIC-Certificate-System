@@ -6,8 +6,14 @@
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 1100; /* Higher than sidebar navigation */
   height: 50px;
+
+  /* Adjust for sidebar on desktop */
+  @media (min-width: 1025px) {
+    left: 260px; /* Offset by sidebar width */
+    width: calc(100% - 260px);
+  }
 }
 
 .header-content {

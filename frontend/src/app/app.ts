@@ -4,14 +4,14 @@ import { Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
+
 import { SidebarService } from './services/sidebar.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, RouterLink, HeaderComponent, FooterComponent, SidebarComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, HeaderComponent, FooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -73,6 +73,36 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       const pageTitle = route?.snapshot?.data?.['title'] || '';
       const fullTitle = pageTitle ? `ERP - ${pageTitle}` : 'ERP - My Applications';
       this.titleService.setTitle(fullTitle);
+    });
+
+    // Debug sidebar state changes
+    this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
+      console.log('Sidebar state changed:', isCollapsed);
+      
+      // Debug CSS class application
+      setTimeout(() => {
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        if (sidebarNav) {
+          console.log('Sidebar nav element found');
+          console.log('Has mobile-open class:', sidebarNav.classList.contains('mobile-open'));
+          console.log('All classes:', sidebarNav.classList);
+          
+          // Debug computed styles
+          const styles = window.getComputedStyle(sidebarNav);
+          console.log('Computed transform:', styles.transform);
+          console.log('Computed position:', styles.position);
+          console.log('Computed left:', styles.left);
+          console.log('Computed top:', styles.top);
+          console.log('Computed z-index:', styles.zIndex);
+          
+          // Check screen size
+          const isMobile = window.innerWidth <= 1024;
+          console.log('Is mobile viewport (<=1024px):', isMobile);
+          console.log('Current window width:', window.innerWidth);
+        } else {
+          console.log('Sidebar nav element NOT found');
+        }
+      }, 100);
     });
   }
 

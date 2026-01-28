@@ -3,7 +3,7 @@
     <!-- Left Section: Hamburger & Greeting -->
     <div class="left-section">
       <div class="hamburger-section">
-        <button class="hamburger-btn" (click)="toggleSidebar()" [title]="isMobileOpen ? 'Close Menu' : 'Open Menu'" [class.active]="isMobileOpen">
+        <button class="hamburger-btn" (click)="toggleSidebar()" [title]="(sidebarService.isCollapsed$ | async) ? 'Close Menu' : 'Open Menu'" [class.active]="(sidebarService.isCollapsed$ | async)">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
