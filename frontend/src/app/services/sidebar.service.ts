@@ -14,17 +14,25 @@ export class SidebarService {
       window.addEventListener('resize', () => {
         // Only auto-adjust on larger screens, not mobile
         if (window.innerWidth >= 1025) {
-          this.isCollapsedSubject.next(this.getDefaultState());
+          const newState = this.getDefaultState();
+          console.log(`Window resized to ${window.innerWidth}px, setting sidebar state to: ${newState ? 'collapsed' : 'expanded'}`);
+          this.isCollapsedSubject.next(newState);
         }
       });
     }
+    
+    // Log initial state
+    const initialState = this.getDefaultState();
+    console.log(`Initial sidebar state: ${initialState ? 'collapsed' : 'expanded'} (screen width: ${typeof window !== 'undefined' ? window.innerWidth : 'unknown'}px)`);
   }
 
   private getDefaultState(): boolean {
-    // On larger screens (laptop and desktop), start with sidebar expanded (collapsed = false)
-    // On mobile, start with sidebar collapsed (collapsed = true)
+    // On larger screens (1200px and above), start with sidebar expanded (collapsed = false)
+    // On smaller screens, start with sidebar collapsed (collapsed = true)
     if (typeof window !== 'undefined') {
-      return window.innerWidth < 1025;
+      const isSmallScreen = window.innerWidth < 1200;
+      console.log(`Screen width: ${window.innerWidth}px, isSmallScreen: ${isSmallScreen}, returning: ${isSmallScreen}`);
+      return isSmallScreen;
     }
     return true; // Default to collapsed for SSR
   }

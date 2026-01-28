@@ -95,10 +95,14 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
           console.log('Computed top:', styles.top);
           console.log('Computed z-index:', styles.zIndex);
           
-          // Check screen size
-          const isMobile = window.innerWidth <= 1024;
-          console.log('Is mobile viewport (<=1024px):', isMobile);
+          // Check if we're in the correct media query
+          const isLargeScreen = window.innerWidth >= 1025;
+          console.log('Is large screen (>=1025px):', isLargeScreen);
           console.log('Current window width:', window.innerWidth);
+          
+          // Check if sidebar should be visible
+          const shouldBeVisible = window.innerWidth >= 1366;
+          console.log('Should be visible (>=1366px):', shouldBeVisible);
         } else {
           console.log('Sidebar nav element NOT found');
         }

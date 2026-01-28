@@ -3,7 +3,7 @@
   <!-- Layout Container - Now acts as dynamic sidebar for setup pages -->
   <div class="layout-container" [class.with-sidebar]="showSidebar()">
     <!-- Sidebar Navigation for Setup Pages -->
-    <div class="sidebar-nav" *ngIf="showSidebar()" [class.mobile-open]="sidebarService.isCollapsed$ | async">
+    <div class="sidebar-nav" *ngIf="showSidebar()" [class.mobile-open]="!(sidebarService.isCollapsed$ | async)">
       <div class="sidebar-header">
         <div class="nav-title">
           <span class="title-text">Setup Navigation</span>
