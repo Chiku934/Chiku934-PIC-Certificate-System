@@ -61,14 +61,14 @@
       left: 0;
       transform: translateX(-100%);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1000;
+      z-index: 999; /* Lower than header */
 
       &.mobile-open {
         transform: translateX(0);
       }
 
       /* Desktop adjustments - sidebar always visible but content adjusts */
-      @media (min-width: 1025px) {
+      @media (min-width: 1400px) {
         position: fixed;
         transform: translateX(0);
         z-index: 999; /* Lower than header */
@@ -77,6 +77,24 @@
         ~ .main-content-area {
           margin-left: 260px;
         }
+      }
+
+      /* Laptop/Medium screens - sidebar controllable */
+      @media (min-width: 1025px) and (max-width: 1399px) {
+        position: fixed;
+        z-index: 999; /* Lower than header */
+        
+        /* Content area should adjust when sidebar is open */
+        &.mobile-open ~ .main-content-area {
+          margin-left: 260px;
+        }
+      }
+
+      /* Mobile adjustments - ensure header remains accessible */
+      @media (max-width: 1024px) {
+        z-index: 999; /* Lower than header */
+        top: 50px; /* Below header */
+        height: calc(100vh - 50px); /* Account for header height */
       }
     }
 
