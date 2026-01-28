@@ -1,6 +1,6 @@
 <header class="app-header" *ngIf="currentUser && !isLoginPage">
   <div class="header-content">
-    <!-- Left Section: Hamburger & Title -->
+    <!-- Left Section: Hamburger & Greeting -->
     <div class="left-section">
       <div class="hamburger-section">
         <button class="hamburger-btn" (click)="toggleSidebar()" [title]="isMobileOpen ? 'Close Menu' : 'Open Menu'" [class.active]="isMobileOpen">
@@ -9,7 +9,10 @@
           <span class="hamburger-line"></span>
         </button>
       </div>
-      <h1 class="app-title">PIC Certificate System</h1>
+      <div class="greeting-section">
+        <h2 class="greeting-text">{{ getGreeting() }}</h2>
+        <span class="user-role" *ngIf="currentUser?.role">{{ currentUser.role }}</span>
+      </div>
     </div>
 
     <!-- Right Section: User Profile -->
@@ -18,7 +21,7 @@
         <div class="user-profile" (click)="toggleDropdown()" [class.active]="isDropdownOpen">
           <div class="profile-image">
             <img [src]="getProfileImageUrl()" [alt]="currentUser?.firstName || 'User'" class="user-avatar" (error)="onImageError($event)">
-            <div class="user-initials" *ngIf="!hasProfileImage">
+            <div class="user-initials" *ngIf="!currentUser?.profileImage || currentUser?.profileImage === '/assets/images/default-profile-icon.png'">
               {{ getUserInitials() }}
             </div>
           </div>

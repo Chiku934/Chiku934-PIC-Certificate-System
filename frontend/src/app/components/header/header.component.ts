@@ -83,9 +83,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getUserInitials(): string {
     if (!this.currentUser) return '';
-    const firstName = this.currentUser.firstName || '';
-    const lastName = this.currentUser.lastName || '';
-    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    const firstName = this.currentUser.firstName || this.currentUser.username || '';
+    if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    }
+    return 'U'; // Default initial if no name available
   }
 
   hasProfileImage(): boolean {
@@ -98,8 +100,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.closeDropdown();
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  getGreeting(): string {
+    const currentHour = new Date().getHours();
+    
+    if (currentHour < 12) {
+      return 'Good Morning';
+    } else if (currentHour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
   }
 }

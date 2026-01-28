@@ -89,12 +89,27 @@
   }
 }
 
-.app-title {
+// Greeting Section
+.greeting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.greeting-text {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #1a2332;
   letter-spacing: -0.025em;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 // User Section (Always visible)
@@ -133,9 +148,11 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: cover; /* Automatically resize image to fit */
   border: 2px solid #e5e7eb;
   transition: border-color 0.2s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .user-initials {
@@ -153,6 +170,7 @@
   font-weight: 600;
   font-size: 0.875rem;
   border: 2px solid #e5e7eb;
+  z-index: 2; /* Ensure initials are on top when no image */
 }
 
 .user-info {
