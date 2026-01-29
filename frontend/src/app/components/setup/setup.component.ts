@@ -42,12 +42,6 @@ export class SetupComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Subscribe to sidebar state changes
-    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
-      this.isSidebarCollapsed = isCollapsed;
-      this.cdr.detectChanges();
-    });
-
     // Subscribe to user data changes first
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
@@ -62,6 +56,14 @@ export class SetupComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+
+    // Subscribe to sidebar state changes after user data is handled
+    setTimeout(() => {
+      this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
+        this.isSidebarCollapsed = isCollapsed;
+        this.cdr.detectChanges();
+      });
+    }, 0);
 
     // Also try to load dashboard immediately in case user data is already available
     const currentUser = this.authService.getCurrentUser();
