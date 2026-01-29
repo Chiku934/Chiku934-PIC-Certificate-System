@@ -36,10 +36,10 @@
         <ul class="nav-list">
           <li *ngFor="let item of menuItems" class="nav-item">
             <a
-              *ngIf="!item.children"
+              *ngIf="!item.children && item.route"
               [routerLink]="item.route"
               class="nav-link"
-              [class.active]="isActive(item.route!)">
+              [class.active]="isActive(item.route)">
               <i [class]="item.icon" class="nav-icon"></i>
               <span class="nav-text">{{ item.label }}</span>
             </a>
@@ -57,12 +57,36 @@
               <ul class="submenu" [class.expanded]="item.isExpanded">
                 <li *ngFor="let child of item.children" class="submenu-item">
                   <a
+                    *ngIf="!child.children && child.route"
                     [routerLink]="child.route"
                     class="submenu-link"
-                    [class.active]="isActive(child.route!)">
+                    [class.active]="child.route ? isActive(child.route) : false">
                     <i [class]="child.icon" class="submenu-icon"></i>
                     <span class="submenu-text">{{ child.label }}</span>
                   </a>
+
+                  <div *ngIf="child.children" class="submenu-item-group">
+                    <a
+                      href="javascript:void(0)"
+                      class="submenu-link submenu-link-group"
+                      (click)="toggleSubmenu(child)">
+                      <i [class]="child.icon" class="submenu-icon"></i>
+                      <span class="submenu-text">{{ child.label }}</span>
+                      <i class="fas fa-chevron-down toggle-icon" [class.rotated]="child.isExpanded"></i>
+                    </a>
+
+                    <ul class="sub-submenu" [class.expanded]="child.isExpanded">
+                      <li *ngFor="let grandchild of child.children" class="sub-submenu-item">
+                        <a
+                          [routerLink]="grandchild.route"
+                          class="sub-submenu-link"
+                          [class.active]="grandchild.route ? isActive(grandchild.route) : false">
+                          <i [class]="grandchild.icon" class="sub-submenu-icon"></i>
+                          <span class="sub-submenu-text">{{ grandchild.label }}</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
               </ul>
             </div>

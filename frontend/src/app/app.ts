@@ -10,6 +10,15 @@ import { AuthService } from './services/auth.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
+// Menu item interface for TypeScript type safety
+interface MenuItem {
+  label: string;
+  icon: string;
+  route?: string;
+  isExpanded?: boolean;
+  children?: MenuItem[];
+}
+
 @Component({
   selector: 'app-root',
   imports: [CommonModule, RouterOutlet, RouterLink, HeaderComponent, FooterComponent],
@@ -22,40 +31,28 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   public sidebarService: SidebarService;
   currentUser: any = null;
 
-  menuItems = [
+  menuItems: MenuItem[] = [
     {
-      label: 'Dashboard',
+      label: 'Setup',
       icon: 'fas fa-tachometer-alt',
-      route: '/setup'
+      route: '/setup',
+      isExpanded: false
     },
     {
-      label: 'Company Details',
+      label: 'Company Setting',
       icon: 'fas fa-building',
-      route: '/setup/company-details'
-    },
-    {
-      label: 'Equipment',
-      icon: 'fas fa-cogs',
       isExpanded: false,
       children: [
-        { label: 'Equipment List', icon: 'fas fa-list', route: '/setup/equipment' },
-        { label: 'Maintenance Schedule', icon: 'fas fa-calendar-alt', route: '/setup/maintenance' }
+        { label: 'Company', icon: 'fas fa-building', route: '/setup/company' }
       ]
     },
     {
-      label: 'Location',
-      icon: 'fas fa-map-marker-alt',
-      route: '/setup/location'
-    },
-    {
-      label: 'Certificate',
-      icon: 'fas fa-certificate',
-      route: '/setup/certificate'
-    },
-    {
-      label: 'Audit',
-      icon: 'fas fa-clipboard-check',
-      route: '/setup/audit'
+      label: 'User',
+      icon: 'fas fa-users',
+      isExpanded: false,
+      children: [
+        { label: 'User List', icon: 'fas fa-user-friends', route: '/setup/users' }
+      ]
     }
   ];
 
