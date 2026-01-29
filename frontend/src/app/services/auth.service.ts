@@ -31,30 +31,37 @@ export class AuthService {
 
   constructor(private http: HttpClient) {
     const token = localStorage.getItem('access_token');
-    console.log('AuthService constructor - token exists:', !!token);
     if (token) {
-      // Decode token to get user info without API call
-      this.decodeTokenAndSetUser(token);
+      // Decode token to get initial user data
+      const decoded = this.decodeTokenAndSetUser(token);
+      if (decoded) {
+        // Only try to load profile if token decoding succeeded
+        this.loadUserProfile();
+      }
     }
   }
 
-  private decodeTokenAndSetUser(token: string) {
+  private decodeTokenAndSetUser(token: string): boolean {
     try {
       // Simple JWT decode (without verification on client side)
       const payload = JSON.parse(atob(token.split('.')[1]));
-      console.log('Decoded token payload:', payload);
+      
+      // Try different possible field names for username
+      const username = payload.username || payload.name || payload.sub || payload.email;
+      const email = payload.email || payload.sub;
+      
       const user = {
-        id: payload.sub,
-        username: payload.username,
-        email: payload.email,
-        firstName: payload.firstName || null,
-        lastName: payload.lastName || null,
+        id: payload.sub || Date.now(),
+        username: username || 'User',
+        email: email || '',
+        firstName: payload.firstName || payload.given_name || payload.first_name || null,
+        lastName: payload.lastName || payload.family_name || payload.last_name || null,
       };
+      
       this.currentUserSubject.next(user);
-      console.log('User set from token:', user);
+      return true;
     } catch (error) {
-      console.error('Error decoding token:', error);
-      this.logout();
+      return false;
     }
   }
 
@@ -87,21 +94,34 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  // Force reload user profile from server
+  refreshUserProfile(): void {
+    this.loadUserProfile();
+  }
+
   private handleAuthentication(response: LoginResponse): void {
     localStorage.setItem('access_token', response.access_token);
+    // Set user from response first
     this.currentUserSubject.next(response.user);
+    // Then try to load full profile to ensure we have all data
+    this.loadUserProfile();
   }
 
   private loadUserProfile(): void {
-    console.log('Loading user profile...');
+    const token = this.getToken();
+    
     this.http.get<User>(`${this.API_URL}/users/profile`).subscribe({
       next: (user) => {
-        console.log('User profile loaded:', user);
         this.currentUserSubject.next(user);
       },
       error: (error) => {
-        console.log('Error loading user profile:', error);
-        this.logout();
+        // If profile request fails, try to get user from token as fallback
+        // But only if we don't already have valid user data
+        const currentUserData = this.currentUserSubject.value;
+        // Only use fallback if we have no user data or the username is the fallback "User"
+        if (token && (!currentUserData || !currentUserData.username || currentUserData.username === 'User')) {
+          this.decodeTokenAndSetUser(token);
+        }
       }
     });
   }

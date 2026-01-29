@@ -38,11 +38,12 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    console.log('Profile endpoint called (no guard), req.user:', req.user);
+    console.log('Profile endpoint called with guard, req.user:', req.user);
     console.log('Request headers:', req.headers);
-    return { message: 'Profile endpoint works without guard' };
+    return this.userService.getProfile(req.user.Id);
   }
 
   @UseGuards(JwtAuthGuard)

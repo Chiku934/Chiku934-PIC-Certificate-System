@@ -42,19 +42,24 @@ export class SetupComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    console.log('SetupComponent ngOnInit');
-    
     // Subscribe to sidebar state changes
     this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
       this.isSidebarCollapsed = isCollapsed;
       this.cdr.detectChanges();
     });
 
+    // Subscribe to user data changes first
     this.authService.currentUser$.subscribe(user => {
-      console.log('SetupComponent currentUser subscription:', user);
       this.currentUser = user;
-      if (user) {
+      if (user && user.username && user.username !== 'User') {
+        // User data is ready, load dashboard
         this.loadDashboard();
+      } else if (!user) {
+        // No user authenticated
+        this.loading = false;
+        this.error = true;
+        this.stats = null;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -66,28 +71,23 @@ export class SetupComponent implements OnInit, OnDestroy {
   }
 
   loadDashboard() {
-    console.log('loadDashboard called');
     const token = this.authService.getToken();
-    console.log('Token present:', !!token);
     
     if (token) {
-      console.log('Making HTTP request to /api/setup/dashboard');
       this.loading = true;
       this.error = false;
       
+      // Use manual Authorization header to ensure token is sent
       this.http.get<{ stats: SetupStats; user: any }>('/api/setup/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
         next: (response) => {
-          console.log('HTTP request successful, response:', response);
           this.stats = response.stats;
           this.loading = false;
           this.error = false;
-          console.log('Stats set to:', this.stats);
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('Error loading setup dashboard:', error);
           this.loading = false;
           this.error = true;
           this.stats = null;
@@ -95,7 +95,6 @@ export class SetupComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      console.log('No token, setting stats to null');
       this.loading = false;
       this.stats = null;
     }

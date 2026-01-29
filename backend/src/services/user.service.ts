@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -19,11 +23,16 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.userRepository.findOne({
-      where: [{ Email: createUserDto.Email }, { UserName: createUserDto.UserName }],
+      where: [
+        { Email: createUserDto.Email },
+        { UserName: createUserDto.UserName },
+      ],
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email or username already exists');
+      throw new ConflictException(
+        'User with this email or username already exists',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.Password, 10);
@@ -91,7 +100,9 @@ export class UserService {
     }
 
     if (!user.Password) {
-      console.log(`User found but password is null/undefined for email: ${email}`);
+      console.log(
+        `User found but password is null/undefined for email: ${email}`,
+      );
       return null;
     }
 
@@ -129,7 +140,11 @@ export class UserService {
   }
 
   private generateLoginResponse(user: User, rememberMe: boolean = false) {
-    const payload = { email: user.Email, sub: user.Id, username: user.UserName };
+    const payload = {
+      email: user.Email,
+      sub: user.Id,
+      username: user.UserName,
+    };
     const expiresIn = rememberMe ? '30d' : '24h'; // 30 days if remember me, 24 hours otherwise
 
     return {
@@ -160,7 +175,7 @@ export class UserService {
       return [];
     }
 
-    const roleIds = user.UserRoleMappings.map(urm => urm.RoleId);
+    const roleIds = user.UserRoleMappings.map((urm) => urm.RoleId);
     console.log('Role IDs:', roleIds);
 
     // Get parent applications that user has access to
@@ -169,18 +184,24 @@ export class UserService {
       .find({
         where: {
           RoleId: In(roleIds),
-          Application: { Parent: null }
+          Application: { Parent: null },
         },
         relations: ['Application'],
       });
 
     console.log('Permissions found:', permissions.length);
-    permissions.forEach(p => console.log('Permission:', p.ApplicationId, p.Application?.ApplicationName));
+    permissions.forEach((p) =>
+      console.log(
+        'Permission:',
+        p.ApplicationId,
+        p.Application?.ApplicationName,
+      ),
+    );
 
     const applications: Application[] = [];
 
     for (const permission of permissions) {
-      if (!applications.find(app => app.Id === permission.ApplicationId)) {
+      if (!applications.find((app) => app.Id === permission.ApplicationId)) {
         const app = permission.Application;
         app.Children = [];
 
@@ -190,7 +211,7 @@ export class UserService {
           .find({
             where: {
               RoleId: In(roleIds),
-              Application: { Parent: app.Id }
+              Application: { Parent: app.Id },
             },
             relations: ['Application'],
           });
@@ -205,12 +226,14 @@ export class UserService {
             .find({
               where: {
                 RoleId: In(roleIds),
-                Application: { Parent: childApp.Id }
+                Application: { Parent: childApp.Id },
               },
               relations: ['Application'],
             });
 
-          childApp.Children = grandChildPermissions.map(gcp => gcp.Application);
+          childApp.Children = grandChildPermissions.map(
+            (gcp) => gcp.Application,
+          );
           app.Children.push(childApp);
         }
 
@@ -219,5 +242,18 @@ export class UserService {
     }
 
     return applications;
+  }
+
+  async getProfile(userId: number): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { Id: userId },
+      relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
 }

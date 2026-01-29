@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
@@ -18,6 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileOpen = false;
   isLoginPage = false;
   isSetupPage = false;
+  isDashboardPage = false;
   private authSubscription!: Subscription;
   private routerSubscription!: Subscription;
   private sidebarSubscription!: Subscription;
@@ -26,7 +27,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     sidebarService: SidebarService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.sidebarService = sidebarService;
   }
@@ -34,11 +36,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      // Trigger change detection when user data changes
+      this.cdr.detectChanges();
     });
 
     this.routerSubscription = this.router.events.subscribe(() => {
       this.isLoginPage = this.router.url === '/login';
       this.isSetupPage = this.router.url.includes('/setup');
+      this.isDashboardPage = this.router.url === '/dashboard' || this.router.url === '/';
     });
 
     // Subscribe to sidebar state changes
@@ -98,7 +103,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getUserInitials(): string {
     if (!this.currentUser) return '';
-    const firstName = this.currentUser.firstName || this.currentUser.username || '';
+    // Handle both property naming conventions
+    const firstName = this.currentUser.firstName || 
+                     this.currentUser.FirstName || 
+                     this.currentUser.username || 
+                     this.currentUser.UserName || '';
     if (firstName) {
       return firstName.charAt(0).toUpperCase();
     }
@@ -117,6 +126,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  navigateToDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 
   getGreeting(): string {

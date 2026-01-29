@@ -5,8 +5,26 @@
     <!-- Sidebar Navigation for Setup Pages -->
     <div class="sidebar-nav" *ngIf="showSidebar()" [class.mobile-open]="!(sidebarService.isCollapsed$ | async)">
       <div class="sidebar-header">
-        <div class="nav-title">
-          <span class="title-text">Setup Navigation</span>
+        <!-- Profile Section -->
+        <div class="profile-section">
+          <div class="profile-card">
+            <div class="profile-header">
+              <div class="profile-avatar">
+                <img [src]="getProfileImageUrl()" [alt]="currentUser?.firstName || 'User'" class="avatar-img" (error)="onImageError($event)">
+                <div class="avatar-initials" *ngIf="!currentUser?.profileImage || currentUser?.profileImage === '/assets/images/default-profile-icon.png'">
+                  {{ getUserInitials() }}
+                </div>
+              </div>
+              <div class="profile-info">
+                <h3 class="profile-name">{{ currentUser?.firstName || currentUser?.username || 'User' }}</h3>
+                <p class="profile-role">{{ formatRole(currentUser?.role || currentUser?.userRole || currentUser?.roleName || 'User') }}</p>
+                <div class="profile-location" *ngIf="currentUser?.location">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>{{ currentUser.location }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

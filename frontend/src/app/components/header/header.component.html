@@ -2,7 +2,8 @@
   <div class="header-content">
     <!-- Left Section: Hamburger & Greeting -->
     <div class="left-section">
-      <div class="hamburger-section">
+      <!-- Hamburger Button (hidden on dashboard) -->
+      <div class="hamburger-section" *ngIf="!isDashboardPage">
         <button class="hamburger-btn" (click)="toggleSidebar()" [title]="(sidebarService.isCollapsed$ | async) ? 'Close Menu' : 'Open Menu'" [class.active]="(sidebarService.isCollapsed$ | async)">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
@@ -15,8 +16,20 @@
       </div>
     </div>
 
-    <!-- Right Section: User Profile -->
+    <!-- Right Section: Back to Application Button & User Profile -->
     <div class="right-section">
+      <!-- Back to Application Button (hidden on dashboard) -->
+      <div class="back-to-app-section" *ngIf="!isDashboardPage">
+        <button class="back-to-app-btn" (click)="navigateToDashboard()" title="Back to Dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18"/>
+            <path d="M3 12l6 6"/>
+            <path d="M3 12l6 -6"/>
+          </svg>
+          <span>Back to Application</span>
+        </button>
+      </div>
+      
       <div class="user-section">
         <div class="user-profile" (click)="toggleDropdown()" [class.active]="isDropdownOpen">
           <div class="profile-image">
