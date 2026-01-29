@@ -260,13 +260,18 @@ export class UserService {
         (mapping) => mapping.Role?.RoleName || 'User',
       ) || [];
     
+    const displayName = `${user.FirstName || ''} ${user.LastName || ''}`.trim();
+    
     return {
       ...user,
       roles,
+      displayName,
       role: roles[0] || 'User', // For backward compatibility
       userRole: roles[0] || 'User', // For backward compatibility
       roleName: roles[0] || 'User', // For backward compatibility
       userType: roles[0] || 'User', // For backward compatibility
+      Address: user.Address, // Include Address field
+      PhoneNumber: user.PhoneNumber, // Include PhoneNumber field
     };
   }
 

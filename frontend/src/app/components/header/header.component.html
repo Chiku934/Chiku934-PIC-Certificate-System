@@ -33,7 +33,7 @@
       <div class="user-section">
         <div class="user-profile" (click)="toggleDropdown()" [class.active]="isDropdownOpen">
           <div class="profile-image">
-            <img [src]="getProfileImageUrl()" [alt]="currentUser?.firstName || 'User'" class="user-avatar" (error)="onImageError($event)">
+            <img [src]="getProfileImageUrl()" [alt]="getDisplayName()" class="user-avatar" (error)="onImageError($event)">
             <div class="user-initials" *ngIf="!currentUser?.profileImage || currentUser?.profileImage === '/assets/images/default-profile-icon.png'">
               {{ getUserInitials() }}
             </div>

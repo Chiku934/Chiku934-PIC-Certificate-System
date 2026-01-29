@@ -82,6 +82,16 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     // Subscribe to user data changes
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      // Debug: Log the user data to see what's available
+      console.log('App - User data received:', user);
+      console.log('App - firstName:', user?.firstName);
+      console.log('App - lastName:', user?.lastName);
+      console.log('App - displayName:', user?.displayName);
+      console.log('App - username:', user?.username);
+      console.log('App - email:', user?.email);
+      // Log all available properties to see what's actually there
+      console.log('App - All user properties:', Object.keys(user || {}));
+      
       // Trigger change detection when user data changes
       this.cdr.detectChanges();
     });
@@ -182,18 +192,24 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getDisplayName(): string {
-    if (!this.currentUser) return '';
+    if (!this.currentUser) return 'User';
+
+    // Priority 1: Use pre-formatted displayName if available
+    if (this.currentUser.displayName) {
+      return this.currentUser.displayName;
+    }
+
+    // Priority 2: Construct from first/last name
     const firstName = this.currentUser.firstName || this.currentUser.FirstName || '';
     const lastName = this.currentUser.lastName || this.currentUser.LastName || '';
     
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
+    const combinedName = `${firstName} ${lastName}`.trim();
+    if (combinedName) {
+      return combinedName;
     }
-    return 'User';
+
+    // Fallback to username or a default
+    return this.currentUser.username || 'User';
   }
 
   formatRole(role: string): string {

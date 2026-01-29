@@ -73,7 +73,7 @@ export class ApplicationRoleSeeder {
       // Seed Roles
       const roles = [
         { RoleName: 'Administrator' },
-        { RoleName: 'Manager' },
+        { RoleName: 'Admin' },
         { RoleName: 'User' },
       ];
 
@@ -93,7 +93,7 @@ export class ApplicationRoleSeeder {
       }
 
       // Seed Permissions - Give Administrator access to all applications
-      const adminRole = savedRoles.find(r => r.RoleName === 'Administrator');
+      const adminRole = savedRoles.find((r) => r.RoleName === 'Administrator');
       if (adminRole) {
         for (const app of savedApplications) {
           let permission = await this.permissionRepository.findOne({
@@ -111,23 +111,47 @@ export class ApplicationRoleSeeder {
         }
       }
 
-      // Assign admin role to admin user
+      // Assign both Administrator and Admin roles to admin user
       const adminUser = await this.userRepository.findOne({
         where: { Email: 'admin@drs2026.co.in' }
       });
 
-      if (adminUser && adminRole) {
-        let userRoleMapping = await this.userRoleMappingRepository.findOne({
-          where: { UserId: adminUser.Id, RoleId: adminRole.Id }
-        });
+      if (adminUser) {
+        const administratorRole = savedRoles.find(
+          (r) => r.RoleName === 'Administrator',
+        );
+        const adminRole = savedRoles.find((r) => r.RoleName === 'Admin');
 
-        if (!userRoleMapping) {
-          userRoleMapping = this.userRoleMappingRepository.create({
-            UserId: adminUser.Id,
-            RoleId: adminRole.Id,
+        // Assign Administrator role
+        if (administratorRole) {
+          let userRoleMapping = await this.userRoleMappingRepository.findOne({
+            where: { UserId: adminUser.Id, RoleId: administratorRole.Id }
           });
-          await this.userRoleMappingRepository.save(userRoleMapping);
-          this.logger.log('Assigned admin role to admin user');
+
+          if (!userRoleMapping) {
+            userRoleMapping = this.userRoleMappingRepository.create({
+              UserId: adminUser.Id,
+              RoleId: administratorRole.Id,
+            });
+            await this.userRoleMappingRepository.save(userRoleMapping);
+            this.logger.log('Assigned Administrator role to admin user');
+          }
+        }
+
+        // Assign Admin role
+        if (adminRole) {
+          let userRoleMapping = await this.userRoleMappingRepository.findOne({
+            where: { UserId: adminUser.Id, RoleId: adminRole.Id }
+          });
+
+          if (!userRoleMapping) {
+            userRoleMapping = this.userRoleMappingRepository.create({
+              UserId: adminUser.Id,
+              RoleId: adminRole.Id,
+            });
+            await this.userRoleMappingRepository.save(userRoleMapping);
+            this.logger.log('Assigned Admin role to admin user');
+          }
         }
       }
 

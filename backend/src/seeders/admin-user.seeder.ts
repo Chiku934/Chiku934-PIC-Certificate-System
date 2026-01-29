@@ -25,7 +25,17 @@ export class AdminUserSeeder {
       this.logger.log(`Admin user lookup result: ${existingAdmin ? 'Found' : 'Not found'}`);
 
       if (existingAdmin && existingAdmin.Password) {
-        this.logger.log('Admin user already exists with password, skipping seed');
+        this.logger.log(
+          'Admin user already exists with password, updating with new information...',
+        );
+        // Update existing user with new information
+        existingAdmin.FirstName = 'DRS';
+        existingAdmin.LastName = '@2026';
+        existingAdmin.PhoneNumber = '9348178871';
+        existingAdmin.Address = 'Jharkhand';
+        existingAdmin.IsActive = true;
+        await this.userRepository.save(existingAdmin);
+        this.logger.log('Admin user updated with new information successfully');
         return;
       }
 
@@ -52,7 +62,9 @@ export class AdminUserSeeder {
         Email: 'admin@drs2026.co.in',
         Password: hashedPassword,
         FirstName: 'DRS',
+        LastName: '@2026',
         PhoneNumber: '9348178871',
+        Address: 'Jharkhand',
         IsActive: true,
       });
 

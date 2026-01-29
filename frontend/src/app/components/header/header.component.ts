@@ -25,7 +25,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public sidebarService: SidebarService;
 
   constructor(
-    private authService: AuthService,
+    public authService: AuthService,
     sidebarService: SidebarService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -36,6 +36,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      // Debug: Log the user data to see what's available
+      console.log('HeaderComponent - User data received:', user);
+      console.log('HeaderComponent - firstName:', user?.firstName);
+      console.log('HeaderComponent - lastName:', user?.lastName);
+      console.log('HeaderComponent - displayName:', user?.displayName);
+      console.log('HeaderComponent - username:', user?.username);
+      console.log('HeaderComponent - email:', user?.email);
+      
       // Trigger change detection when user data changes
       this.cdr.detectChanges();
     });
@@ -99,36 +107,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onImageError(event: any) {
     event.target.src = '/assets/images/default-profile-icon.png';
-  }
-
-  getUserInitials(): string {
-    if (!this.currentUser) return '';
-    // Handle both property naming conventions and ensure it's a string
-    let firstName = this.currentUser.firstName || 
-                   this.currentUser.FirstName || 
-                   this.currentUser.username || 
-                   this.currentUser.UserName || '';
-    
-    // Ensure firstName is a string and not an object
-    if (firstName && typeof firstName === 'string') {
-      return firstName.charAt(0).toUpperCase();
-    }
-    return 'U'; // Default initial if no name available
-  }
-
-  getDisplayName(): string {
-    if (!this.currentUser) return '';
-    const firstName = this.currentUser.firstName || this.currentUser.FirstName || '';
-    const lastName = this.currentUser.lastName || this.currentUser.LastName || '';
-    
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
-    }
-    return 'User';
   }
 
   hasProfileImage(): boolean {
@@ -208,5 +186,64 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  }
+
+  getDisplayName(): string {
+    if (!this.currentUser) {
+      return 'User';
+    }
+    
+    // Priority 1: Use pre-formatted displayName if available (highest priority)
+    if (this.currentUser.displayName) {
+      return this.currentUser.displayName;
+    }
+    
+    // Priority 2: Try to get full name from different possible properties
+    const firstName = this.currentUser.firstName || this.currentUser.FirstName || this.currentUser.name || '';
+    const lastName = this.currentUser.lastName || this.currentUser.LastName || '';
+    
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    } else if (firstName) {
+      return firstName;
+    } else if (lastName) {
+      return lastName;
+    }
+    
+    // Fallback to email or username
+    return this.currentUser.email || this.currentUser.username || 'User';
+  }
+
+  getUserInitials(): string {
+    if (!this.currentUser) {
+      return 'U';
+    }
+    
+    const firstName = this.currentUser.firstName || this.currentUser.name || '';
+    const lastName = this.currentUser.lastName || '';
+    
+    if (firstName && lastName) {
+      return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    }
+    
+    // Fallback to first letters of email or username
+    const email = this.currentUser.email || this.currentUser.username || '';
+    if (email) {
+      const parts = email.split('@');
+      const namePart = parts[0];
+      const nameParts = namePart.split('.');
+      
+      if (nameParts.length > 1) {
+        return `${nameParts[0].charAt(0).toUpperCase()}${nameParts[1].charAt(0).toUpperCase()}`;
+      } else {
+        return namePart.charAt(0).toUpperCase();
+      }
+    }
+    
+    return 'U';
   }
 }

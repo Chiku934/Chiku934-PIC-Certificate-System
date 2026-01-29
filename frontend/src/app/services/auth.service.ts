@@ -10,6 +10,7 @@ interface LoginResponse {
     email: string;
     firstName?: string;
     lastName?: string;
+    displayName?: string;
   };
 }
 
@@ -19,6 +20,13 @@ interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  displayName?: string;
+  address?: string;
+  phoneNumber?: string;
+  role?: string;
+  userRole?: string;
+  roleName?: string;
+  userType?: string;
 }
 
 @Injectable({
@@ -56,6 +64,7 @@ export class AuthService {
         email: email || '',
         firstName: payload.firstName || payload.given_name || payload.first_name || null,
         lastName: payload.lastName || payload.family_name || payload.last_name || null,
+        displayName: payload.displayName || null,
       };
       
       this.currentUserSubject.next(user);
@@ -99,6 +108,42 @@ export class AuthService {
     this.loadUserProfile();
   }
 
+  getUserInitials(): string {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) return '';
+    // Handle both property naming conventions and ensure it's a string
+    let firstName = currentUser.firstName ||
+                   currentUser.username || '';
+    
+    // Ensure firstName is a string and not an object
+    if (firstName && typeof firstName === 'string') {
+      return firstName.charAt(0).toUpperCase();
+    }
+    return 'U'; // Default initial if no name available
+  }
+
+  getDisplayName(): string {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) return 'User';
+
+    // Priority 1: Use pre-formatted displayName if available
+    if (currentUser.displayName) {
+      return currentUser.displayName;
+    }
+
+    // Priority 2: Construct from first/last name
+    const firstName = currentUser.firstName || '';
+    const lastName = currentUser.lastName || '';
+    
+    const combinedName = `${firstName} ${lastName}`.trim();
+    if (combinedName) {
+      return combinedName;
+    }
+
+    // Fallback to username or a default
+    return currentUser.username || 'User';
+  }
+
   private handleAuthentication(response: LoginResponse): void {
     localStorage.setItem('access_token', response.access_token);
     // Set user from response first
@@ -118,6 +163,13 @@ export class AuthService {
           email: user.Email,
           firstName: user.FirstName,
           lastName: user.LastName,
+          displayName: user.displayName,
+          address: user.Address,
+          phoneNumber: user.PhoneNumber,
+          role: user.role,
+          userRole: user.userRole,
+          roleName: user.roleName,
+          userType: user.userType,
         };
         this.currentUserSubject.next(mappedUser);
       },

@@ -60,6 +60,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      // Debug: Log the user data to see what's available
+      console.log('SidebarComponent - User data received:', user);
+      console.log('SidebarComponent - firstName:', user?.firstName);
+      console.log('SidebarComponent - lastName:', user?.lastName);
+      console.log('SidebarComponent - displayName:', user?.displayName);
+      console.log('SidebarComponent - username:', user?.username);
+      console.log('SidebarComponent - email:', user?.email);
+      // Log all available properties to see what's actually there
+      console.log('SidebarComponent - All user properties:', Object.keys(user || {}));
+      
       this.cdr.detectChanges();
     });
 
@@ -118,18 +128,24 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   getDisplayName(): string {
-    if (!this.currentUser) return '';
-    const firstName = this.currentUser.firstName || this.currentUser.FirstName || '';
+    if (!this.currentUser) return 'User';
+
+    // Priority 1: Use pre-formatted displayName if available (highest priority)
+    if (this.currentUser.displayName) {
+      return this.currentUser.displayName;
+    }
+
+    // Priority 2: Construct from first/last name
+    const firstName = this.currentUser.firstName || this.currentUser.FirstName || this.currentUser.name || '';
     const lastName = this.currentUser.lastName || this.currentUser.LastName || '';
     
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
+    const combinedName = `${firstName} ${lastName}`.trim();
+    if (combinedName) {
+      return combinedName;
     }
-    return 'User';
+
+    // Fallback to username or a default
+    return this.currentUser.username || 'User';
   }
 
   formatRole(role: string): string {
