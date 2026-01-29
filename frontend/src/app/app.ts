@@ -82,16 +82,6 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     // Subscribe to user data changes
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      // Debug: Log the user data to see what's available
-      console.log('App - User data received:', user);
-      console.log('App - firstName:', user?.firstName);
-      console.log('App - lastName:', user?.lastName);
-      console.log('App - displayName:', user?.displayName);
-      console.log('App - username:', user?.username);
-      console.log('App - email:', user?.email);
-      // Log all available properties to see what's actually there
-      console.log('App - All user properties:', Object.keys(user || {}));
-      
       // Trigger change detection when user data changes
       this.cdr.detectChanges();
     });

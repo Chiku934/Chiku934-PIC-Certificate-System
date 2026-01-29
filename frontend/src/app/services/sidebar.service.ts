@@ -15,7 +15,6 @@ export class SidebarService {
         // Only auto-adjust on larger screens, not mobile
         if (window.innerWidth >= 1025) {
           const newState = this.getDefaultState();
-          console.log(`Window resized to ${window.innerWidth}px, setting sidebar state to: ${newState ? 'collapsed' : 'expanded'}`);
           this.isCollapsedSubject.next(newState);
         }
       });
@@ -23,7 +22,6 @@ export class SidebarService {
     
     // Log initial state
     const initialState = this.getDefaultState();
-    console.log(`Initial sidebar state: ${initialState ? 'collapsed' : 'expanded'} (screen width: ${typeof window !== 'undefined' ? window.innerWidth : 'unknown'}px)`);
   }
 
   private getDefaultState(): boolean {
@@ -31,7 +29,6 @@ export class SidebarService {
     // On smaller screens, start with sidebar collapsed (collapsed = true)
     if (typeof window !== 'undefined') {
       const isSmallScreen = window.innerWidth < 1200;
-      console.log(`Screen width: ${window.innerWidth}px, isSmallScreen: ${isSmallScreen}, returning: ${isSmallScreen}`);
       return isSmallScreen;
     }
     return true; // Default to collapsed for SSR

@@ -36,14 +36,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      // Debug: Log the user data to see what's available
-      console.log('HeaderComponent - User data received:', user);
-      console.log('HeaderComponent - firstName:', user?.firstName);
-      console.log('HeaderComponent - lastName:', user?.lastName);
-      console.log('HeaderComponent - displayName:', user?.displayName);
-      console.log('HeaderComponent - username:', user?.username);
-      console.log('HeaderComponent - email:', user?.email);
-      
       // Trigger change detection when user data changes
       this.cdr.detectChanges();
     });
@@ -73,21 +65,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleSidebar() {
-    console.log('Hamburger button clicked - toggling sidebar');
     // Toggle the service state (this will handle both mobile and desktop)
     this.sidebarService.toggle();
-    
-    // Debug hamburger button state
-    setTimeout(() => {
-      const hamburgerBtn = document.querySelector('.hamburger-btn');
-      if (hamburgerBtn) {
-        console.log('Hamburger button found');
-        console.log('Has active class:', hamburgerBtn.classList.contains('active'));
-        console.log('All classes:', hamburgerBtn.classList);
-      } else {
-        console.log('Hamburger button NOT found');
-      }
-    }, 100);
   }
 
   toggleDropdown() {
