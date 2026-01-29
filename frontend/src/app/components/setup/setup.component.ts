@@ -51,8 +51,8 @@ export class SetupComponent implements OnInit, OnDestroy {
     // Subscribe to user data changes first
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      if (user && user.username && user.username !== 'User') {
-        // User data is ready, load dashboard
+      if (user && user.id) {
+        // User is authenticated and has an ID, load dashboard
         this.loadDashboard();
       } else if (!user) {
         // No user authenticated
@@ -62,6 +62,12 @@ export class SetupComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+
+    // Also try to load dashboard immediately in case user data is already available
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser && currentUser.id) {
+      this.loadDashboard();
+    }
   }
 
   ngOnDestroy() {
