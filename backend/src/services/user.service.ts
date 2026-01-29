@@ -12,6 +12,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { Application } from '../entities/application.entity';
 import { RoleAndApplicationWisePermission } from '../entities/role-and-application-wise-permission.entity';
+import { UserRoleMapping } from '../entities/user-role-mapping.entity';
 
 @Injectable()
 export class UserService {
@@ -23,15 +24,12 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.userRepository.findOne({
-      where: [
-        { Email: createUserDto.Email },
-        { UserName: createUserDto.UserName },
-      ],
+      where: { Email: createUserDto.Email },
     });
 
     if (existingUser) {
       throw new ConflictException(
-        'User with this email or username already exists',
+        'User with this email already exists',
       );
     }
 
@@ -140,10 +138,12 @@ export class UserService {
   }
 
   private generateLoginResponse(user: User, rememberMe: boolean = false) {
+    const displayName = `${user.FirstName || ''} ${user.LastName || ''}`.trim();
+    
     const payload = {
       email: user.Email,
       sub: user.Id,
-      username: user.UserName,
+      displayName,
     };
     const expiresIn = rememberMe ? '30d' : '24h'; // 30 days if remember me, 24 hours otherwise
 
@@ -151,7 +151,7 @@ export class UserService {
       access_token: this.jwtService.sign(payload, { expiresIn }),
       user: {
         id: user.Id,
-        username: user.UserName,
+        displayName,
         email: user.Email,
         firstName: user.FirstName,
         lastName: user.LastName,
@@ -164,7 +164,7 @@ export class UserService {
 
     const user = await this.userRepository.findOne({
       where: { Id: userId },
-      relations: ['UserRoleMappings', 'UserRoleMappings.Role']
+      relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
     });
 
     console.log('User found:', user ? 'Yes' : 'No');
@@ -244,7 +244,7 @@ export class UserService {
     return applications;
   }
 
-  async getProfile(userId: number): Promise<User> {
+  async getProfile(userId: number): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { Id: userId },
       relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
@@ -254,6 +254,49 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    // Get user roles
+    const roles =
+      user.UserRoleMappings?.map(
+        (mapping) => mapping.Role?.RoleName || 'User',
+      ) || [];
+    
+    return {
+      ...user,
+      roles,
+      role: roles[0] || 'User', // For backward compatibility
+      userRole: roles[0] || 'User', // For backward compatibility
+      roleName: roles[0] || 'User', // For backward compatibility
+      userType: roles[0] || 'User', // For backward compatibility
+    };
+  }
+
+  async assignRolesToUser(userId: number, roleIds: string[]): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { Id: userId },
+      relations: ['UserRoleMappings'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Remove existing role mappings
+    if (user.UserRoleMappings && user.UserRoleMappings.length > 0) {
+      await this.userRepository.manager.remove(user.UserRoleMappings);
+    }
+
+    // Add new role mappings
+    for (const roleId of roleIds) {
+      const userRoleMapping = this.userRepository.manager.create(
+        UserRoleMapping,
+        {
+          UserId: userId,
+          RoleId: parseInt(roleId),
+          CreatedDate: new Date(),
+          UpdatedDate: new Date(),
+        },
+      );
+      await this.userRepository.manager.save(userRoleMapping);
+    }
   }
 }

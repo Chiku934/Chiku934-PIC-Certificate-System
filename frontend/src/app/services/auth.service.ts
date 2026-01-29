@@ -109,10 +109,17 @@ export class AuthService {
 
   private loadUserProfile(): void {
     const token = this.getToken();
-    
-    this.http.get<User>(`${this.API_URL}/users/profile`).subscribe({
+
+    this.http.get<any>(`${this.API_URL}/users/profile`).subscribe({
       next: (user) => {
-        this.currentUserSubject.next(user);
+        const mappedUser = {
+          id: user.Id,
+          username: user.UserName,
+          email: user.Email,
+          firstName: user.FirstName,
+          lastName: user.LastName,
+        };
+        this.currentUserSubject.next(mappedUser);
       },
       error: (error) => {
         // If profile request fails, try to get user from token as fallback

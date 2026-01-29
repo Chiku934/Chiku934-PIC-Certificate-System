@@ -39,7 +39,7 @@
             </div>
           </div>
           <div class="user-info">
-            <span class="user-name">{{ currentUser?.firstName || currentUser?.username || 'User' }}</span>
+            <span class="user-name">{{ getDisplayName() }}</span>
             <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" width="12" height="12" viewBox="0 0 12 12">
               <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
             </svg>

@@ -20,12 +20,13 @@ export class AuthService {
   }
 
   async login(user: User) {
-    const payload = { email: user.Email, sub: user.Id, username: user.UserName };
+    const displayName = `${user.FirstName || ''} ${user.LastName || ''}`.trim();
+    const payload = { email: user.Email, sub: user.Id, displayName };
     return {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user.Id,
-        username: user.UserName,
+        displayName,
         email: user.Email,
         firstName: user.FirstName,
         lastName: user.LastName,

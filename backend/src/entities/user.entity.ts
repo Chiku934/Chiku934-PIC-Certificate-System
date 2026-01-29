@@ -4,9 +4,6 @@ import { UserRoleMapping } from './user-role-mapping.entity';
 
 @Entity('Users')
 export class User extends BaseEntity {
-  @Column({ length: 100 })
-  UserName: string;
-
   @Column({ length: 255 })
   Email: string;
 
@@ -17,10 +14,19 @@ export class User extends BaseEntity {
   FirstName?: string;
 
   @Column({ length: 100, nullable: true })
+  MiddleName?: string;
+
+  @Column({ length: 100, nullable: true })
   LastName?: string;
 
   @Column({ length: 20, nullable: true })
   PhoneNumber?: string;
+
+  @Column({ type: 'text', nullable: true })
+  Address?: string;
+
+  @Column({ length: 500, nullable: true })
+  UserImage?: string;
 
   @Column({ default: true })
   IsActive: boolean;
@@ -32,6 +38,6 @@ export class User extends BaseEntity {
   // @OneToMany(() => Certificate, certificate => certificate.CreatedBy)
   // certificates: Certificate[];
 
-  @OneToMany(() => UserRoleMapping, userRoleMapping => userRoleMapping.User)
+  @OneToMany(() => UserRoleMapping, (userRoleMapping) => userRoleMapping.User)
   UserRoleMappings: UserRoleMapping[];
 }

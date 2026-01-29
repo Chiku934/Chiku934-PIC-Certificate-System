@@ -19,7 +19,7 @@
           </div>
         </div>
         <div class="profile-info">
-          <h3 class="profile-name">{{ currentUser?.firstName || currentUser?.username || 'User' }}</h3>
+          <h3 class="profile-name">{{ getDisplayName() }}</h3>
           <p class="profile-role">{{ formatRole(currentUser?.role || currentUser?.userRole || currentUser?.roleName || 'User') }}</p>
           <div class="profile-location" *ngIf="currentUser?.location">
             <i class="fas fa-map-marker-alt"></i>

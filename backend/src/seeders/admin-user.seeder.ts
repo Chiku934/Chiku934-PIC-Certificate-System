@@ -34,8 +34,9 @@ export class AdminUserSeeder {
         this.logger.log('Updating existing admin user with password...');
         const hashedPassword = await bcrypt.hash('Drs@2026', 10);
         existingAdmin.Password = hashedPassword;
-        existingAdmin.UserName = 'DRS@2019';
+        // UserName field removed - using Email as primary identifier
         existingAdmin.FirstName = 'DRS';
+        existingAdmin.LastName = '@2026';
         existingAdmin.PhoneNumber = '9348178871';
         existingAdmin.IsActive = true;
         await this.userRepository.save(existingAdmin);
@@ -48,7 +49,6 @@ export class AdminUserSeeder {
       const hashedPassword = await bcrypt.hash('Drs@2026', 10);
 
       const adminUser = this.userRepository.create({
-        UserName: 'DRS@2019',
         Email: 'admin@drs2026.co.in',
         Password: hashedPassword,
         FirstName: 'DRS',
@@ -57,7 +57,9 @@ export class AdminUserSeeder {
       });
 
       const savedUser = await this.userRepository.save(adminUser);
-      this.logger.log(`Admin user created successfully with ID: ${savedUser.Id}`);
+      this.logger.log(
+        `Admin user created successfully with ID: ${savedUser.Id}`,
+      );
 
     } catch (error) {
       this.logger.error('Error seeding admin user:', error);

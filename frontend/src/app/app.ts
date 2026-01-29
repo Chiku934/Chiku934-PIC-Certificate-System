@@ -87,7 +87,10 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Force refresh user profile to ensure correct username is displayed
-    this.authService.refreshUserProfile();
+    // Delay the refresh to allow initial setup
+    setTimeout(() => {
+      this.authService.refreshUserProfile();
+    }, 100);
 
     // Sidebar state changes
     this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
@@ -165,15 +168,32 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   getUserInitials(): string {
     if (!this.currentUser) return '';
-    // Handle both property naming conventions
-    const firstName = this.currentUser.firstName || 
-                     this.currentUser.FirstName || 
-                     this.currentUser.username || 
-                     this.currentUser.UserName || '';
-    if (firstName) {
+    // Handle both property naming conventions and ensure it's a string
+    let firstName = this.currentUser.firstName || 
+                   this.currentUser.FirstName || 
+                   this.currentUser.username || 
+                   this.currentUser.UserName || '';
+    
+    // Ensure firstName is a string and not an object
+    if (firstName && typeof firstName === 'string') {
       return firstName.charAt(0).toUpperCase();
     }
     return 'U'; // Default initial if no name available
+  }
+
+  getDisplayName(): string {
+    if (!this.currentUser) return '';
+    const firstName = this.currentUser.firstName || this.currentUser.FirstName || '';
+    const lastName = this.currentUser.lastName || this.currentUser.LastName || '';
+    
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    } else if (firstName) {
+      return firstName;
+    } else if (lastName) {
+      return lastName;
+    }
+    return 'User';
   }
 
   formatRole(role: string): string {
