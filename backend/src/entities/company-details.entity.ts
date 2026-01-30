@@ -6,8 +6,8 @@ export class CompanyDetails extends BaseEntity {
   @Column({ length: 255 })
   CompanyName: string;
 
-  @Column({ length: 50 })
-  ABBR: string;
+  @Column({ length: 50, nullable: true })
+  ABBR?: string;
 
   @Column({ length: 500, nullable: true })
   CompanyLogo?: string;

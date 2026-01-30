@@ -71,10 +71,10 @@ export class CompanyComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  loadCompanyData(): void {
+  loadCompanyData(retryCount = 0): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     const sub = this.companyService.getCompany().subscribe({
       next: (company) => {
         this.currentCompany = company;
@@ -87,13 +87,77 @@ export class CompanyComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = 'Failed to load company data';
-        this.isLoading = false;
         console.error('Error loading company data:', error);
+        
+        // Check if this is a temporary network error or server not ready
+        const isTemporaryError = this.isTemporaryError(error);
+        
+        if (isTemporaryError && retryCount < 3) {
+          // For temporary errors, retry immediately once, then with short delay
+          const delay = retryCount === 0 ? 0 : 1000; // Immediate retry first, then 1 second delay
+          console.log(`Retrying company data load in ${delay}ms (attempt ${retryCount + 1}/3)`);
+          
+          setTimeout(() => {
+            this.loadCompanyData(retryCount + 1);
+          }, delay);
+        } else {
+          // For permanent errors or max retries reached, show error but keep loading state for manual retry
+          this.errorMessage = this.getErrorMessage(error, retryCount);
+          this.isLoading = false;
+        }
       }
     });
 
     this.subscriptions.push(sub);
+  }
+
+  private isTemporaryError(error: any): boolean {
+    // Check for network errors, timeout, or server not ready
+    if (!error) return false;
+    
+    // Check status codes that indicate temporary issues
+    const status = error.status;
+    if (status === 0 || status === 502 || status === 503 || status === 504) {
+      return true;
+    }
+    
+    // Check for timeout errors
+    if (error.message && error.message.includes('timeout')) {
+      return true;
+    }
+    
+    // Check for network errors
+    if (error.message && (error.message.includes('Network') || error.message.includes('fetch'))) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  private getErrorMessage(error: any, retryCount: number): string {
+    if (retryCount >= 3) {
+      return 'Unable to load company data after multiple attempts. Please check your internet connection and try again.';
+    }
+    
+    if (error.status === 401) {
+      return 'Authentication failed. Please log in again.';
+    }
+    
+    if (error.status === 403) {
+      return 'You do not have permission to access company data.';
+    }
+    
+    if (error.status === 404) {
+      return 'Company data not found. Please contact your administrator.';
+    }
+    
+    return 'Failed to load company data. Please try again or contact support.';
+  }
+
+  // Manual refresh method for user-initiated retry
+  refreshCompanyData(): void {
+    this.errorMessage = '';
+    this.loadCompanyData(0);
   }
 
   patchFormWithCompanyData(company: CompanyDetails): void {
@@ -156,10 +220,14 @@ export class CompanyComponent implements OnInit, OnDestroy {
     this.fileUpload.preview = '';
     this.fileUpload.name = '';
     
-    // Clear the file input
-    const fileInput = document.getElementById('companyLogo') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
+    // Clear the file input safely
+    try {
+      const fileInput = document.getElementById('companyLogo') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    } catch (error) {
+      console.warn('Could not clear file input:', error);
     }
   }
 
