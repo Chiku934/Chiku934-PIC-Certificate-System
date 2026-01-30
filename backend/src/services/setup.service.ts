@@ -48,6 +48,9 @@ export class SetupService {
       DateOfIncorporation: createDto.DateOfIncorporation
         ? new Date(createDto.DateOfIncorporation)
         : undefined,
+      CreatedBy: createDto.CreatedBy,
+      UpdatedBy: createDto.CreatedBy,
+      IsDeleted: false,
     });
     return this.companyDetailsRepository.save(companyDetails);
   }
@@ -67,6 +70,7 @@ export class SetupService {
         ? new Date(updateDto.DateOfIncorporation)
         : companyDetails.DateOfIncorporation,
       UpdatedDate: new Date(),
+      UpdatedBy: updateDto.UpdatedBy,
     });
 
     return this.companyDetailsRepository.save(companyDetails);
@@ -124,9 +128,11 @@ export class SetupService {
     return companyDetails;
   }
 
-  async removeCompanyDetails(id: number): Promise<void> {
+  async removeCompanyDetails(id: number, deletedBy?: number): Promise<void> {
     const companyDetails = await this.findOneCompanyDetails(id);
     companyDetails.DeletedDate = new Date();
+    companyDetails.DeletedBy = deletedBy;
+    companyDetails.IsDeleted = true;
     await this.companyDetailsRepository.save(companyDetails);
   }
 

@@ -45,4 +45,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   IsActive?: boolean;
+
+  @IsOptional()
+  UpdatedBy?: number;
 }

@@ -42,4 +42,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString({ each: true })
   Roles: string[];
+
+  @IsOptional()
+  CreatedBy?: number;
 }

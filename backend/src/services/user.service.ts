@@ -39,6 +39,9 @@ export class UserService {
       ...createUserDto,
       Password: hashedPassword,
       IsActive: true,
+      CreatedBy: createUserDto.CreatedBy,
+      UpdatedBy: createUserDto.CreatedBy,
+      IsDeleted: false,
     });
 
     return this.userRepository.save(user);
@@ -82,6 +85,7 @@ export class UserService {
     }
 
     Object.assign(user, updateUserDto);
+    user.UpdatedBy = updateUserDto.UpdatedBy;
     return this.userRepository.save(user);
   }
 

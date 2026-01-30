@@ -38,7 +38,12 @@ export class CertificateService {
       throw new BadRequestException('Expiry date must be after issue date');
     }
 
-    const certificate = this.certificateRepository.create(createCertificateDto);
+    const certificate = this.certificateRepository.create({
+      ...createCertificateDto,
+      CreatedBy: createCertificateDto.CreatedById,
+      UpdatedBy: createCertificateDto.CreatedById,
+      IsDeleted: false,
+    });
     return await this.certificateRepository.save(certificate);
   }
 
@@ -87,6 +92,8 @@ export class CertificateService {
     }
 
     Object.assign(certificate, updateCertificateDto);
+    // Note: UpdatedBy will be set by the database trigger or middleware
+    // For now, we'll leave it to be handled by TypeORM's UpdateDateColumn
     return await this.certificateRepository.save(certificate);
   }
 

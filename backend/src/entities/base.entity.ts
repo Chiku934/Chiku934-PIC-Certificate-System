@@ -17,4 +17,12 @@ export abstract class BaseEntity {
 
   @DeleteDateColumn({ nullable: true })
   DeletedDate?: Date;
+
+  // User tracking fields
+  CreatedBy?: number;
+  UpdatedBy?: number;
+  DeletedBy?: number;
+
+  // Soft delete flag
+  IsDeleted: boolean = false;
 }
