@@ -18,6 +18,12 @@ export const routes: Routes = [
     data: { title: 'Setup' }
   },
   {
+    path: 'setup/company',
+    loadComponent: () => import('./components/company/company.component').then(m => m.CompanyComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Company Settings' }
+  },
+  {
     path: 'certification',
     loadComponent: () => import('./components/certification/certification.component').then(m => m.CertificationComponent),
     canActivate: [AuthGuard],

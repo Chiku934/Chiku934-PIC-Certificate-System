@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -20,7 +21,7 @@ interface SetupStats {
 @Component({
   selector: 'app-setup',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './setup.component.html',
   styleUrl: './setup.component.scss'
 })

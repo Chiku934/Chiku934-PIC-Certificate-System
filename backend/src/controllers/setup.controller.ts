@@ -8,20 +8,28 @@ import {
   Delete,
   UseGuards,
   Request,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { SetupService } from '../services/setup.service';
+import { FileUploadService } from '../services/file-upload.service';
 import { CreateCompanyDetailsDto } from '../dto/create-company-details.dto';
 import { UpdateCompanyDetailsDto } from '../dto/update-company-details.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Express } from 'express';
 
 @Controller('setup')
 @UseGuards(JwtAuthGuard)
 export class SetupController {
-  constructor(private readonly setupService: SetupService) {}
+  constructor(
+    private readonly setupService: SetupService,
+    private readonly fileUploadService: FileUploadService,
+  ) {}
 
   // Dashboard
   @Get('dashboard')
-  async getDashboard(@Request() req) {
+  async getDashboard(@Request() req: any) {
     console.log('getDashboard called, user:', req.user);
     const stats = await this.setupService.getDashboardStats();
     console.log('getDashboard returning stats:', stats);
@@ -31,11 +39,77 @@ export class SetupController {
     };
   }
 
+  // Company Details (Create or Update - for single company constraint)
+  @Post('company')
+  @UseInterceptors(FileInterceptor('companyLogo'))
+  async createOrUpdateCompany(
+    @Body() createDto: CreateCompanyDetailsDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: any,
+  ) {
+    try {
+      let logoPath = createDto.CompanyLogo;
+
+      // Handle file upload if provided
+      if (file) {
+        logoPath = await this.fileUploadService.uploadFile(file);
+      }
+
+      const result = await this.setupService.createOrUpdateCompanyDetails({
+        ...createDto,
+        CompanyLogo: logoPath,
+        CreatedBy: req.user.Id,
+      });
+
+      return {
+        success: true,
+        message: result.Id
+          ? 'Company updated successfully'
+          : 'Company created successfully',
+        data: result,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'An error occurred',
+      };
+    }
+  }
+
+  @Get('company')
+  async getCompany() {
+    try {
+      const company = await this.setupService.findCompanyDetails();
+      return {
+        success: true,
+        data: company,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'An error occurred',
+      };
+    }
+  }
+
   // Company Details
   @Post('company-details')
-  createCompanyDetails(@Body() createDto: CreateCompanyDetailsDto, @Request() req) {
+  @UseInterceptors(FileInterceptor('companyLogo'))
+  async createCompanyDetails(
+    @Body() createDto: CreateCompanyDetailsDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: any,
+  ) {
+    let logoPath = createDto.CompanyLogo;
+
+    // Handle file upload if provided
+    if (file) {
+      logoPath = await this.fileUploadService.uploadFile(file);
+    }
+
     return this.setupService.createCompanyDetails({
       ...createDto,
+      CompanyLogo: logoPath,
       CreatedBy: req.user.Id,
     });
   }
@@ -56,20 +130,62 @@ export class SetupController {
   }
 
   @Patch('company-details/:id')
-  updateCompanyDetails(
+  @UseInterceptors(FileInterceptor('companyLogo'))
+  async updateCompanyDetails(
     @Param('id') id: string,
     @Body() updateDto: UpdateCompanyDetailsDto,
-    @Request() req
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: any,
   ) {
-    return this.setupService.updateCompanyDetails(+id, {
-      ...updateDto,
-      UpdatedBy: req.user.Id,
-    });
+    try {
+      let logoPath = updateDto.CompanyLogo;
+
+      // Handle file upload if provided
+      if (file) {
+        logoPath = await this.fileUploadService.uploadFile(file);
+      }
+
+      const result = await this.setupService.updateCompanyDetails(+id, {
+        ...updateDto,
+        CompanyLogo: logoPath,
+        UpdatedBy: req.user.Id,
+      });
+
+      return {
+        success: true,
+        message: 'Company updated successfully',
+        data: result,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'An error occurred',
+      };
+    }
   }
 
   @Delete('company-details/:id')
-  removeCompanyDetails(@Param('id') id: string, @Request() req) {
-    return this.setupService.removeCompanyDetails(+id, req.user.Id);
+  async removeCompanyDetails(@Param('id') id: string) {
+    try {
+      const company = await this.setupService.findOneCompanyDetails(+id);
+
+      // Delete logo file if exists
+      if (company.CompanyLogo) {
+        await this.fileUploadService.deleteFile(company.CompanyLogo);
+      }
+
+      await this.setupService.removeCompanyDetails(+id);
+
+      return {
+        success: true,
+        message: 'Company deleted successfully',
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'An error occurred',
+      };
+    }
   }
 
   // Letter Head

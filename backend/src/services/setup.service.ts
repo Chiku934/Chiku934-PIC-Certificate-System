@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CompanyDetails } from '../entities/company-details.entity';
@@ -25,13 +29,75 @@ export class SetupService {
   ) {}
 
   // Company Details
-  async createCompanyDetails(createDto: CreateCompanyDetailsDto): Promise<CompanyDetails> {
+  async createCompanyDetails(
+    createDto: CreateCompanyDetailsDto,
+  ): Promise<CompanyDetails> {
+    // Check if a company already exists (enforce single company constraint)
+    const existingCompany = await this.findCompanyDetails();
+    if (existingCompany) {
+      throw new ConflictException(
+        'A company configuration already exists. Please update the existing company instead.',
+      );
+    }
+
     const companyDetails = this.companyDetailsRepository.create({
       ...createDto,
-      DateOfEstablishment: createDto.DateOfEstablishment ? new Date(createDto.DateOfEstablishment) : undefined,
-      DateOfIncorporation: createDto.DateOfIncorporation ? new Date(createDto.DateOfIncorporation) : undefined,
+      DateOfEstablishment: createDto.DateOfEstablishment
+        ? new Date(createDto.DateOfEstablishment)
+        : undefined,
+      DateOfIncorporation: createDto.DateOfIncorporation
+        ? new Date(createDto.DateOfIncorporation)
+        : undefined,
     });
     return this.companyDetailsRepository.save(companyDetails);
+  }
+
+  async updateCompanyDetails(
+    id: number,
+    updateDto: UpdateCompanyDetailsDto,
+  ): Promise<CompanyDetails> {
+    const companyDetails = await this.findOneCompanyDetails(id);
+
+    Object.assign(companyDetails, {
+      ...updateDto,
+      DateOfEstablishment: updateDto.DateOfEstablishment
+        ? new Date(updateDto.DateOfEstablishment)
+        : companyDetails.DateOfEstablishment,
+      DateOfIncorporation: updateDto.DateOfIncorporation
+        ? new Date(updateDto.DateOfIncorporation)
+        : companyDetails.DateOfIncorporation,
+      UpdatedDate: new Date(),
+    });
+
+    return this.companyDetailsRepository.save(companyDetails);
+  }
+
+  // Company Details (Create or Update - for single company constraint)
+  async createOrUpdateCompanyDetails(
+    createDto: CreateCompanyDetailsDto,
+  ): Promise<CompanyDetails> {
+    // Check if a company already exists
+    const existingCompany = await this.findCompanyDetails();
+
+    if (existingCompany) {
+      // Update existing company
+      return this.updateCompanyDetails(existingCompany.Id, {
+        ...createDto,
+        UpdatedBy: createDto.CreatedBy,
+      } as UpdateCompanyDetailsDto);
+    } else {
+      // Create new company
+      const companyDetails = this.companyDetailsRepository.create({
+        ...createDto,
+        DateOfEstablishment: createDto.DateOfEstablishment
+          ? new Date(createDto.DateOfEstablishment)
+          : undefined,
+        DateOfIncorporation: createDto.DateOfIncorporation
+          ? new Date(createDto.DateOfIncorporation)
+          : undefined,
+      });
+      return this.companyDetailsRepository.save(companyDetails);
+    }
   }
 
   async findAllCompanyDetails(): Promise<CompanyDetails[]> {
@@ -58,20 +124,7 @@ export class SetupService {
     return companyDetails;
   }
 
-  async updateCompanyDetails(id: number, updateDto: UpdateCompanyDetailsDto): Promise<CompanyDetails> {
-    const companyDetails = await this.findOneCompanyDetails(id);
-
-    Object.assign(companyDetails, {
-      ...updateDto,
-      DateOfEstablishment: updateDto.DateOfEstablishment ? new Date(updateDto.DateOfEstablishment) : companyDetails.DateOfEstablishment,
-      DateOfIncorporation: updateDto.DateOfIncorporation ? new Date(updateDto.DateOfIncorporation) : companyDetails.DateOfIncorporation,
-      UpdatedDate: new Date(),
-    });
-
-    return this.companyDetailsRepository.save(companyDetails);
-  }
-
-  async removeCompanyDetails(id: number, deletedBy: number): Promise<void> {
+  async removeCompanyDetails(id: number): Promise<void> {
     const companyDetails = await this.findOneCompanyDetails(id);
     companyDetails.DeletedDate = new Date();
     await this.companyDetailsRepository.save(companyDetails);
@@ -106,20 +159,39 @@ export class SetupService {
   async getDashboardStats() {
     console.log('getDashboardStats called');
     try {
-      const [allUsers, activeUsers, inactiveUsers, emailDomains, emailAccounts] = await Promise.all([
+      const [
+        allUsers,
+        activeUsers,
+        inactiveUsers,
+        emailDomains,
+        emailAccounts,
+      ] = await Promise.all([
         this.userRepository.count({ where: { DeletedDate: null } }),
-        this.userRepository.count({ where: { IsActive: true, DeletedDate: null } }),
-        this.userRepository.count({ where: { IsActive: false, DeletedDate: null } }),
+        this.userRepository.count({
+          where: { IsActive: true, DeletedDate: null },
+        }),
+        this.userRepository.count({
+          where: { IsActive: false, DeletedDate: null },
+        }),
         this.emailDomainRepository.count({ where: { DeletedDate: null } }),
         this.emailAccountRepository.count({ where: { DeletedDate: null } }),
       ]);
 
-      console.log('Counts retrieved:', { allUsers, activeUsers, inactiveUsers, emailDomains, emailAccounts });
+      console.log('Counts retrieved:', {
+        allUsers,
+        activeUsers,
+        inactiveUsers,
+        emailDomains,
+        emailAccounts,
+      });
 
       const companyDetails = await this.findCompanyDetails();
       const letterHead = await this.findLetterHead();
 
-      console.log('Company and letter head retrieved:', { companyDetails: !!companyDetails, letterHead: !!letterHead });
+      console.log('Company and letter head retrieved:', {
+        companyDetails: !!companyDetails,
+        letterHead: !!letterHead,
+      });
 
       const result = {
         totalUsers: allUsers,

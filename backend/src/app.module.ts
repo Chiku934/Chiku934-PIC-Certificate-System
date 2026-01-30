@@ -9,6 +9,7 @@ import { UserModule } from './modules/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SeederModule } from './modules/seeder.module';
 import { SetupModule } from './modules/setup.module';
+import { FileUploadService } from './services/file-upload.service';
 import { User } from './entities/user.entity';
 import { Company } from './entities/company.entity';
 import { Equipment } from './entities/equipment.entity';
@@ -71,6 +72,6 @@ import { EmailAccount } from './entities/email-account.entity';
     SetupModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, FileUploadService],
 })
 export class AppModule {}

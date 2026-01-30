@@ -36,7 +36,7 @@
           <div class="card-body">
             <ul class="todo-list">
               <li>
-                <a [href]="stats.companyConfigured ? '/setup/company' : '/setup/company'" class="todo-item" [class.completed]="stats.companyConfigured">
+                <a [routerLink]="['/setup/company']" class="todo-item" [class.completed]="stats.companyConfigured">
                   <div class="todo-icon">
                     <i class="fas fa-building"></i>
                   </div>
