@@ -36,6 +36,12 @@ export const routes: Routes = [
     data: { title: 'Company Details' }
   },
   {
+    path: 'setup/company/:id/view',
+    loadComponent: () => import('./components/company/company.component').then(m => m.CompanyComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'View Company' }
+  },
+  {
     path: 'certification',
     loadComponent: () => import('./components/certification/certification.component').then(m => m.CertificationComponent),
     canActivate: [AuthGuard],

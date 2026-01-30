@@ -71,12 +71,19 @@ export class CompanyComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
+      const url = this.router.url;
+      
       if (id === 'new') {
         this.mode = 'create';
         this.companyId = null;
         this.setupFormForCreateMode();
       } else if (id) {
-        this.mode = 'edit';
+        // Check if the URL contains '/view' to determine view mode
+        if (url.includes('/view')) {
+          this.mode = 'view';
+        } else {
+          this.mode = 'edit';
+        }
         this.companyId = +id;
         this.loadCompanyData();
       } else {
@@ -84,6 +91,9 @@ export class CompanyComponent implements OnInit, OnDestroy {
         this.mode = 'edit';
         this.loadCompanyData();
       }
+      
+      // Set up form based on mode
+      this.setupFormForMode();
     });
   }
 
@@ -108,6 +118,20 @@ export class CompanyComponent implements OnInit, OnDestroy {
     this.companyForm.enable();
   }
 
+  private setupFormForMode(): void {
+    switch (this.mode) {
+      case 'create':
+        this.setupFormForCreateMode();
+        break;
+      case 'view':
+        this.setupFormForViewMode();
+        break;
+      case 'edit':
+        this.setupFormForEditMode();
+        break;
+    }
+  }
+
   // Mode change handlers
   onViewMode(): void {
     this.mode = 'view';
@@ -126,6 +150,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
   loadCompanyData(retryCount = 0): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     let sub: Subscription;
 
@@ -137,7 +162,8 @@ export class CompanyComponent implements OnInit, OnDestroy {
       // Load specific company by ID
       sub = this.companyService.getCompanyById(this.companyId).subscribe({
         next: (company) => {
-          this.currentCompany = company;
+          console.log('Loaded company by ID:', company);
+          this.currentCompany = company || null;
           if (company) {
             this.patchFormWithCompanyData(company);
             if (company.CompanyLogo) {
@@ -147,6 +173,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error: any) => {
+          console.error('Error loading company by ID:', error);
           this.handleLoadError(error, retryCount);
         }
       });
@@ -154,7 +181,8 @@ export class CompanyComponent implements OnInit, OnDestroy {
       // Load current company (default behavior)
       sub = this.companyService.getCompany().subscribe({
         next: (company) => {
-          this.currentCompany = company;
+          console.log('Loaded current company:', company);
+          this.currentCompany = company || null;
           if (company) {
             this.patchFormWithCompanyData(company);
             if (company.CompanyLogo) {
@@ -164,6 +192,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error) => {
+          console.error('Error loading current company:', error);
           this.handleLoadError(error, retryCount);
         }
       });
@@ -347,9 +376,9 @@ export class CompanyComponent implements OnInit, OnDestroy {
         // Clear file upload after successful save
         this.removeFile();
         
-        // Redirect to setup dashboard after 2 seconds
+        // Redirect to company list page after 2 seconds
         setTimeout(() => {
-          this.router.navigate(['/setup']);
+          this.router.navigate(['/setup/company']);
         }, 2000);
       },
       error: (error) => {
@@ -363,7 +392,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/setup']);
+    this.router.navigate(['/setup/company']);
   }
 
   private formatDate(date: Date | string): string {

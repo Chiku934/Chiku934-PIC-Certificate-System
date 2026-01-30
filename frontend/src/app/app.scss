@@ -439,7 +439,7 @@
       text-align: center;
       flex-shrink: 0;
       transition: all 0.3s ease;
-      color: #9ca3af;
+      color: #ffa200;
     }
 
     .nav-text {
@@ -510,14 +510,14 @@
 
       /* Simple transparent blue hover effect */
       &:hover {
-        background: rgba(59, 130, 246, 0.1);
+        background: #2adb7b9c;
         color: #1f2937;
         transform: translateX(4px);
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
       }
 
       &.active {
-        background: rgba(59, 130, 246, 0.15);
+        background: #2adb7b54;
         color: #1f2937;
         font-weight: 600;
 
@@ -528,7 +528,7 @@
           top: 0;
           bottom: 0;
           width: 4px;
-          background: #3b82f6;
+          background: #2adb7b9c;
           border-radius: 0 4px 4px 0;
         }
       }

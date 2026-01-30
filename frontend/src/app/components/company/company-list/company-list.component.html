@@ -57,6 +57,36 @@
             </span>
           </div>
         </div>
+        
+        <!-- Table Header with Export and Search -->
+        <div class="table-header-actions">
+          <div class="export-buttons">
+            <button class="btn btn-sm btn-outline-primary" (click)="exportToCSV()">
+              <i class="fas fa-file-csv me-1"></i> CSV
+            </button>
+            <button class="btn btn-sm btn-outline-success" (click)="exportToExcel()">
+              <i class="fas fa-file-excel me-1"></i> Excel
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="exportToPDF()">
+              <i class="fas fa-file-pdf me-1"></i> PDF
+            </button>
+          </div>
+          <div class="search-container">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Search companies..." 
+                #searchInput
+                (input)="onSearch(searchInput.value)"
+              >
+            </div>
+          </div>
+        </div>
+        
         <div class="card-body">
           <!-- Loading State -->
           <div *ngIf="isLoading" class="text-center py-4">
@@ -93,10 +123,6 @@
             </div>
             <h5 class="text-muted">No companies found</h5>
             <p class="text-muted mb-4">Get started by creating a new company.</p>
-            <button class="btn btn-primary" (click)="addCompany()">
-              <i class="fas fa-plus me-2"></i>
-              Add Your First Company
-            </button>
           </div>
         </div>
       </div>
