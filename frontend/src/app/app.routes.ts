@@ -19,9 +19,21 @@ export const routes: Routes = [
   },
   {
     path: 'setup/company',
+    loadComponent: () => import('./components/company/company-list/company-list.component').then(m => m.CompanyListComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Company Management' }
+  },
+  {
+    path: 'setup/company/new',
     loadComponent: () => import('./components/company/company.component').then(m => m.CompanyComponent),
     canActivate: [AuthGuard],
-    data: { title: 'Company Settings' }
+    data: { title: 'Add Company' }
+  },
+  {
+    path: 'setup/company/:id',
+    loadComponent: () => import('./components/company/company.component').then(m => m.CompanyComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Company Details' }
   },
   {
     path: 'certification',

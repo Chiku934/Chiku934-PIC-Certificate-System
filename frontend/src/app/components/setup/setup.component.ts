@@ -23,7 +23,7 @@ interface SetupStats {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './setup.component.html',
-  styleUrl: './setup.component.scss'
+  styleUrls: ['./setup.component.scss']
 })
 export class SetupComponent implements OnInit, OnDestroy {
   stats: SetupStats | null = null;

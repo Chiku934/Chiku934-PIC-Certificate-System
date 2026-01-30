@@ -1,0 +1,288 @@
+.company-list-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  // Breadcrumb Section
+  .breadcrumb-section {
+    margin-bottom: 20px;
+    
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      
+      .breadcrumb-item {
+        font-size: 14px;
+        
+        &.active {
+          color: #6c757d;
+        }
+        
+        a {
+          color: #007bff;
+          text-decoration: none;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+
+  // Page Header
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 20px;
+
+    .header-content {
+      flex: 1;
+      
+      h1 {
+        margin: 0 0 8px 0;
+        font-size: 28px;
+        font-weight: 600;
+        color: #212529;
+        
+        i {
+          color: #007bff;
+        }
+      }
+      
+      p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 16px;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+
+  // Content Area
+  .content-area {
+    .content-body {
+      .card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        
+        .card-header {
+          background: #f8f9fa;
+          border-bottom: 1px solid #e9ecef;
+          padding: 16px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          
+          .card-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+            
+            i {
+              color: #007bff;
+            }
+          }
+          
+          .card-actions {
+            .text-muted {
+              font-size: 14px;
+            }
+          }
+        }
+        
+        .card-body {
+          padding: 20px;
+          
+          // Loading State
+          .text-center.py-4 {
+            .spinner-border {
+              width: 3rem;
+              height: 3rem;
+            }
+            
+            .text-muted {
+              margin-top: 10px;
+            }
+          }
+
+          // AG Grid Container
+          .ag-theme-alpine {
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            
+            // Custom AG Grid styling
+            :host ::ng-deep .ag-header {
+              background-color: #f8f9fa;
+              border-bottom: 1px solid #dee2e6;
+            }
+            
+            :host ::ng-deep .ag-header-cell {
+              font-weight: 600;
+              color: #495057;
+              border-right: 1px solid #dee2e6;
+            }
+            
+            :host ::ng-deep .ag-row {
+              border-bottom: 1px solid #f1f3f4;
+              
+              &:hover {
+                background-color: #f8f9fa;
+              }
+            }
+            
+            :host ::ng-deep .ag-cell {
+              padding: 12px 8px;
+              font-size: 14px;
+              color: #495057;
+              border-right: 1px solid #f1f3f4;
+            }
+            
+            :host ::ng-deep .ag-paging-panel {
+              background-color: #f8f9fa;
+              border-top: 1px solid #dee2e6;
+              padding: 8px 16px;
+            }
+          }
+
+          // Empty State
+          .empty-state {
+            .empty-icon {
+              i {
+                opacity: 0.5;
+              }
+            }
+            
+            h5 {
+              font-size: 18px;
+              margin-bottom: 8px;
+            }
+            
+            p {
+              margin-bottom: 24px;
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Logo Cell Styling
+  :host ::ng-deep .logo-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #dee2e6;
+    }
+  }
+
+  // Logo Placeholder
+  :host ::ng-deep .logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    
+    i {
+      font-size: 20px;
+      color: #6c757d;
+      opacity: 0.5;
+    }
+  }
+
+  // Company Info
+  :host ::ng-deep .company-info {
+    .company-name {
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 2px;
+    }
+    
+    .company-domain {
+      font-size: 12px;
+      font-style: italic;
+    }
+  }
+
+  // Email Cell
+  :host ::ng-deep .email-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    
+    a {
+      color: #007bff;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  // Action Buttons
+  :host ::ng-deep .action-buttons {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    
+    .btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+    }
+  }
+
+  // Text Classes
+  :host ::ng-deep .text-uppercase {
+    text-transform: uppercase;
+  }
+  
+  :host ::ng-deep .text-muted {
+    color: #6c757d !important;
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    padding: 15px;
+    
+    .page-header {
+      flex-direction: column;
+      gap: 15px;
+      
+      .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+    
+    .ag-theme-alpine {
+      height: 500px !important;
+    }
+  }
+}

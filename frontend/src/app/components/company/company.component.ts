@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { CompanyService, CompanyDetails } from '../../services/company.service';
@@ -12,6 +12,8 @@ interface FileUpload {
   preview: string;
   name: string;
 }
+
+type CompanyMode = 'create' | 'edit' | 'view';
 
 @Component({
   selector: 'app-company',
@@ -27,6 +29,8 @@ export class CompanyComponent implements OnInit, OnDestroy {
   errorMessage = '';
   successMessage = '';
   currentCompany: CompanyDetails | null = null;
+  mode: CompanyMode = 'create';
+  companyId: number | null = null;
   
   fileUpload: FileUpload = {
     file: null,
@@ -40,6 +44,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private companyService: CompanyService,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService
   ) {
     this.companyForm = this.fb.group({
@@ -64,7 +69,54 @@ export class CompanyComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadCompanyData();
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id === 'new') {
+        this.mode = 'create';
+        this.companyId = null;
+        this.setupFormForCreateMode();
+      } else if (id) {
+        this.mode = 'edit';
+        this.companyId = +id;
+        this.loadCompanyData();
+      } else {
+        // Default to current company if no ID provided
+        this.mode = 'edit';
+        this.loadCompanyData();
+      }
+    });
+  }
+
+  private setupFormForCreateMode(): void {
+    // Clear form for create mode
+    this.companyForm.reset();
+    this.currentCompany = null;
+    this.fileUpload = {
+      file: null,
+      preview: '',
+      name: ''
+    };
+  }
+
+  private setupFormForViewMode(): void {
+    // Disable form for view mode
+    this.companyForm.disable();
+  }
+
+  private setupFormForEditMode(): void {
+    // Enable form for edit mode
+    this.companyForm.enable();
+  }
+
+  // Mode change handlers
+  onViewMode(): void {
+    this.mode = 'view';
+    this.setupFormForViewMode();
+  }
+
+  onEditMode(): void {
+    this.mode = 'edit';
+    this.setupFormForEditMode();
   }
 
   ngOnDestroy(): void {
@@ -75,40 +127,70 @@ export class CompanyComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const sub = this.companyService.getCompany().subscribe({
-      next: (company) => {
-        this.currentCompany = company;
-        if (company) {
-          this.patchFormWithCompanyData(company);
-          if (company.CompanyLogo) {
-            this.fileUpload.preview = company.CompanyLogo;
+    let sub: Subscription;
+
+    if (this.mode === 'create') {
+      // For create mode, we don't need to load existing data
+      this.isLoading = false;
+      return;
+    } else if (this.companyId) {
+      // Load specific company by ID
+      sub = this.companyService.getCompanyById(this.companyId).subscribe({
+        next: (company) => {
+          this.currentCompany = company;
+          if (company) {
+            this.patchFormWithCompanyData(company);
+            if (company.CompanyLogo) {
+              this.fileUpload.preview = company.CompanyLogo;
+            }
           }
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading company data:', error);
-        
-        // Check if this is a temporary network error or server not ready
-        const isTemporaryError = this.isTemporaryError(error);
-        
-        if (isTemporaryError && retryCount < 3) {
-          // For temporary errors, retry immediately once, then with short delay
-          const delay = retryCount === 0 ? 0 : 1000; // Immediate retry first, then 1 second delay
-          console.log(`Retrying company data load in ${delay}ms (attempt ${retryCount + 1}/3)`);
-          
-          setTimeout(() => {
-            this.loadCompanyData(retryCount + 1);
-          }, delay);
-        } else {
-          // For permanent errors or max retries reached, show error but keep loading state for manual retry
-          this.errorMessage = this.getErrorMessage(error, retryCount);
           this.isLoading = false;
+        },
+        error: (error: any) => {
+          this.handleLoadError(error, retryCount);
         }
-      }
-    });
+      });
+    } else {
+      // Load current company (default behavior)
+      sub = this.companyService.getCompany().subscribe({
+        next: (company) => {
+          this.currentCompany = company;
+          if (company) {
+            this.patchFormWithCompanyData(company);
+            if (company.CompanyLogo) {
+              this.fileUpload.preview = company.CompanyLogo;
+            }
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.handleLoadError(error, retryCount);
+        }
+      });
+    }
 
     this.subscriptions.push(sub);
+  }
+
+  private handleLoadError(error: any, retryCount: number): void {
+    console.error('Error loading company data:', error);
+    
+    // Check if this is a temporary network error or server not ready
+    const isTemporaryError = this.isTemporaryError(error);
+    
+    if (isTemporaryError && retryCount < 3) {
+      // For temporary errors, retry immediately once, then with short delay
+      const delay = retryCount === 0 ? 0 : 1000; // Immediate retry first, then 1 second delay
+      console.log(`Retrying company data load in ${delay}ms (attempt ${retryCount + 1}/3)`);
+      
+      setTimeout(() => {
+        this.loadCompanyData(retryCount + 1);
+      }, delay);
+    } else {
+      // For permanent errors or max retries reached, show error but keep loading state for manual retry
+      this.errorMessage = this.getErrorMessage(error, retryCount);
+      this.isLoading = false;
+    }
   }
 
   private isTemporaryError(error: any): boolean {

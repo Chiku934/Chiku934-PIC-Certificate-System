@@ -174,8 +174,15 @@ export class CompanyService {
     );
   }
 
+  // Get company by ID
+  getCompanyById(id: number): Observable<CompanyDetails> {
+    return this.http.get<CompanyDetails>(`${this.apiUrl}/company-details/${id}`, { headers: this.getAuthHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   // Get all company details
-  getAllCompanies(): Observable<CompanyDetails[]> {
+  getCompanies(): Observable<CompanyDetails[]> {
     return this.http.get<CompanyDetails[]>(`${this.apiUrl}/company-details`, { headers: this.getAuthHeaders() }).pipe(
       catchError(this.handleError)
     );
