@@ -25,6 +25,7 @@ interface User {
   phoneNumber?: string;
   role?: string;
   userRole?: string;
+  roles?: string[];
   roleName?: string;
   userType?: string;
 }
@@ -42,10 +43,8 @@ export class AuthService {
     if (token) {
       // Decode token to get initial user data
       const decoded = this.decodeTokenAndSetUser(token);
-      if (decoded) {
-        // Only try to load profile if token decoding succeeded
-        this.loadUserProfile();
-      }
+      // Do not load profile here to avoid circular dependency with Http Interceptor.
+      // Full profile will be loaded on-demand via `refreshUserProfile()` or after login.
     }
   }
 
@@ -148,8 +147,10 @@ export class AuthService {
     localStorage.setItem('access_token', response.access_token);
     // Set user from response first
     this.currentUserSubject.next(response.user);
-    // Then try to load full profile to ensure we have all data
-    this.loadUserProfile();
+    // Defer profile loading to avoid circular dependency
+    setTimeout(() => {
+      this.loadUserProfile();
+    }, 100);
   }
 
   private loadUserProfile(): void {
@@ -157,27 +158,39 @@ export class AuthService {
 
     this.http.get<any>(`${this.API_URL}/users/profile`).subscribe({
       next: (user) => {
+        // raw API response received
+        
         const mappedUser = {
+          Id: user.Id,
           id: user.Id,
-          username: user.UserName,
+          username: user.UserName || user.username,
+          Email: user.Email,
           email: user.Email,
+          FirstName: user.FirstName,
           firstName: user.FirstName,
+          MiddleName: user.MiddleName,
+          middleName: user.MiddleName,
+          LastName: user.LastName,
           lastName: user.LastName,
           displayName: user.displayName,
+          Address: user.Address,
           address: user.Address,
+          PhoneNumber: user.PhoneNumber,
           phoneNumber: user.PhoneNumber,
           role: user.role,
           userRole: user.userRole,
+          roles: user.roles || [],
           roleName: user.roleName,
           userType: user.userType,
         };
+        
+        // mapped user object prepared
+        
         this.currentUserSubject.next(mappedUser);
       },
       error: (error) => {
-        // If profile request fails, try to get user from token as fallback
-        // But only if we don't already have valid user data
+        console.error('Error loading user profile:', error);
         const currentUserData = this.currentUserSubject.value;
-        // Only use fallback if we have no user data or the username is the fallback "User"
         if (token && (!currentUserData || !currentUserData.username || currentUserData.username === 'User')) {
           this.decodeTokenAndSetUser(token);
         }

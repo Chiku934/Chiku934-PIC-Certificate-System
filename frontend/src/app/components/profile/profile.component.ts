@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
@@ -10,10 +12,16 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   currentUser: any = null;
   isLoading = false;
   hasProfileImage = false;
+  private destroy$ = new Subject<void>();
+
+  // Fixed roles to display
+  availableRoles = ['Administrator', 'Admin', 'User'];
+  userRoles: string[] = [];
+  roleChecked: { [key: string]: boolean } = {};
 
   constructor(
     private authService: AuthService,
@@ -21,38 +29,54 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      if (!user) {
-        this.router.navigate(['/login']);
-      }
-    });
+    this.authService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        this.currentUser = user;
+        // normalize roles into simple array and boolean map for template binding
+        const normalized = (user?.roles || []).map((r: any) => r?.toString().toLowerCase().trim());
+        this.userRoles = normalized;
+        this.roleChecked = {};
+        const roleSet = new Set(normalized);
+        for (const av of this.availableRoles) {
+          this.roleChecked[av] = roleSet.has(av.toLowerCase().trim());
+        }
+        if (!user) {
+          this.router.navigate(['/login']);
+        }
+      });
   }
 
-  getUserInitials(): string {
-    if (this.currentUser?.firstName && this.currentUser?.lastName) {
-      return `${this.currentUser.firstName.charAt(0)}${this.currentUser.lastName.charAt(0)}`.toUpperCase();
-    } else if (this.currentUser?.firstName) {
-      return this.currentUser.firstName.charAt(0).toUpperCase();
-    } else if (this.currentUser?.username) {
-      return this.currentUser.username.charAt(0).toUpperCase();
-    }
-    return 'U';
-  }
-
-  getProfileImageUrl(): string {
-    // If user has a profile image, return it
-    // For now, we'll use default icon
-    return '/assets/images/default-profile-icon.png';
-  }
-
-  onImageError(event: any) {
-    this.hasProfileImage = false;
-    // Handle image load error
-    console.log('Profile image failed to load');
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   goBack() {
     this.router.navigate(['/dashboard']);
   }
+
+  formatRole(role: string): string {
+    if (!role) return 'User';
+
+    // Convert to title case and handle common role variations
+    const roleStr = role.toString().toLowerCase().trim();
+
+    // Common role mappings
+    const roleMap: { [key: string]: string } = {
+      'admin': 'Admin',
+      'administrator': 'Administrator',
+      'superadmin': 'Administrator',
+      'super-admin': 'Administrator',
+      'super_admin': 'Administrator',
+      'user': 'User',
+      'viewer': 'User',
+      'editor': 'User',
+      'manager': 'Manager',
+      'supervisor': 'Manager'
+    };
+
+    return roleMap[roleStr] || role;
+  }
 }
+
