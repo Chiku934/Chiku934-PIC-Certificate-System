@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError, interval, BehaviorSubject } from 'rxjs';
+  import { catchError, map, tap, switchMap, distinctUntilChanged } from 'rxjs/operators';
 
 export interface CompanyDetails {
   Id?: number;
@@ -40,8 +40,14 @@ export interface ApiResponse<T> {
 })
 export class CompanyService {
   private apiUrl = '/api/setup';
+  private refreshInterval = 5000; // Refresh every 5 seconds
 
-  constructor(private http: HttpClient) {}
+  // BehaviorSubjects to hold the latest data
+  private allCompanies$ = new BehaviorSubject<CompanyDetails[]>([]);
+
+  constructor(private http: HttpClient) {
+    this.startAutoRefresh();
+  }
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -96,6 +102,7 @@ export class CompanyService {
           throw new Error(response.message || 'Failed to save company details');
         }
       }),
+      tap(() => this.refreshNow()),
       catchError(this.handleError)
     );
   }
@@ -127,6 +134,7 @@ export class CompanyService {
           throw new Error(response.message || 'Failed to create company');
         }
       }),
+      tap(() => this.refreshNow()),
       catchError(this.handleError)
     );
   }
@@ -158,6 +166,7 @@ export class CompanyService {
           throw new Error(response.message || 'Failed to update company');
         }
       }),
+      tap(() => this.refreshNow()),
       catchError(this.handleError)
     );
   }
@@ -170,22 +179,90 @@ export class CompanyService {
           throw new Error(response.message || 'Failed to delete company');
         }
       }),
+      tap(() => {
+        console.log('🗑️ Company deleted:', id);
+        this.refreshNow();
+      }),
       catchError(this.handleError)
     );
   }
 
-  // Get company by ID
-  getCompanyById(id: number): Observable<CompanyDetails> {
-    return this.http.get<CompanyDetails>(`${this.apiUrl}/company-details/${id}`, { headers: this.getAuthHeaders() }).pipe(
-      catchError(this.handleError)
-    );
-  }
+   // Get company by ID - returns from auto-refresh cache with real-time updates
+   getCompanyById(id: number): Observable<CompanyDetails> {
+     return this.allCompanies$.pipe(
+       map(companies => {
+         const company = companies.find(c => c.Id === id);
+         if (!company) {
+           throw new Error('Company not found');
+         }
+         return company;
+       }),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      catchError(() => {
+         // Fallback to direct API call if not found in cache
+         console.log('Company not in cache, fetching from API:', id);
+         return this.http.get<CompanyDetails>(`${this.apiUrl}/company-details/${id}`, { headers: this.getAuthHeaders() }).pipe(
+           catchError(this.handleError)
+         );
+       })
+     );
+   }
 
-  // Get all company details
+  // Get all company details with auto-refresh
   getCompanies(): Observable<CompanyDetails[]> {
+    return this.allCompanies$.asObservable();
+  }
+
+  /**
+   * Get current company as an observable that updates when cache updates.
+   * Falls back to one-off API call if cache does not contain a company.
+   */
+  getCurrentCompanyObservable(): Observable<CompanyDetails | null> {
+    return this.allCompanies$.pipe(
+      map(companies => (companies && companies.length > 0) ? companies[0] : null),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+      catchError(() => {
+        console.log('Current company not in cache, fetching from API');
+        return this.getCurrentCompany();
+      })
+    );
+  }
+
+  /**
+   * Fetch companies from API and update the BehaviorSubject
+   */
+  private fetchCompanies(): Observable<CompanyDetails[]> {
     return this.http.get<CompanyDetails[]>(`${this.apiUrl}/company-details`, { headers: this.getAuthHeaders() }).pipe(
+      tap(data => {
+        console.log('Fetched companies:', data.length, 'records');
+        this.allCompanies$.next(data || []);
+      }),
       catchError(this.handleError)
     );
+  }
+
+  /**
+   * Manually refresh all data immediately
+   */
+  refreshNow(): void {
+    console.log('🔄 Manual refresh triggered for Companies');
+    this.fetchCompanies().subscribe();
+  }
+
+  /**
+   * Start auto-refresh interval
+   */
+  private startAutoRefresh(): void {
+    console.log('⏰ Companies auto-refresh started (every 5 seconds)');
+    interval(this.refreshInterval).pipe(
+      switchMap(() => {
+        console.log('🔄 Auto-refresh triggered for Companies');
+        return this.fetchCompanies();
+      })
+    ).subscribe();
+
+    // Initial fetch
+    this.refreshNow();
   }
 
   // Get current company details (legacy method)

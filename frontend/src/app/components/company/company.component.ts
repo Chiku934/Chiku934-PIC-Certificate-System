@@ -178,21 +178,25 @@ export class CompanyComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Load current company (default behavior)
-      sub = this.companyService.getCompany().subscribe({
+      // Load current company (default behavior) from cache-backed observable
+      sub = this.companyService.getCurrentCompanyObservable().subscribe({
         next: (company) => {
-          console.log('Loaded current company:', company);
+          console.log('Loaded current company (observable):', company);
           this.currentCompany = company || null;
-          if (company) {
+          // Only auto-patch the form when not editing to avoid overwriting user changes
+          const isEditing = this.mode === 'edit' && this.companyForm && this.companyForm.dirty;
+          if (!isEditing && company) {
             this.patchFormWithCompanyData(company);
             if (company.CompanyLogo) {
               this.fileUpload.preview = company.CompanyLogo;
             }
+          } else if (isEditing) {
+            console.log('Skipping auto-patch because form is dirty (user editing)');
           }
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error loading current company:', error);
+          console.error('Error loading current company (observable):', error);
           this.handleLoadError(error, retryCount);
         }
       });

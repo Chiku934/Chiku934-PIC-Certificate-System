@@ -281,8 +281,23 @@ export class CompanyListComponent implements OnInit, OnDestroy {
     const sub = this.companyService.getCompanies().subscribe({
       next: (companies: CompanyDetails[]) => {
         console.log('Loaded companies:', companies);
-        this.companies = companies || [];
-        this.isLoading = false;
+         this.companies = companies || [];
+       
+        // Refresh AG Grid with new data
+        if (this.gridApi) {
+          // Use setRowData to update the grid immediately
+          try {
+            (this.gridApi as any).setRowData(this.companies);
+          } catch (e) {
+            // Fallback: notify via option set
+            this.gridApi.setGridOption('rowData', this.companies);
+          }
+          console.log('🔄 Grid updated with', this.companies.length, 'companies');
+        }
+       
+         if (this.isLoading) {
+           this.isLoading = false; // Only set to false on first load
+         }
       },
       error: (error: any) => {
         console.error('Error loading companies:', error);
@@ -388,18 +403,14 @@ export class CompanyListComponent implements OnInit, OnDestroy {
 
   deleteCompany(id: number): void {
     if (confirm('Are you sure you want to delete this company? This action cannot be undone.')) {
-      this.isLoading = true;
-      
       const sub = this.companyService.deleteCompany(id).subscribe({
         next: () => {
           this.successMessage = 'Company deleted successfully';
-          this.loadCompanies(); // Refresh the list
-          this.isLoading = false;
+          // No need to manually refresh - service handles it with auto-refresh
         },
         error: (error: any) => {
           console.error('Error deleting company:', error);
           this.errorMessage = error.message || 'Failed to delete company';
-          this.isLoading = false;
         }
       });
 
