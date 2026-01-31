@@ -42,6 +42,30 @@ export const routes: Routes = [
     data: { title: 'View Company' }
   },
   {
+    path: 'setup/users',
+    loadComponent: () => import('./components/user/user-list/user-list.component').then(m => m.UserListComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'User Management' }
+  },
+  {
+    path: 'setup/users/new',
+    loadComponent: () => import('./components/user/user.component').then(m => m.UserComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Add User' }
+  },
+  {
+    path: 'setup/users/:id/edit',
+    loadComponent: () => import('./components/user/user.component').then(m => m.UserComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Edit User' }
+  },
+  {
+    path: 'setup/users/:id/view',
+    loadComponent: () => import('./components/user/user.component').then(m => m.UserComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'View User' }
+  },
+  {
     path: 'certification',
     loadComponent: () => import('./components/certification/certification.component').then(m => m.CertificationComponent),
     canActivate: [AuthGuard],

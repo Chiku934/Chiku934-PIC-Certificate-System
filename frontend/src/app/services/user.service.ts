@@ -7,9 +7,11 @@ export interface User {
   Id: number;
   Email: string;
   FirstName?: string;
+  MiddleName?: string;
   LastName?: string;
   PhoneNumber?: string;
   Address?: string;
+  UserImage?: string;
   IsActive?: boolean;
   CreatedBy?: number;
   UpdatedBy?: number;
@@ -43,6 +45,13 @@ export class UserService {
     });
   }
 
+  private getAuthHeadersMultipart(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
   /**
    * Get all users with auto-refresh
    */
@@ -67,22 +76,74 @@ export class UserService {
   }
 
   /**
-   * Create new user
+   * Create new user with optional file upload
    */
-  createUser(user: User): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user, {
-      headers: this.getAuthHeaders()
+  createUser(userData: any, file?: File | null, roles?: string[]): Observable<any> {
+    const formData = new FormData();
+    
+    // Add user data
+    formData.append('Email', userData.Email);
+    formData.append('FirstName', userData.FirstName || '');
+    formData.append('MiddleName', userData.MiddleName || '');
+    formData.append('LastName', userData.LastName || '');
+    formData.append('PhoneNumber', userData.PhoneNumber || '');
+    formData.append('Address', userData.Address || '');
+    formData.append('Password', userData.Password);
+    formData.append('IsActive', userData.IsActive || true);
+    
+    // Add roles
+    if (roles && roles.length > 0) {
+      roles.forEach(role => {
+        formData.append('Roles', role);
+      });
+    }
+    
+    // Add file if provided
+    if (file) {
+      formData.append('UserImage', file);
+    }
+
+    return this.http.post<any>(`${this.apiUrl}/register`, formData, {
+      headers: this.getAuthHeadersMultipart()
     }).pipe(
       tap(() => this.refreshNow())
     );
   }
 
   /**
-   * Update user
+   * Update user with optional file upload
    */
-  updateUser(id: number, user: Partial<User>): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}`, user, {
-      headers: this.getAuthHeaders()
+  updateUser(id: number, userData: any, file?: File | null, roles?: string[]): Observable<any> {
+    const formData = new FormData();
+    
+    // Add user data
+    formData.append('Email', userData.Email);
+    formData.append('FirstName', userData.FirstName || '');
+    formData.append('MiddleName', userData.MiddleName || '');
+    formData.append('LastName', userData.LastName || '');
+    formData.append('PhoneNumber', userData.PhoneNumber || '');
+    formData.append('Address', userData.Address || '');
+    formData.append('IsActive', userData.IsActive || true);
+    
+    // Add password if provided
+    if (userData.Password) {
+      formData.append('Password', userData.Password);
+    }
+    
+    // Add roles
+    if (roles && roles.length > 0) {
+      roles.forEach(role => {
+        formData.append('Roles', role);
+      });
+    }
+    
+    // Add file if provided
+    if (file) {
+      formData.append('UserImage', file);
+    }
+
+    return this.http.patch<any>(`${this.apiUrl}/${id}`, formData, {
+      headers: this.getAuthHeadersMultipart()
     }).pipe(
       tap(() => this.refreshNow())
     );

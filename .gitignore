@@ -388,3 +388,5 @@ local.properties
 .cache-build
 .scala_dependencies
 .worksheet
+# Markdown files (Documentation)
+*.md
