@@ -97,19 +97,18 @@
           </div>
 
           <!-- AG Grid Table -->
-          <div *ngIf="!isLoading" class="ag-theme-alpine" style="height: 600px; width: 100%;">
+          <div *ngIf="!isLoading" class="ag-theme-quartz" style="height: 600px; width: 100%;">
   <ag-grid-angular
     #agGrid
     style="width: 100%; height: 400px;"
-    class="ag-theme-alpine"
+    class="ag-theme-quartz"
     [rowData]="companies"
     [columnDefs]="columnDefs"
     [defaultColDef]="defaultColDef"
     [pagination]="true"
     [paginationPageSize]="10"
     [paginationPageSizeSelector]="[10, 20, 50]"
-    [rowSelection]="'multiple'"
-    [suppressRowClickSelection]="true"
+    [rowSelection]="{ mode: 'multiRow', enableClickSelection: false }"
     [domLayout]="'autoHeight'"
     (gridReady)="onGridReady($event)"
   >

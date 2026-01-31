@@ -106,21 +106,21 @@ export class SetupService {
 
   async findAllCompanyDetails(): Promise<CompanyDetails[]> {
     return this.companyDetailsRepository.find({
-      where: { DeletedDate: null },
+      where: { IsDeleted: false },
       order: { CreatedDate: 'DESC' },
     });
   }
 
   async findCompanyDetails(): Promise<CompanyDetails | null> {
     return this.companyDetailsRepository.findOne({
-      where: { DeletedDate: null },
+      where: { IsDeleted: false },
       order: { CreatedDate: 'DESC' },
     });
   }
 
   async findOneCompanyDetails(id: number): Promise<CompanyDetails> {
     const companyDetails = await this.companyDetailsRepository.findOne({
-      where: { Id: id, DeletedDate: null },
+      where: { Id: id, IsDeleted: false },
     });
     if (!companyDetails) {
       throw new NotFoundException('Company details not found');
@@ -144,14 +144,14 @@ export class SetupService {
 
   async findLetterHead(): Promise<LetterHead | null> {
     return this.letterHeadRepository.findOne({
-      where: { DeletedDate: null },
+      where: { IsDeleted: false },
       order: { CreatedDate: 'DESC' },
     });
   }
 
   async updateLetterHead(id: number, updateDto: any): Promise<LetterHead> {
     const letterHead = await this.letterHeadRepository.findOne({
-      where: { Id: id, DeletedDate: null },
+      where: { Id: id, IsDeleted: false },
     });
     if (!letterHead) {
       throw new NotFoundException('Letter head not found');
@@ -172,15 +172,15 @@ export class SetupService {
         emailDomains,
         emailAccounts,
       ] = await Promise.all([
-        this.userRepository.count({ where: { DeletedDate: null } }),
+        this.userRepository.count({ where: { IsDeleted: false } }),
         this.userRepository.count({
-          where: { IsActive: true, DeletedDate: null },
+          where: { IsActive: true, IsDeleted: false },
         }),
         this.userRepository.count({
-          where: { IsActive: false, DeletedDate: null },
+          where: { IsActive: false, IsDeleted: false },
         }),
-        this.emailDomainRepository.count({ where: { DeletedDate: null } }),
-        this.emailAccountRepository.count({ where: { DeletedDate: null } }),
+        this.emailDomainRepository.count({ where: { IsDeleted: false } }),
+        this.emailAccountRepository.count({ where: { IsDeleted: false } }),
       ]);
 
       console.log('Counts retrieved:', {

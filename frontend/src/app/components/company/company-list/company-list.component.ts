@@ -48,8 +48,10 @@ export class CompanyListComponent implements OnInit, OnDestroy {
     pagination: true,
     paginationPageSize: 10,
     paginationPageSizeSelector: [10, 20, 50],
-    rowSelection: 'multiple',
-    suppressRowClickSelection: true,
+    rowSelection: {
+      mode: 'multiRow',
+      enableClickSelection: false
+    },
     domLayout: 'normal',
     autoSizeStrategy: {
       type: 'fitGridWidth'

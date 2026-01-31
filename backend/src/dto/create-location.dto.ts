@@ -82,4 +82,8 @@ export class CreateLocationDto {
   @IsOptional()
   @IsNumber()
   CompanyId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  CreatedBy?: number;
 }

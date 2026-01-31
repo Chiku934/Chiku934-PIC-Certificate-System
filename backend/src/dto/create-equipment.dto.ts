@@ -67,4 +67,8 @@ export class CreateEquipmentDto {
   @IsOptional()
   @IsNumber()
   CompanyId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  CreatedBy?: number;
 }

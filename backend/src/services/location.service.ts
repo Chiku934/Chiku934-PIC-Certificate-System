@@ -15,12 +15,18 @@ export class LocationService {
   ) {}
 
   async create(createLocationDto: CreateLocationDto): Promise<Location> {
-    const location = this.locationRepository.create(createLocationDto);
+    const location = this.locationRepository.create({
+      ...createLocationDto,
+      CreatedBy: createLocationDto.CreatedBy,
+      UpdatedBy: createLocationDto.CreatedBy,
+      IsDeleted: false,
+    });
     return await this.locationRepository.save(location);
   }
 
   async findAll(): Promise<Location[]> {
     return await this.locationRepository.find({
+      where: { IsDeleted: false },
       relations: ['company', 'parentLocation', 'childLocations'],
       order: { CreatedDate: 'DESC' },
     });
@@ -28,7 +34,7 @@ export class LocationService {
 
   async findOne(id: number): Promise<Location> {
     const location = await this.locationRepository.findOne({
-      where: { Id: id },
+      where: { Id: id, IsDeleted: false },
       relations: ['company', 'parentLocation', 'childLocations'],
     });
 
@@ -44,18 +50,25 @@ export class LocationService {
     updateLocationDto: UpdateLocationDto,
   ): Promise<Location> {
     const location = await this.findOne(id);
-    Object.assign(location, updateLocationDto);
+    Object.assign(location, {
+      ...updateLocationDto,
+      UpdatedDate: new Date(),
+      UpdatedBy: updateLocationDto.UpdatedBy,
+    });
     return await this.locationRepository.save(location);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, deletedBy?: number): Promise<void> {
     const location = await this.findOne(id);
-    await this.locationRepository.remove(location);
+    location.IsDeleted = true;
+    location.DeletedDate = new Date();
+    location.DeletedBy = deletedBy;
+    await this.locationRepository.save(location);
   }
 
   async findByCompany(companyId: number): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { CompanyId: companyId },
+      where: { CompanyId: companyId, IsDeleted: false },
       relations: ['company', 'parentLocation', 'childLocations'],
       order: { CreatedDate: 'DESC' },
     });
@@ -63,7 +76,7 @@ export class LocationService {
 
   async findByType(locationType: string): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { LocationType: locationType },
+      where: { LocationType: locationType, IsDeleted: false },
       relations: ['company', 'parentLocation', 'childLocations'],
       order: { CreatedDate: 'DESC' },
     });
@@ -71,7 +84,7 @@ export class LocationService {
 
   async findActive(): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { IsActive: true },
+      where: { IsActive: true, IsDeleted: false },
       relations: ['company', 'parentLocation', 'childLocations'],
       order: { CreatedDate: 'DESC' },
     });
@@ -79,7 +92,7 @@ export class LocationService {
 
   async findRootLocations(): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { ParentLocationId: null },
+      where: { ParentLocationId: null, IsDeleted: false },
       relations: ['company', 'childLocations'],
       order: { CreatedDate: 'DESC' },
     });
@@ -87,7 +100,7 @@ export class LocationService {
 
   async findChildLocations(parentId: number): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { ParentLocationId: parentId },
+      where: { ParentLocationId: parentId, IsDeleted: false },
       relations: ['company', 'parentLocation', 'childLocations'],
       order: { CreatedDate: 'DESC' },
     });
@@ -118,6 +131,7 @@ export class LocationService {
           searchTerm: `%${searchTerm}%`,
         },
       )
+      .andWhere('location.IsDeleted = :isDeleted', { isDeleted: false })
       .orderBy('location.CreatedDate', 'DESC')
       .getMany();
   }
@@ -139,6 +153,7 @@ export class LocationService {
         southWestLng,
         northEastLng,
       })
+      .andWhere('location.IsDeleted = :isDeleted', { isDeleted: false })
       .orderBy('location.CreatedDate', 'DESC')
       .getMany();
   }

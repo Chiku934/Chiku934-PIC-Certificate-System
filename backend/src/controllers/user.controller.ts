@@ -10,6 +10,8 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -67,7 +69,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.sub;
+    return this.userService.remove(id, userId);
   }
 }

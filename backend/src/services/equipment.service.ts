@@ -13,12 +13,18 @@ export class EquipmentService {
   ) {}
 
   async create(createEquipmentDto: CreateEquipmentDto): Promise<Equipment> {
-    const equipment = this.equipmentRepository.create(createEquipmentDto);
+    const equipment = this.equipmentRepository.create({
+      ...createEquipmentDto,
+      CreatedBy: createEquipmentDto.CreatedBy,
+      UpdatedBy: createEquipmentDto.CreatedBy,
+      IsDeleted: false,
+    });
     return await this.equipmentRepository.save(equipment);
   }
 
   async findAll(): Promise<Equipment[]> {
     return await this.equipmentRepository.find({
+      where: { IsDeleted: false },
       relations: ['company'],
       order: { CreatedDate: 'DESC' },
     });
@@ -26,7 +32,7 @@ export class EquipmentService {
 
   async findOne(id: number): Promise<Equipment> {
     const equipment = await this.equipmentRepository.findOne({
-      where: { Id: id },
+      where: { Id: id, IsDeleted: false },
       relations: ['company'],
     });
 
@@ -42,18 +48,25 @@ export class EquipmentService {
     updateEquipmentDto: UpdateEquipmentDto,
   ): Promise<Equipment> {
     const equipment = await this.findOne(id);
-    Object.assign(equipment, updateEquipmentDto);
+    Object.assign(equipment, {
+      ...updateEquipmentDto,
+      UpdatedDate: new Date(),
+      UpdatedBy: updateEquipmentDto.UpdatedBy,
+    });
     return await this.equipmentRepository.save(equipment);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, deletedBy?: number): Promise<void> {
     const equipment = await this.findOne(id);
-    await this.equipmentRepository.remove(equipment);
+    equipment.IsDeleted = true;
+    equipment.DeletedDate = new Date();
+    equipment.DeletedBy = deletedBy;
+    await this.equipmentRepository.save(equipment);
   }
 
   async findByCompany(companyId: number): Promise<Equipment[]> {
     return await this.equipmentRepository.find({
-      where: { CompanyId: companyId },
+      where: { CompanyId: companyId, IsDeleted: false },
       relations: ['company'],
       order: { CreatedDate: 'DESC' },
     });
@@ -61,7 +74,7 @@ export class EquipmentService {
 
   async findByStatus(status: string): Promise<Equipment[]> {
     return await this.equipmentRepository.find({
-      where: { Status: status },
+      where: { Status: status, IsDeleted: false },
       relations: ['company'],
       order: { CreatedDate: 'DESC' },
     });

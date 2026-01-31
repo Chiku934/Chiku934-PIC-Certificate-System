@@ -48,11 +48,11 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({ where: { IsDeleted: false } });
   }
 
   async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { Id: id } });
+    const user = await this.userRepository.findOne({ where: { Id: id, IsDeleted: false } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -61,7 +61,7 @@ export class UserService {
 
   async findOneForAuth(id: number): Promise<User | null> {
     try {
-      const user = await this.userRepository.findOne({ where: { Id: id } });
+      const user = await this.userRepository.findOne({ where: { Id: id, IsDeleted: false } });
       return user;
     } catch (error) {
       console.error('Error finding user for auth:', error);
@@ -70,7 +70,7 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { Email: email } });
+    const user = await this.userRepository.findOne({ where: { Email: email, IsDeleted: false } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -84,18 +84,24 @@ export class UserService {
       updateUserDto.Password = await bcrypt.hash(updateUserDto.Password, 10);
     }
 
-    Object.assign(user, updateUserDto);
-    user.UpdatedBy = updateUserDto.UpdatedBy;
+    Object.assign(user, {
+      ...updateUserDto,
+      UpdatedDate: new Date(),
+      UpdatedBy: updateUserDto.UpdatedBy,
+    });
     return this.userRepository.save(user);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, deletedBy?: number): Promise<void> {
     const user = await this.findOne(id);
-    await this.userRepository.remove(user);
+    user.IsDeleted = true;
+    user.DeletedDate = new Date();
+    user.DeletedBy = deletedBy;
+    await this.userRepository.save(user);
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { Email: email } });
+    const user = await this.userRepository.findOne({ where: { Email: email, IsDeleted: false } });
     if (!user) {
       console.log(`User not found for email: ${email}`);
       return null;
@@ -167,7 +173,7 @@ export class UserService {
     console.log('getUserMenu called for userId:', userId);
 
     const user = await this.userRepository.findOne({
-      where: { Id: userId },
+      where: { Id: userId, IsDeleted: false },
       relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
     });
 
@@ -250,7 +256,7 @@ export class UserService {
 
   async getProfile(userId: number): Promise<any> {
     const user = await this.userRepository.findOne({
-      where: { Id: userId },
+      where: { Id: userId, IsDeleted: false },
       relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
     });
 

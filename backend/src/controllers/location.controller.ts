@@ -8,7 +8,10 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { LocationService } from '../services/location.service';
 import { CreateLocationDto } from '../dto/create-location.dto';
 import { UpdateLocationDto } from '../dto/update-location.dto';
@@ -83,8 +86,13 @@ export class LocationController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.locationService.remove(id);
+  @UseGuards(JwtAuthGuard)
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.sub;
+    return this.locationService.remove(id, userId);
   }
 
   @Get('bounds/:northEastLat/:northEastLng/:southWestLat/:southWestLng')

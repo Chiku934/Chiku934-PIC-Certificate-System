@@ -8,7 +8,10 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CertificateService } from '../services/certificate.service';
 import { CreateCertificateDto } from '../dto/create-certificate.dto';
 import { UpdateCertificateDto } from '../dto/update-certificate.dto';
@@ -74,8 +77,13 @@ export class CertificateController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.certificateService.remove(id);
+  @UseGuards(JwtAuthGuard)
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.sub;
+    return this.certificateService.remove(id, userId);
   }
 
   @Post(':id/submit-approval')
