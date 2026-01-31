@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -65,7 +66,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleSidebar() {
-    // Toggle the service state (this will handle both mobile and desktop)
+    // Simple toggle: let the service handle persistence and state
     this.sidebarService.toggle();
   }
 

@@ -89,22 +89,19 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       this.authService.refreshUserProfile();
     }, 100);
 
-    // Sidebar state changes
+    // Sidebar state changes: keep `.mobile-open` in sync with service
     this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
-      // Update layout classes based on sidebar state
+      // Update sidebar DOM class directly so CSS reflects service state
       setTimeout(() => {
         const sidebarNav = document.querySelector('.sidebar-nav');
-        if (sidebarNav) {
-          // Check if we're in the correct media query
-          const isLargeScreen = window.innerWidth >= 1025;
-          const shouldBeVisible = window.innerWidth >= 1366;
-          
-          // Apply appropriate classes based on screen size and state
-          if (isLargeScreen && shouldBeVisible) {
-            sidebarNav.classList.remove('mobile-open');
-          }
+        if (!sidebarNav) return;
+
+        if (isCollapsed) {
+          sidebarNav.classList.remove('mobile-open');
+        } else {
+          sidebarNav.classList.add('mobile-open');
         }
-      }, 100);
+      }, 50);
     });
   }
 
