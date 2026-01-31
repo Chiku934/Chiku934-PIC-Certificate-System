@@ -54,7 +54,7 @@ import { EmailAccount } from './entities/email-account.entity';
         EmailDomain,
         EmailAccount,
       ],
-      synchronize: true,
+      synchronize: false,
       options: {
         encrypt: false, // for local
         trustServerCertificate: true, // Add this to trust self-signed certificates
