@@ -65,6 +65,8 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadUsers();
+    // Force refresh to ensure data is loaded
+    this.userService.refreshNow();
   }
 
   ngOnDestroy(): void {

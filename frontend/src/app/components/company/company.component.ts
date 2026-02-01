@@ -94,6 +94,11 @@ export class CompanyComponent implements OnInit, OnDestroy {
       
       // Set up form based on mode
       this.setupFormForMode();
+      
+      // Force refresh to ensure data is loaded for view/edit modes
+      if (this.mode !== 'create') {
+        this.companyService.refreshNow();
+      }
     });
   }
 

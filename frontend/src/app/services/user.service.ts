@@ -33,7 +33,6 @@ export class UserService {
   private activeUsers$ = new BehaviorSubject<User[]>([]);
 
   constructor(private http: HttpClient) {
-    // Auto-refresh removed to prevent resetting user selections
     // Initial data fetch to populate lists
     this.fetchAllUsers();
   }

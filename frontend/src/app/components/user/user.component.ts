@@ -67,27 +67,59 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      const url = this.router.url;
-      
-      if (id === 'new') {
-        this.mode = 'create';
-        this.userId = null;
-        this.setupFormForCreateMode();
-      } else if (id) {
-        // Check if the URL contains '/view' to determine view mode
-        if (url.includes('/view')) {
-          this.mode = 'view';
-        } else if (url.includes('/edit')) {
-          this.mode = 'edit';
-        }
-        this.userId = +id;
-        this.loadUserData();
+    // Get initial route parameters
+    const id = this.route.snapshot.paramMap.get('id');
+    const url = this.router.url;
+    
+    // Set up mode and user ID based on route
+    if (id === 'new') {
+      this.mode = 'create';
+      this.userId = null;
+      this.setupFormForCreateMode();
+    } else if (id) {
+      // Check if the URL contains '/view' to determine view mode
+      if (url.includes('/view')) {
+        this.mode = 'view';
+      } else if (url.includes('/edit')) {
+        this.mode = 'edit';
       }
-      
-      // Set up form based on mode
-      this.setupFormForMode();
+      this.userId = +id;
+      this.loadUserData();
+    }
+    
+    // Set up form based on mode
+    this.setupFormForMode();
+    
+    // Force refresh to ensure data is loaded for view/edit modes
+    if (this.mode !== 'create') {
+      this.userService.refreshNow();
+    }
+    
+    // Also listen for route changes (for navigation within the app)
+    this.route.paramMap.subscribe(params => {
+      const newId = params.get('id');
+      if (newId !== id) {
+        // Handle route changes
+        if (newId === 'new') {
+          this.mode = 'create';
+          this.userId = null;
+          this.setupFormForCreateMode();
+        } else if (newId) {
+          const newUrl = this.router.url;
+          if (newUrl.includes('/view')) {
+            this.mode = 'view';
+          } else if (newUrl.includes('/edit')) {
+            this.mode = 'edit';
+          }
+          this.userId = +newId;
+          this.loadUserData();
+        }
+        this.setupFormForMode();
+        
+        if (this.mode !== 'create') {
+          this.userService.refreshNow();
+        }
+      }
     });
   }
 
@@ -445,6 +477,6 @@ export class UserComponent implements OnInit, OnDestroy {
       }
     }
     
-    return '/assets/images/default-avatar.png';
+    return '/assets/images/default-profile-icon.png';
   }
 }

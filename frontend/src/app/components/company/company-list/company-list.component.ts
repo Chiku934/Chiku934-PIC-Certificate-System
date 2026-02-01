@@ -68,6 +68,8 @@ export class CompanyListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCompanies();
+    // Force refresh to ensure data is loaded
+    this.companyService.refreshNow();
   }
 
   ngOnDestroy(): void {
