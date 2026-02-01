@@ -105,7 +105,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   hasProfileImage(): boolean {
-    return !!this.currentUser?.profileImage;
+    return !!this.currentUser?.profileImage && this.currentUser.profileImage !== '/assets/images/default-profile-icon.png';
   }
 
   navigateToProfile() {

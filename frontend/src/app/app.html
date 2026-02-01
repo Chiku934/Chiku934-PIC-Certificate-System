@@ -11,7 +11,7 @@
             <div class="profile-header">
               <div class="profile-avatar">
                 <img [src]="getProfileImageUrl()" [alt]="currentUser?.firstName || 'User'" class="avatar-img" (error)="onImageError($event)">
-                <div class="avatar-initials" *ngIf="!currentUser?.profileImage || currentUser?.profileImage === '/assets/images/default-profile-icon.png'">
+                <div class="avatar-initials" *ngIf="!hasProfileImage()">
                   {{ getUserInitials() }}
                 </div>
               </div>

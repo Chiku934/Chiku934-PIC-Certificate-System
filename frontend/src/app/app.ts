@@ -151,7 +151,22 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   getProfileImageUrl(): string {
     if (this.currentUser?.profileImage) {
-      return this.currentUser.profileImage;
+      // Ensure the image path is absolute for proper display
+      if (this.currentUser.profileImage.startsWith('http')) {
+        return this.currentUser.profileImage;
+      }
+
+      // Construct absolute URL based on current origin
+      const currentOrigin = window.location.origin;
+      const backendPort = ':3000'; // Backend runs on port 3000
+
+      // If frontend is running on different port, use backend port
+      if (!currentOrigin.includes(':3000')) {
+        const backendUrl = currentOrigin.replace(/:\d+$/, backendPort);
+        return `${backendUrl}${this.currentUser.profileImage}`;
+      } else {
+        return `${currentOrigin}${this.currentUser.profileImage}`;
+      }
     }
     return '/assets/images/default-profile-icon.png';
   }
@@ -196,12 +211,16 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     return this.currentUser.username || 'User';
   }
 
+  hasProfileImage(): boolean {
+    return !!this.currentUser?.profileImage && this.currentUser.profileImage !== '/assets/images/default-profile-icon.png';
+  }
+
   formatRole(role: string): string {
     if (!role) return 'User';
-    
+
     // Convert to title case and handle common role variations
     const roleStr = role.toString().toLowerCase();
-    
+
     // Common role mappings
     const roleMap: { [key: string]: string } = {
       'admin': 'Admin',
