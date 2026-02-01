@@ -116,22 +116,22 @@
                       <div class="upload-actions">
                         <div *ngIf="mode !== 'view'" class="mb-3">
                           <label for="imageInput" class="form-label">Profile Picture</label>
-                          <input 
-                            type="file" 
+                          <input
+                            type="file"
                             id="imageInput"
-                            class="form-control" 
+                            class="form-control"
                             accept="image/*"
                             (change)="onFileSelected($event)"
-                            [disabled]="mode === 'view'"
+                            [disabled]="isViewMode()"
                           />
                           <small class="text-muted">JPG, PNG or GIF (Max 5MB)</small>
                         </div>
-                        <button 
+                        <button
                           *ngIf="fileUpload.preview || currentUser?.UserImage"
-                          type="button" 
+                          type="button"
                           class="btn btn-outline-danger btn-sm"
                           (click)="onRemoveImage()"
-                          [disabled]="mode === 'view'"
+                          [disabled]="isViewMode()"
                         >
                           <i class="fas fa-trash me-2"></i>
                           Remove Image
@@ -154,12 +154,12 @@
                   <label for="email" class="form-label">
                     Email <span class="text-danger">*</span>
                   </label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     id="email"
-                    class="form-control" 
+                    class="form-control"
                     formControlName="Email"
-                    [readonly]="mode === 'view'"
+                    [readonly]="isViewMode()"
                   />
                   <div *ngIf="userForm.get('Email')?.invalid && userForm.get('Email')?.touched" class="invalid-feedback d-block">
                     Please enter a valid email address
@@ -168,12 +168,12 @@
 
                 <div class="col-md-6 mb-3">
                   <label for="phone" class="form-label">Phone Number</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     id="phone"
-                    class="form-control" 
+                    class="form-control"
                     formControlName="PhoneNumber"
-                    [readonly]="mode === 'view'"
+                    [readonly]="isViewMode()"
                     placeholder="e.g., +1 (555) 000-0000"
                   />
                 </div>
@@ -182,34 +182,34 @@
               <div class="row">
                 <div class="col-md-4 mb-3">
                   <label for="firstName" class="form-label">First Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     id="firstName"
-                    class="form-control" 
+                    class="form-control"
                     formControlName="FirstName"
-                    [readonly]="mode === 'view'"
+                    [readonly]="isViewMode()"
                   />
                 </div>
 
                 <div class="col-md-4 mb-3">
                   <label for="middleName" class="form-label">Middle Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     id="middleName"
-                    class="form-control" 
+                    class="form-control"
                     formControlName="MiddleName"
-                    [readonly]="mode === 'view'"
+                    [readonly]="isViewMode()"
                   />
                 </div>
 
                 <div class="col-md-4 mb-3">
                   <label for="lastName" class="form-label">Last Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     id="lastName"
-                    class="form-control" 
+                    class="form-control"
                     formControlName="LastName"
-                    [readonly]="mode === 'view'"
+                    [readonly]="isViewMode()"
                   />
                 </div>
               </div>
@@ -217,11 +217,11 @@
               <div class="row">
                 <div class="col-12 mb-3">
                   <label for="address" class="form-label">Address</label>
-                  <textarea 
+                  <textarea
                     id="address"
-                    class="form-control" 
+                    class="form-control"
                     formControlName="Address"
-                    [readonly]="mode === 'view'"
+                    [readonly]="isViewMode()"
                     rows="3"
                   ></textarea>
                 </div>
@@ -246,12 +246,12 @@
                   <span *ngIf="mode === 'create'" class="text-danger">*</span>
                   <span *ngIf="mode === 'edit'" class="small text-muted">(leave blank to keep current)</span>
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   id="password"
-                  class="form-control" 
+                  class="form-control"
                   formControlName="Password"
-                  [readonly]="mode === 'view'"
+                  [readonly]="isViewMode()"
                 />
                 <div *ngIf="userForm.get('Password')?.invalid && userForm.get('Password')?.touched" class="invalid-feedback d-block">
                   {{ mode === 'create' ? 'Password is required (min 6 characters)' : 'Minimum 6 characters' }}
@@ -263,12 +263,12 @@
                   Confirm Password
                   <span *ngIf="mode === 'create'" class="text-danger">*</span>
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   id="confirmPassword"
-                  class="form-control" 
+                  class="form-control"
                   formControlName="ConfirmPassword"
-                  [readonly]="mode === 'view'"
+                  [readonly]="isViewMode()"
                 />
               </div>
             </div>
@@ -294,7 +294,7 @@
                     class="form-check-input" 
                     [checked]="isRoleSelected(role)"
                     (change)="onRoleChange(role)"
-                    [disabled]="mode === 'view'"
+                    [disabled]="isViewMode()"
                   />
                   <label [for]="'role-' + role" class="form-check-label">
                     <i [ngClass]="getRoleIcon(role)" class="me-2"></i>
@@ -320,12 +320,12 @@
           </div>
           <div class="card-body">
             <div class="form-check form-switch">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 id="isActive"
-                class="form-check-input" 
+                class="form-check-input"
                 formControlName="IsActive"
-                [disabled]="mode === 'view'"
+                [disabled]="isViewMode()"
               />
               <label class="form-check-label" for="isActive">
                 Active Account

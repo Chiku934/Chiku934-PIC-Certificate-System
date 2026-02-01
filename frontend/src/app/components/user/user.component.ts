@@ -342,4 +342,8 @@ export class UserComponent implements OnInit, OnDestroy {
     };
     return iconMap[role] || 'fas fa-user';
   }
+
+  isViewMode(): boolean {
+    return this.mode === 'view';
+  }
 }
