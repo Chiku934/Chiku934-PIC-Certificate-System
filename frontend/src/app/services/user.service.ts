@@ -27,7 +27,7 @@ export interface User {
 })
 export class UserService {
   private apiUrl = '/api/users';
-  private refreshInterval = 5000; // Refresh every 5 seconds
+  private refreshInterval = 30000; // Refresh every 30 seconds
   
   // BehaviorSubjects to hold the latest data
   private allUsers$ = new BehaviorSubject<User[]>([]);
@@ -157,7 +157,6 @@ export class UserService {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(() => {
-        console.log('User deleted:', id);
         this.refreshNow();
       })
     );
@@ -187,7 +186,9 @@ export class UserService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => this.allUsers$.next(data),
-      error: (error) => console.error('Error fetching users:', error)
+      error: (error) => {
+        // Error handling can be added here if needed
+      }
     });
   }
 }

@@ -40,7 +40,7 @@ export interface ApiResponse<T> {
 })
 export class CompanyService {
   private apiUrl = '/api/setup';
-  private refreshInterval = 5000; // Refresh every 5 seconds
+  private refreshInterval = 30000; // Refresh every 30 seconds
 
   // BehaviorSubjects to hold the latest data
   private allCompanies$ = new BehaviorSubject<CompanyDetails[]>([]);
@@ -180,7 +180,6 @@ export class CompanyService {
         }
       }),
       tap(() => {
-        console.log('🗑️ Company deleted:', id);
         this.refreshNow();
       }),
       catchError(this.handleError)
@@ -200,7 +199,6 @@ export class CompanyService {
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       catchError(() => {
          // Fallback to direct API call if not found in cache
-         console.log('Company not in cache, fetching from API:', id);
          return this.http.get<CompanyDetails>(`${this.apiUrl}/company-details/${id}`, { headers: this.getAuthHeaders() }).pipe(
            catchError(this.handleError)
          );
@@ -222,7 +220,6 @@ export class CompanyService {
       map(companies => (companies && companies.length > 0) ? companies[0] : null),
       distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
       catchError(() => {
-        console.log('Current company not in cache, fetching from API');
         return this.getCurrentCompany();
       })
     );
@@ -234,7 +231,6 @@ export class CompanyService {
   private fetchCompanies(): Observable<CompanyDetails[]> {
     return this.http.get<CompanyDetails[]>(`${this.apiUrl}/company-details`, { headers: this.getAuthHeaders() }).pipe(
       tap(data => {
-        console.log('Fetched companies:', data.length, 'records');
         this.allCompanies$.next(data || []);
       }),
       catchError(this.handleError)
@@ -245,7 +241,6 @@ export class CompanyService {
    * Manually refresh all data immediately
    */
   refreshNow(): void {
-    console.log('🔄 Manual refresh triggered for Companies');
     this.fetchCompanies().subscribe();
   }
 
@@ -253,10 +248,8 @@ export class CompanyService {
    * Start auto-refresh interval
    */
   private startAutoRefresh(): void {
-    console.log('⏰ Companies auto-refresh started (every 5 seconds)');
     interval(this.refreshInterval).pipe(
       switchMap(() => {
-        console.log('🔄 Auto-refresh triggered for Companies');
         return this.fetchCompanies();
       })
     ).subscribe();
@@ -281,7 +274,6 @@ export class CompanyService {
       // Server-side error
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
-    console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
   }
 }
