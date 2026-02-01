@@ -79,8 +79,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getProfileImageUrl(): string {
-    if (this.currentUser?.profileImage) {
-      return this.currentUser.profileImage;
+    if (this.currentUser?.UserImage) {
+      // Ensure the image path is absolute for proper display
+      if (this.currentUser.UserImage.startsWith('http')) {
+        return this.currentUser.UserImage;
+      }
+      
+      // Construct absolute URL based on current origin
+      const currentOrigin = window.location.origin;
+      const backendPort = ':3000'; // Backend runs on port 3000
+      
+      // If frontend is running on different port, use backend port
+      if (!currentOrigin.includes(':3000')) {
+        const backendUrl = currentOrigin.replace(/:\d+$/, backendPort);
+        return `${backendUrl}${this.currentUser.UserImage}`;
+      } else {
+        return `${currentOrigin}${this.currentUser.UserImage}`;
+      }
     }
     return '/assets/images/default-profile-icon.png';
   }

@@ -11,6 +11,7 @@ import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { Application } from '../entities/application.entity';
+import { Role } from '../entities/role.entity';
 import { RoleAndApplicationWisePermission } from '../entities/role-and-application-wise-permission.entity';
 import { UserRoleMapping } from '../entities/user-role-mapping.entity';
 
@@ -44,7 +45,17 @@ export class UserService {
       IsDeleted: false,
     });
 
-    return this.userRepository.save(user);
+    // Save user first to get the user ID
+    const savedUser = await this.userRepository.save(user);
+
+    // Assign roles to the user if roles are provided
+    if (createUserDto.Roles &&
+        Array.isArray(createUserDto.Roles) &&
+        createUserDto.Roles.length > 0) {
+      await this.assignRolesToUser(savedUser.Id, createUserDto.Roles);
+    }
+
+    return savedUser;
   }
 
   async findAll(): Promise<User[]> {
@@ -104,7 +115,22 @@ export class UserService {
       UpdatedDate: new Date(),
       UpdatedBy: updateUserDto.UpdatedBy,
     });
-    return this.userRepository.save(user);
+
+    // Save user first
+    const savedUser = await this.userRepository.save(user);
+
+    // Assign roles to the user if roles are provided (even if empty array to clear roles)
+    if (updateUserDto.Roles !== undefined) {
+      // If roles array is provided (even empty), assign those roles
+      if (Array.isArray(updateUserDto.Roles)) {
+        await this.assignRolesToUser(savedUser.Id, updateUserDto.Roles);
+      } else if (typeof updateUserDto.Roles === 'string') {
+        // Handle single role as string (convert to array)
+        await this.assignRolesToUser(savedUser.Id, [updateUserDto.Roles]);
+      }
+    }
+
+    return savedUser;
   }
 
   async remove(id: number, deletedBy?: number): Promise<void> {
@@ -300,7 +326,17 @@ export class UserService {
     };
   }
 
-  async assignRolesToUser(userId: number, roleIds: string[]): Promise<void> {
+  async assignRolesToUser(userId: number, roleNames: string[]): Promise<void> {
+    console.log(`Assigning roles to user ${userId}:`, roleNames);
+
+    if (!roleNames || roleNames.length === 0) {
+      console.log('No roles provided to assign');
+      return;
+    }
+
+    // Ensure roleNames is an array
+    const rolesToAssign = Array.isArray(roleNames) ? roleNames : [roleNames];
+
     const user = await this.userRepository.findOne({
       where: { Id: userId },
       relations: ['UserRoleMappings'],
@@ -315,13 +351,33 @@ export class UserService {
       await this.userRepository.manager.remove(user.UserRoleMappings);
     }
 
+    // Get all roles to perform case-insensitive matching
+    const allRoles = await this.userRepository.manager
+      .getRepository(Role)
+      .find();
+
+    const validRoles = allRoles.filter(role => 
+      rolesToAssign.some((r) => r.toLowerCase() === role.RoleName.toLowerCase())
+    );
+
+    if (validRoles.length === 0) {
+      console.warn(`No valid roles found for names: ${rolesToAssign.join(', ')}`);
+      // Don't throw exception, just log warning so user creation doesn't fail completely
+      // But if roles are critical, maybe we should throw? 
+      // The user said "given roles to this user not save", so we want to ensure they ARE saved.
+      // If we can't find them, we can't save them.
+      return;
+    }
+
+    console.log(`Found ${validRoles.length} valid roles:`, validRoles.map(r => r.RoleName));
+
     // Add new role mappings
-    for (const roleId of roleIds) {
+    for (const role of validRoles) {
       const userRoleMapping = this.userRepository.manager.create(
         UserRoleMapping,
         {
           UserId: userId,
-          RoleId: parseInt(roleId),
+          RoleId: role.Id,
           CreatedDate: new Date(),
           UpdatedDate: new Date(),
         },

@@ -177,6 +177,8 @@ export class AuthService {
           address: user.Address,
           PhoneNumber: user.PhoneNumber,
           phoneNumber: user.PhoneNumber,
+          UserImage: user.UserImage,
+          userImage: user.UserImage,
           role: user.role,
           userRole: user.userRole,
           roles: user.roles || [],

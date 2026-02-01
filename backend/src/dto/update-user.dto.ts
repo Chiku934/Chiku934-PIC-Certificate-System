@@ -3,7 +3,6 @@ import {
   IsString,
   IsEmail,
   MinLength,
-  IsPhoneNumber,
 } from 'class-validator';
 
 export class UpdateUserDto {
@@ -28,7 +27,7 @@ export class UpdateUserDto {
   LastName?: string;
 
   @IsOptional()
-  @IsPhoneNumber()
+  @IsString()
   PhoneNumber?: string;
 
   @IsOptional()

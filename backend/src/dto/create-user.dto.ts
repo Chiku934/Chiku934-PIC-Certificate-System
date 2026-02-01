@@ -4,7 +4,6 @@ import {
   IsString,
   MinLength,
   IsOptional,
-  IsPhoneNumber,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -28,7 +27,7 @@ export class CreateUserDto {
   LastName?: string;
 
   @IsOptional()
-  @IsPhoneNumber()
+  @IsString()
   PhoneNumber?: string;
 
   @IsOptional()
@@ -39,7 +38,7 @@ export class CreateUserDto {
   @IsString()
   UserImage?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString({ each: true })
   Roles: string[];
 

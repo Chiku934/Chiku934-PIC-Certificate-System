@@ -12,8 +12,12 @@ import {
   HttpStatus,
   Req,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from '../services/user.service';
+import { FileUploadService } from '../services/file-upload.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { LoginUserDto } from '../dto/login-user.dto';
@@ -21,10 +25,21 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly fileUploadService: FileUploadService,
+  ) {}
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
+  @UseInterceptors(FileInterceptor('UserImage'))
+  async register(
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (file) {
+      const imagePath = await this.fileUploadService.uploadFile(file);
+      createUserDto.UserImage = imagePath;
+    }
     return this.userService.register(createUserDto);
   }
 
@@ -62,7 +77,19 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @UseInterceptors(FileInterceptor('UserImage'))
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: any,
+  ) {
+    if (file) {
+      const imagePath = await this.fileUploadService.uploadFile(file);
+      updateUserDto.UserImage = imagePath;
+    }
+    // Set UpdatedBy from authenticated user
+    updateUserDto.UpdatedBy = req.user.Id;
     return this.userService.update(+id, updateUserDto);
   }
 

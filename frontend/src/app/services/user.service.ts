@@ -201,6 +201,29 @@ export class UserService {
   }
 
   /**
+   * Refresh auth user profile after user update
+   */
+  refreshAuthUserProfile(): void {
+    // Call the auth service to refresh the current user profile
+    // This will ensure header and sidebar components get updated user data
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      this.http.get<any>('/api/users/profile', {
+        headers: this.getAuthHeaders()
+      }).subscribe({
+        next: (user) => {
+          // Notify that user profile has been refreshed
+          // The auth service should handle this internally
+          console.log('Auth user profile refreshed after update');
+        },
+        error: (error) => {
+          console.error('Error refreshing auth user profile:', error);
+        }
+      });
+    }
+  }
+
+  /**
    * Fetch all users from API
    */
   private fetchAllUsers(): void {

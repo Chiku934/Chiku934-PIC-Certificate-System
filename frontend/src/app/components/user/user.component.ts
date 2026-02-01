@@ -167,7 +167,22 @@ export class UserComponent implements OnInit, OnDestroy {
         this.currentUser = user;
         this.patchFormWithUserData(user);
         if (user.UserImage) {
-          this.fileUpload.preview = user.UserImage;
+          // Ensure the image path is absolute for proper display
+          if (user.UserImage.startsWith('http')) {
+            this.fileUpload.preview = user.UserImage;
+          } else {
+            // Construct absolute URL based on current origin
+            const currentOrigin = window.location.origin;
+            const backendPort = ':3000'; // Backend runs on port 3000
+            
+            // If frontend is running on different port, use backend port
+            if (!currentOrigin.includes(':3000')) {
+              const backendUrl = currentOrigin.replace(/:\d+$/, backendPort);
+              this.fileUpload.preview = `${backendUrl}${user.UserImage}`;
+            } else {
+              this.fileUpload.preview = `${currentOrigin}${user.UserImage}`;
+            }
+          }
         }
         // Load user roles from the same user object
         this.loadUserRolesFromUser(user);
@@ -316,6 +331,9 @@ export class UserComponent implements OnInit, OnDestroy {
 
     this.isSubmitting = true;
 
+    // Get current user ID for audit fields
+    const currentUserId = this.authService.getCurrentUser()?.id;
+
     // Create DTO object for backend (JSON format)
     const userData = {
       Email: this.userForm.get('Email')?.value,
@@ -326,18 +344,25 @@ export class UserComponent implements OnInit, OnDestroy {
       Address: this.userForm.get('Address')?.value || '',
       IsActive: this.userForm.get('IsActive')?.value,
       Roles: this.selectedRoles,
-      Password: this.mode === 'create' ? password : undefined
+      Password: this.mode === 'create' ? password : undefined,
+      ...(this.mode === 'create' && { CreatedBy: currentUserId }),
+      ...(this.mode === 'edit' && { UpdatedBy: currentUserId })
     };
 
-    // For file upload, we need to handle it separately since backend expects JSON
-    // Let's create a simple JSON request without file upload for now
-    const sub = (this.mode === 'create' 
-      ? this.userService.createUser(userData, null, this.selectedRoles)
-      : this.userService.updateUser(this.userId!, userData, null, this.selectedRoles)
+    // Handle file upload if a file is selected
+    const file = this.fileUpload.file;
+    const sub = (this.mode === 'create'
+      ? this.userService.createUser(userData, file, this.selectedRoles)
+      : this.userService.updateUser(this.userId!, userData, file, this.selectedRoles)
     ).subscribe({
       next: (response: any) => {
         this.successMessage = `User ${this.mode === 'create' ? 'created' : 'updated'} successfully`;
         this.isSubmitting = false;
+        
+        // Refresh auth user profile if this is the current user being updated
+        if (this.mode === 'edit' && this.userId === this.authService.getCurrentUser()?.id) {
+          this.userService.refreshAuthUserProfile();
+        }
         
         setTimeout(() => {
           this.router.navigate(['/setup/users']);
@@ -385,5 +410,33 @@ export class UserComponent implements OnInit, OnDestroy {
 
   get f() {
     return this.userForm.controls;
+  }
+
+  getUserImageUrl(): string {
+    // Return the preview if available (for new uploads), otherwise construct from currentUser
+    if (this.fileUpload.preview) {
+      return this.fileUpload.preview;
+    }
+    
+    if (this.currentUser?.UserImage) {
+      // Ensure the image path is absolute for proper display
+      if (this.currentUser.UserImage.startsWith('http')) {
+        return this.currentUser.UserImage;
+      }
+      
+      // Construct absolute URL based on current origin
+      const currentOrigin = window.location.origin;
+      const backendPort = ':3000'; // Backend runs on port 3000
+      
+      // If frontend is running on different port, use backend port
+      if (!currentOrigin.includes(':3000')) {
+        const backendUrl = currentOrigin.replace(/:\d+$/, backendPort);
+        return `${backendUrl}${this.currentUser.UserImage}`;
+      } else {
+        return `${currentOrigin}${this.currentUser.UserImage}`;
+      }
+    }
+    
+    return '/assets/images/default-avatar.png';
   }
 }

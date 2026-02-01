@@ -96,8 +96,7 @@
                       <div class="image-preview-container">
                         <div class="image-preview-wrapper">
                           <img 
-                            *ngIf="fileUpload.preview || currentUser?.UserImage"
-                            [src]="fileUpload.preview || (currentUser?.UserImage ?? '/assets/images/default-avatar.png')" 
+                            [src]="getUserImageUrl()" 
                             alt="User Image"
                             class="image-preview-image"
                             onerror="this.src='/assets/images/default-avatar.png'"
