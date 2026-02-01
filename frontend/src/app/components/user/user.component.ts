@@ -278,10 +278,18 @@ export class UserComponent implements OnInit, OnDestroy {
       this.fileUpload.file = file;
       this.fileUpload.name = file.name;
 
-      // Create preview
+      // Create preview instantly
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.fileUpload.preview = e.target?.result as string;
+        const result = e.target?.result as string;
+        if (result) {
+          this.fileUpload.preview = result;
+          // Force change detection to update the UI immediately
+          this.cdr.detectChanges();
+        }
+      };
+      reader.onerror = () => {
+        this.errorMessage = 'Error reading file. Please try again.';
       };
       reader.readAsDataURL(file);
       
