@@ -51,12 +51,27 @@ export class UserService {
     return this.userRepository.find({ where: { IsDeleted: false } });
   }
 
-  async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { Id: id, IsDeleted: false } });
+  async findOne(id: number): Promise<any> {
+    const user = await this.userRepository.findOne({ 
+      where: { Id: id, IsDeleted: false },
+      relations: ['UserRoleMappings', 'UserRoleMappings.Role']
+    });
+    
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+
+    // Get user roles
+    const roles =
+      user.UserRoleMappings?.map(
+        (mapping) => mapping.Role?.RoleName || 'User',
+      ) || [];
+    
+    return {
+      ...user,
+      roles,
+      role: roles[0] || 'User', // For backward compatibility
+    };
   }
 
   async findOneForAuth(id: number): Promise<User | null> {

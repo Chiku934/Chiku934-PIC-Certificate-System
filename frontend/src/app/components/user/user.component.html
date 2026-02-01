@@ -79,7 +79,7 @@
       </div>
 
       <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
-        <!-- User Profile Card -->
+        <!-- Profile Image Section -->
         <div class="card form-card">
           <div class="card-header">
             <h5 class="card-title">
@@ -88,7 +88,6 @@
             </h5>
           </div>
           <div class="card-body">
-            <!-- Profile Image Section -->
             <div class="row mb-4">
               <div class="col-12">
                 <div class="profile-section">
@@ -100,182 +99,211 @@
                             *ngIf="fileUpload.preview || currentUser?.UserImage"
                             [src]="fileUpload.preview || (currentUser?.UserImage ?? '/assets/images/default-avatar.png')" 
                             alt="User Image"
-                            class="img-fluid"
-                          />
-                          <div 
-                            *ngIf="!fileUpload.preview && !currentUser?.UserImage"
-                            class="placeholder-image"
+                            class="image-preview-image"
+                            onerror="this.src='/assets/images/default-avatar.png'"
                           >
+                          <div *ngIf="!fileUpload.preview && !currentUser?.UserImage" class="image-placeholder">
                             <i class="fas fa-user"></i>
                           </div>
                         </div>
-                      </div>
-                      <p class="text-muted mt-2 small">{{ fileUpload.name || 'No image selected' }}</p>
-                    </div>
-                    <div class="col-md-9">
-                      <div class="upload-actions">
-                        <div *ngIf="mode !== 'view'" class="mb-3">
-                          <label for="imageInput" class="form-label">Profile Picture</label>
-                          <input
-                            type="file"
-                            id="imageInput"
-                            class="form-control"
-                            accept="image/*"
-                            (change)="onFileSelected($event)"
-                            [disabled]="isViewMode()"
-                          />
-                          <small class="text-muted">JPG, PNG or GIF (Max 5MB)</small>
-                        </div>
-                        <button
-                          *ngIf="fileUpload.preview || currentUser?.UserImage"
-                          type="button"
-                          class="btn btn-outline-danger btn-sm"
+                        <button 
+                          *ngIf="mode !== 'view' && (fileUpload.preview || currentUser?.UserImage)"
+                          type="button" 
+                          class="btn-remove-image"
                           (click)="onRemoveImage()"
-                          [disabled]="isViewMode()"
+                          title="Remove Image"
                         >
-                          <i class="fas fa-trash me-2"></i>
-                          Remove Image
+                          <i class="fas fa-times"></i>
                         </button>
                       </div>
                     </div>
+                    <div class="col-md-9">
+                      <div class="image-upload-content">
+                        <h6 class="image-title">Profile Picture</h6>
+                        <p class="image-subtitle">Upload user profile image (JPG, PNG, or GIF - Max 5MB)</p>
+                        
+                        <div *ngIf="mode !== 'view'" class="image-upload-actions">
+                          <div class="file-input-wrapper">
+                            <input
+                              type="file"
+                              id="userImage"
+                              accept="image/jpeg,image/jpg,image/png,image/gif"
+                              (change)="onFileSelected($event)"
+                              class="image-file-input"
+                            >
+                            <label for="userImage" class="btn btn-primary btn-image-upload">
+                              <i class="fas fa-upload me-2"></i>
+                              {{ fileUpload.name ? 'Change Image' : 'Choose Image' }}
+                            </label>
+                          </div>
+                          
+                          <div *ngIf="fileUpload.name" class="file-info">
+                            <small class="text-muted">
+                              <i class="fas fa-file me-1"></i>
+                              {{ fileUpload.name }}
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <hr class="my-4" />
-
-            <!-- Basic Information -->
-            <div class="form-section">
-              <h6 class="section-title">Basic Information</h6>
-              
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="email" class="form-label">
-                    Email <span class="text-danger">*</span>
-                  </label>
+            <!-- User Details Form - Three Input Boxes Per Line -->
+            <div class="three-column-form">
+              <!-- Row 1: Email, First Name, Middle Name -->
+              <div class="form-triplet">
+                <div class="form-field">
+                  <label for="Email" class="form-label required">Email Address</label>
                   <input
                     type="email"
-                    id="email"
                     class="form-control"
+                    id="Email"
                     formControlName="Email"
-                    [readonly]="isViewMode()"
-                  />
-                  <div *ngIf="userForm.get('Email')?.invalid && userForm.get('Email')?.touched" class="invalid-feedback d-block">
-                    Please enter a valid email address
+                    placeholder="Enter email address"
+                    [disabled]="mode === 'view'"
+                  >
+                  <div *ngIf="f['Email']?.touched && f['Email']?.invalid" class="form-error">
+                    <small *ngIf="f['Email']?.errors?.['required']">Email is required</small>
+                    <small *ngIf="f['Email']?.errors?.['email']">Please enter a valid email address</small>
                   </div>
                 </div>
-
-                <div class="col-md-6 mb-3">
-                  <label for="phone" class="form-label">Phone Number</label>
+                <div class="form-field">
+                  <label for="FirstName" class="form-label">First Name</label>
                   <input
                     type="text"
-                    id="phone"
                     class="form-control"
-                    formControlName="PhoneNumber"
-                    [readonly]="isViewMode()"
-                    placeholder="e.g., +1 (555) 000-0000"
-                  />
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-4 mb-3">
-                  <label for="firstName" class="form-label">First Name</label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    class="form-control"
+                    id="FirstName"
                     formControlName="FirstName"
-                    [readonly]="isViewMode()"
-                  />
+                    placeholder="Enter first name"
+                    [disabled]="mode === 'view'"
+                  >
+                  <div *ngIf="f['FirstName']?.touched && f['FirstName']?.invalid" class="form-error">
+                    <small *ngIf="f['FirstName']?.errors?.['maxlength']">Cannot exceed 100 characters</small>
+                  </div>
                 </div>
-
-                <div class="col-md-4 mb-3">
-                  <label for="middleName" class="form-label">Middle Name</label>
+                <div class="form-field">
+                  <label for="MiddleName" class="form-label">Middle Name</label>
                   <input
                     type="text"
-                    id="middleName"
                     class="form-control"
+                    id="MiddleName"
                     formControlName="MiddleName"
-                    [readonly]="isViewMode()"
-                  />
+                    placeholder="Enter middle name (optional)"
+                    [disabled]="mode === 'view'"
+                  >
+                  <div *ngIf="f['MiddleName']?.touched && f['MiddleName']?.invalid" class="form-error">
+                    <small *ngIf="f['MiddleName']?.errors?.['maxlength']">Cannot exceed 100 characters</small>
+                  </div>
                 </div>
+              </div>
 
-                <div class="col-md-4 mb-3">
-                  <label for="lastName" class="form-label">Last Name</label>
+              <!-- Row 2: Last Name, Phone Number, Address -->
+              <div class="form-triplet">
+                <div class="form-field">
+                  <label for="LastName" class="form-label">Last Name</label>
                   <input
                     type="text"
-                    id="lastName"
                     class="form-control"
+                    id="LastName"
                     formControlName="LastName"
-                    [readonly]="isViewMode()"
-                  />
+                    placeholder="Enter last name"
+                    [disabled]="mode === 'view'"
+                  >
+                  <div *ngIf="f['LastName']?.touched && f['LastName']?.invalid" class="form-error">
+                    <small *ngIf="f['LastName']?.errors?.['maxlength']">Cannot exceed 100 characters</small>
+                  </div>
                 </div>
-              </div>
-
-              <div class="row">
-                <div class="col-12 mb-3">
-                  <label for="address" class="form-label">Address</label>
-                  <textarea
-                    id="address"
+                <div class="form-field">
+                  <label for="PhoneNumber" class="form-label">Phone Number</label>
+                  <input
+                    type="tel"
                     class="form-control"
+                    id="PhoneNumber"
+                    formControlName="PhoneNumber"
+                    placeholder="Enter phone number"
+                    [disabled]="mode === 'view'"
+                  >
+                  <div *ngIf="f['PhoneNumber']?.touched && f['PhoneNumber']?.invalid" class="form-error">
+                    <small *ngIf="f['PhoneNumber']?.errors?.['maxlength']">Cannot exceed 20 characters</small>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="Address" class="form-label">Address</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="Address"
                     formControlName="Address"
-                    [readonly]="isViewMode()"
-                    rows="3"
-                  ></textarea>
+                    placeholder="Enter address"
+                    [disabled]="mode === 'view'"
+                  >
+                  <div *ngIf="f['Address']?.touched && f['Address']?.invalid" class="form-error">
+                    <small *ngIf="f['Address']?.errors?.['maxlength']">Cannot exceed 255 characters</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 3: Password, Confirm Password, Status -->
+              <div *ngIf="mode !== 'view'" class="form-triplet">
+                <div class="form-field">
+                  <label for="Password" class="form-label">
+                    {{ mode === 'create' ? 'Password' : 'New Password' }}
+                    <span *ngIf="mode === 'create'" class="text-danger">*</span>
+                    <span *ngIf="mode === 'edit'" class="small text-muted">(leave blank to keep current)</span>
+                  </label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="Password"
+                    formControlName="Password"
+                    placeholder="{{ mode === 'create' ? 'Enter password' : 'Enter new password (optional)' }}"
+                  >
+                  <div *ngIf="f['Password']?.touched && f['Password']?.invalid" class="form-error">
+                    <small *ngIf="f['Password']?.errors?.['minlength']">Password must be at least 6 characters</small>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="ConfirmPassword" class="form-label">
+                    Confirm Password
+                    <span *ngIf="mode === 'create'" class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="ConfirmPassword"
+                    formControlName="ConfirmPassword"
+                    placeholder="Confirm password"
+                  >
+                  <div *ngIf="f['ConfirmPassword']?.touched && f['ConfirmPassword']?.invalid" class="form-error">
+                    <small *ngIf="f['ConfirmPassword']?.errors?.['passwordMismatch']">Passwords do not match</small>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="IsActive" class="form-label">Account Status</label>
+                  <div class="form-check form-switch">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="IsActive"
+                      formControlName="IsActive"
+                    >
+                    <label class="form-check-label" for="IsActive">
+                      {{ userForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                    </label>
+                  </div>
+                  <small class="text-muted">
+                    {{ userForm.get('IsActive')?.value ? 'User account is active' : 'User account is inactive' }}
+                  </small>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Security Card -->
-        <div *ngIf="mode !== 'view'" class="card form-card">
-          <div class="card-header">
-            <h5 class="card-title">
-              <i class="fas fa-lock me-2"></i>
-              Security Settings
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="password" class="form-label">
-                  {{ mode === 'create' ? 'Password' : 'New Password' }}
-                  <span *ngIf="mode === 'create'" class="text-danger">*</span>
-                  <span *ngIf="mode === 'edit'" class="small text-muted">(leave blank to keep current)</span>
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  class="form-control"
-                  formControlName="Password"
-                  [readonly]="isViewMode()"
-                />
-                <div *ngIf="userForm.get('Password')?.invalid && userForm.get('Password')?.touched" class="invalid-feedback d-block">
-                  {{ mode === 'create' ? 'Password is required (min 6 characters)' : 'Minimum 6 characters' }}
-                </div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="confirmPassword" class="form-label">
-                  Confirm Password
-                  <span *ngIf="mode === 'create'" class="text-danger">*</span>
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  class="form-control"
-                  formControlName="ConfirmPassword"
-                  [readonly]="isViewMode()"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Roles Card -->
+        <!-- Roles & Permissions Card -->
         <div class="card form-card">
           <div class="card-header">
             <h5 class="card-title">
@@ -285,22 +313,19 @@
           </div>
           <div class="card-body">
             <p class="text-muted mb-3">Select one or more roles for this user</p>
-            <div class="roles-grid">
-              <div *ngFor="let role of roles" class="role-checkbox">
-                <div class="form-check">
+            <div class="roles-container">
+              <div *ngFor="let role of roles" class="role-checkbox" [class.checked]="roleChecked[role]" [class.disabled]="mode === 'view'">
+                <label class="role-label" [for]="'role-' + role">
                   <input 
                     type="checkbox" 
                     [id]="'role-' + role"
-                    class="form-check-input" 
-                    [checked]="isRoleSelected(role)"
+                    [checked]="roleChecked[role]"
                     (change)="onRoleChange(role)"
-                    [disabled]="isViewMode()"
+                    [disabled]="mode === 'view'"
                   />
-                  <label [for]="'role-' + role" class="form-check-label">
-                    <i [ngClass]="getRoleIcon(role)" class="me-2"></i>
-                    {{ role }}
-                  </label>
-                </div>
+                  <span class="role-checkbox-custom"></span>
+                  <span class="role-name">{{ role }}</span>
+                </label>
               </div>
             </div>
             <div *ngIf="mode === 'create' && selectedRoles.length === 0" class="alert alert-warning mt-3">
@@ -310,52 +335,25 @@
           </div>
         </div>
 
-        <!-- Status Card -->
-        <div class="card form-card">
-          <div class="card-header">
-            <h5 class="card-title">
-              <i class="fas fa-toggle-on me-2"></i>
-              Account Status
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="form-check form-switch">
-              <input
-                type="checkbox"
-                id="isActive"
-                class="form-check-input"
-                formControlName="IsActive"
-                [disabled]="isViewMode()"
-              />
-              <label class="form-check-label" for="isActive">
-                Active Account
-              </label>
-            </div>
-            <small class="text-muted d-block mt-2">
-              {{ userForm.get('IsActive')?.value ? 'This user account is active' : 'This user account is inactive' }}
-            </small>
-          </div>
-        </div>
-
         <!-- Form Actions -->
-        <div class="form-actions">
+        <div *ngIf="mode !== 'view'" class="form-actions">
           <button 
             type="button" 
-            class="btn btn-outline-secondary"
+            class="btn btn-secondary me-2"
             (click)="onCancel()"
             [disabled]="isSubmitting"
           >
-            <i class="fas fa-times me-2"></i>
+            <i class="fas fa-arrow-left me-2"></i>
             Cancel
           </button>
+          
           <button 
-            *ngIf="mode !== 'view'"
             type="submit" 
             class="btn btn-primary"
-            [disabled]="isSubmitting || !userForm.valid"
+            [disabled]="isSubmitting || userForm.invalid || (mode === 'create' && selectedRoles.length === 0)"
           >
             <i class="fas fa-save me-2"></i>
-            {{ isSubmitting ? 'Saving...' : (mode === 'create' ? 'Create User' : 'Update User') }}
+            {{ isSubmitting ? 'Saving...' : (currentUser ? 'Update User' : 'Create User') }}
           </button>
         </div>
       </form>

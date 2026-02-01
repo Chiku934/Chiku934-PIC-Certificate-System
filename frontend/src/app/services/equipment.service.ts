@@ -34,7 +34,6 @@ export interface Equipment {
 })
 export class EquipmentService {
   private apiUrl = '/api/equipment';
-  private refreshInterval = 5000; // Refresh every 5 seconds
   
   // BehaviorSubjects to hold the latest data
   private allEquipment$ = new BehaviorSubject<Equipment[]>([]);
@@ -42,7 +41,9 @@ export class EquipmentService {
   private equipmentByStatus$ = new BehaviorSubject<Equipment[]>([]);
 
   constructor(private http: HttpClient) {
-    this.startAutoRefresh();
+    // Auto-refresh removed to prevent resetting user selections
+    // Initial data fetch to populate lists
+    this.fetchAllEquipment();
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -125,17 +126,6 @@ export class EquipmentService {
   refreshNow(): void {
     console.log('🔄 Manual refresh triggered for Equipment');
     this.fetchAllEquipment();
-  }
-
-  /**
-   * Start auto-refresh interval
-   */
-  private startAutoRefresh(): void {
-    console.log('⏰ Equipment auto-refresh started (every 5 seconds)');
-    interval(this.refreshInterval).subscribe(() => {
-      console.log('🔄 Auto-refresh triggered for Equipment');
-      this.fetchAllEquipment();
-    });
   }
 
   /**

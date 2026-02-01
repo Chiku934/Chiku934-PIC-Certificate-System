@@ -27,14 +27,15 @@ export interface User {
 })
 export class UserService {
   private apiUrl = '/api/users';
-  private refreshInterval = 30000; // Refresh every 30 seconds
   
   // BehaviorSubjects to hold the latest data
   private allUsers$ = new BehaviorSubject<User[]>([]);
   private activeUsers$ = new BehaviorSubject<User[]>([]);
 
   constructor(private http: HttpClient) {
-    this.startAutoRefresh();
+    // Auto-refresh removed to prevent resetting user selections
+    // Initial data fetch to populate lists
+    this.fetchAllUsers();
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -79,6 +80,21 @@ export class UserService {
    * Create new user with optional file upload
    */
   createUser(userData: any, file?: File | null, roles?: string[]): Observable<any> {
+    // If no file is provided, send JSON data
+    if (!file) {
+      const data = {
+        ...userData,
+        Roles: roles || []
+      };
+      
+      return this.http.post<any>(`${this.apiUrl}/register`, data, {
+        headers: this.getAuthHeaders()
+      }).pipe(
+        tap(() => this.refreshNow())
+      );
+    }
+    
+    // If file is provided, use FormData
     const formData = new FormData();
     
     // Add user data
@@ -114,6 +130,21 @@ export class UserService {
    * Update user with optional file upload
    */
   updateUser(id: number, userData: any, file?: File | null, roles?: string[]): Observable<any> {
+    // If no file is provided, send JSON data
+    if (!file) {
+      const data = {
+        ...userData,
+        Roles: roles || []
+      };
+      
+      return this.http.patch<any>(`${this.apiUrl}/${id}`, data, {
+        headers: this.getAuthHeaders()
+      }).pipe(
+        tap(() => this.refreshNow())
+      );
+    }
+    
+    // If file is provided, use FormData
     const formData = new FormData();
     
     // Add user data
@@ -167,15 +198,6 @@ export class UserService {
    */
   refreshNow(): void {
     this.fetchAllUsers();
-  }
-
-  /**
-   * Start auto-refresh interval
-   */
-  private startAutoRefresh(): void {
-    interval(this.refreshInterval).subscribe(() => {
-      this.fetchAllUsers();
-    });
   }
 
   /**

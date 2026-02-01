@@ -32,7 +32,6 @@ export interface Location {
 })
 export class LocationService {
   private apiUrl = '/api/locations';
-  private refreshInterval = 5000; // Refresh every 5 seconds
   
   // BehaviorSubjects to hold the latest data
   private allLocations$ = new BehaviorSubject<Location[]>([]);
@@ -40,7 +39,11 @@ export class LocationService {
   private rootLocations$ = new BehaviorSubject<Location[]>([]);
 
   constructor(private http: HttpClient) {
-    this.startAutoRefresh();
+    // Auto-refresh removed to prevent resetting user selections
+    // Initial data fetch to populate lists
+    this.fetchAllLocations();
+    this.fetchActiveLocations();
+    this.fetchRootLocations();
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -133,17 +136,6 @@ export class LocationService {
     this.fetchAllLocations();
     this.fetchActiveLocations();
     this.fetchRootLocations();
-  }
-
-  /**
-   * Start auto-refresh interval
-   */
-  private startAutoRefresh(): void {
-    interval(this.refreshInterval).subscribe(() => {
-      this.fetchAllLocations();
-      this.fetchActiveLocations();
-      this.fetchRootLocations();
-    });
   }
 
   /**

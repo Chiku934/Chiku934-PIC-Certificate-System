@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -38,8 +38,9 @@ export class UserComponent implements OnInit, OnDestroy {
     name: ''
   };
 
-  roles = ['Admin', 'User', 'Manager', 'Operator'];
+  roles = ['Administrator', 'Admin', 'User'];
   selectedRoles: string[] = [];
+  roleChecked: { [key: string]: boolean } = {};
 
   private subscriptions: Subscription[] = [];
 
@@ -48,7 +49,8 @@ export class UserComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {
     this.userForm = this.fb.group({
       Email: ['', [Validators.required, Validators.email]],
@@ -99,9 +101,13 @@ export class UserComponent implements OnInit, OnDestroy {
       name: ''
     };
     this.selectedRoles = [];
+    // Update role checked state for create mode (no roles selected initially)
+    this.updateRoleChecked();
     // Password is required in create mode
     this.userForm.get('Password')?.setValidators([Validators.required, Validators.minLength(6)]);
     this.userForm.get('Email')?.setValidators([Validators.required, Validators.email]);
+    // Ensure form is enabled for create mode
+    this.userForm.enable();
   }
 
   private setupFormForViewMode(): void {
@@ -158,12 +164,13 @@ export class UserComponent implements OnInit, OnDestroy {
 
     const sub = this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
-        console.log('Loaded user:', user);
         this.currentUser = user;
         this.patchFormWithUserData(user);
         if (user.UserImage) {
           this.fileUpload.preview = user.UserImage;
         }
+        // Load user roles from the same user object
+        this.loadUserRolesFromUser(user);
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -174,6 +181,32 @@ export class UserComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(sub);
   }
+
+  loadUserRolesFromUser(user: any): void {
+    // Get roles from the user object (backend now returns roles array)
+    let userRoles = user?.roles || [];
+    
+    // Normalize and map roles to selected roles array
+    this.selectedRoles = userRoles
+      .map((role: any) => {
+        if (!role) return '';
+        const normalizedRole = role.toString().trim();
+        // Map backend role names to available roles
+        const roleMap: { [key: string]: string } = {
+          'administrator': 'Administrator',
+          'admin': 'Admin',
+          'user': 'User'
+        };
+        return roleMap[normalizedRole.toLowerCase()] || normalizedRole;
+      })
+      .filter((r: string) => r); // Remove empty strings
+    
+    this.updateRoleChecked();
+    
+    // Trigger change detection to ensure UI updates
+    this.cdr.detectChanges();
+  }
+
 
   private patchFormWithUserData(user: User): void {
     this.userForm.patchValue({
@@ -186,6 +219,17 @@ export class UserComponent implements OnInit, OnDestroy {
       UserImage: user.UserImage,
       IsActive: user.IsActive
     });
+  }
+
+  private updateRoleChecked(): void {
+    this.roleChecked = {};
+    // Normalize selected roles to lowercase for comparison
+    const normalizedSelected = this.selectedRoles.map(r => r.toLowerCase().trim());
+    const roleSet = new Set(normalizedSelected);
+    
+    for (const role of this.roles) {
+      this.roleChecked[role] = roleSet.has(role.toLowerCase().trim());
+    }
   }
 
   private handleLoadError(error: any, retryCount: number): void {
@@ -246,6 +290,10 @@ export class UserComponent implements OnInit, OnDestroy {
     } else {
       this.selectedRoles.push(role);
     }
+    // Update the checked state immediately after changing
+    this.updateRoleChecked();
+    // Trigger change detection to ensure UI updates
+    this.cdr.detectChanges();
   }
 
   isRoleSelected(role: string): boolean {
@@ -267,37 +315,25 @@ export class UserComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmitting = true;
-    const formData = new FormData();
 
-    // Add form fields
-    formData.append('Email', this.userForm.get('Email')?.value);
-    formData.append('FirstName', this.userForm.get('FirstName')?.value || '');
-    formData.append('MiddleName', this.userForm.get('MiddleName')?.value || '');
-    formData.append('LastName', this.userForm.get('LastName')?.value || '');
-    formData.append('PhoneNumber', this.userForm.get('PhoneNumber')?.value || '');
-    formData.append('Address', this.userForm.get('Address')?.value || '');
-    formData.append('IsActive', this.userForm.get('IsActive')?.value);
+    // Create DTO object for backend (JSON format)
+    const userData = {
+      Email: this.userForm.get('Email')?.value,
+      FirstName: this.userForm.get('FirstName')?.value || '',
+      MiddleName: this.userForm.get('MiddleName')?.value || '',
+      LastName: this.userForm.get('LastName')?.value || '',
+      PhoneNumber: this.userForm.get('PhoneNumber')?.value || '',
+      Address: this.userForm.get('Address')?.value || '',
+      IsActive: this.userForm.get('IsActive')?.value,
+      Roles: this.selectedRoles,
+      Password: this.mode === 'create' ? password : undefined
+    };
 
-    // Add roles
-    this.selectedRoles.forEach(role => {
-      formData.append('Roles', role);
-    });
-
-    // Add file if exists
-    if (this.fileUpload.file) {
-      formData.append('UserImage', this.fileUpload.file);
-    }
-
-    // Add password if in create mode or if changed in edit mode
-    if (this.mode === 'create') {
-      formData.append('Password', this.userForm.get('Password')?.value);
-    } else if (password) {
-      formData.append('Password', password);
-    }
-
+    // For file upload, we need to handle it separately since backend expects JSON
+    // Let's create a simple JSON request without file upload for now
     const sub = (this.mode === 'create' 
-      ? this.userService.createUser(this.userForm.value, this.fileUpload.file, this.selectedRoles)
-      : this.userService.updateUser(this.userId!, this.userForm.value, this.fileUpload.file, this.selectedRoles)
+      ? this.userService.createUser(userData, null, this.selectedRoles)
+      : this.userService.updateUser(this.userId!, userData, null, this.selectedRoles)
     ).subscribe({
       next: (response: any) => {
         this.successMessage = `User ${this.mode === 'create' ? 'created' : 'updated'} successfully`;
@@ -345,5 +381,9 @@ export class UserComponent implements OnInit, OnDestroy {
 
   isViewMode(): boolean {
     return this.mode === 'view';
+  }
+
+  get f() {
+    return this.userForm.controls;
   }
 }

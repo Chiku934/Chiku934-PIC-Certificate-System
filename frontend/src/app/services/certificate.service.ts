@@ -30,7 +30,6 @@ export interface Certificate {
 })
 export class CertificateService {
   private apiUrl = '/api/certificates';
-  private refreshInterval = 5000; // Refresh every 5 seconds
   
   // BehaviorSubjects to hold the latest data
   private allCertificates$ = new BehaviorSubject<Certificate[]>([]);
@@ -40,7 +39,11 @@ export class CertificateService {
   private expired$ = new BehaviorSubject<Certificate[]>([]);
 
   constructor(private http: HttpClient) {
-    this.startAutoRefresh();
+    // Auto-refresh removed to prevent resetting user selections
+    // Initial data fetch to populate lists
+    this.fetchAllCertificates();
+    this.fetchExpiringSoon();
+    this.fetchExpired();
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -160,17 +163,6 @@ export class CertificateService {
     this.fetchAllCertificates();
     this.fetchExpiringSoon();
     this.fetchExpired();
-  }
-
-  /**
-   * Start auto-refresh interval
-   */
-  private startAutoRefresh(): void {
-    interval(this.refreshInterval).subscribe(() => {
-      this.fetchAllCertificates();
-      this.fetchExpiringSoon();
-      this.fetchExpired();
-    });
   }
 
   /**
