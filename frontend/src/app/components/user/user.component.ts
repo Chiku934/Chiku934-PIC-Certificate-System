@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
 
 import { UserService, User } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -24,7 +24,7 @@ type UserMode = 'create' | 'edit' | 'view';
 })
 export class UserComponent implements OnInit, OnDestroy {
   userForm: FormGroup;
-  isLoading = false;
+  isLoading$ = new BehaviorSubject<boolean>(false);
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
@@ -50,7 +50,8 @@ export class UserComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
     this.userForm = this.fb.group({
       Email: ['', [Validators.required, Validators.email]],
@@ -67,59 +68,29 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Get initial route parameters
-    const id = this.route.snapshot.paramMap.get('id');
-    const url = this.router.url;
-    
-    // Set up mode and user ID based on route
-    if (id === 'new') {
-      this.mode = 'create';
-      this.userId = null;
-      this.setupFormForCreateMode();
-    } else if (id) {
-      // Check if the URL contains '/view' to determine view mode
-      if (url.includes('/view')) {
-        this.mode = 'view';
-      } else if (url.includes('/edit')) {
-        this.mode = 'edit';
-      }
-      this.userId = +id;
-      this.loadUserData();
-    }
-    
-    // Set up form based on mode
-    this.setupFormForMode();
-    
-    // Force refresh to ensure data is loaded for view/edit modes
-    if (this.mode !== 'create') {
-      this.userService.refreshNow();
-    }
-    
-    // Also listen for route changes (for navigation within the app)
+    // Listen for route changes (for navigation within the app)
     this.route.paramMap.subscribe(params => {
-      const newId = params.get('id');
-      if (newId !== id) {
-        // Handle route changes
-        if (newId === 'new') {
-          this.mode = 'create';
-          this.userId = null;
-          this.setupFormForCreateMode();
-        } else if (newId) {
-          const newUrl = this.router.url;
-          if (newUrl.includes('/view')) {
-            this.mode = 'view';
-          } else if (newUrl.includes('/edit')) {
-            this.mode = 'edit';
-          }
-          this.userId = +newId;
-          this.loadUserData();
+      const id = params.get('id');
+      const url = this.router.url;
+
+      // Set up mode and user ID based on route
+      if (id === 'new') {
+        this.mode = 'create';
+        this.userId = null;
+        this.setupFormForCreateMode();
+      } else if (id) {
+        // Check if the URL contains '/view' to determine view mode
+        if (url.includes('/view')) {
+          this.mode = 'view';
+        } else if (url.includes('/edit')) {
+          this.mode = 'edit';
         }
-        this.setupFormForMode();
-        
-        if (this.mode !== 'create') {
-          this.userService.refreshNow();
-        }
+        this.userId = +id;
+        this.loadUserData();
       }
+
+      // Set up form based on mode
+      this.setupFormForMode();
     });
   }
 
@@ -185,44 +156,48 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   loadUserData(retryCount = 0): void {
-    this.isLoading = true;
+    this.isLoading$.next(true);
     this.errorMessage = '';
     this.successMessage = '';
 
     if (!this.userId) {
-      this.isLoading = false;
+      this.isLoading$.next(false);
       return;
     }
 
     const sub = this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
-        this.currentUser = user;
-        this.patchFormWithUserData(user);
-        if (user.UserImage) {
-          // Ensure the image path is absolute for proper display
-          if (user.UserImage.startsWith('http')) {
-            this.fileUpload.preview = user.UserImage;
-          } else {
-            // Construct absolute URL based on current origin
-            const currentOrigin = window.location.origin;
-            const backendPort = ':3000'; // Backend runs on port 3000
-            
-            // If frontend is running on different port, use backend port
-            if (!currentOrigin.includes(':3000')) {
-              const backendUrl = currentOrigin.replace(/:\d+$/, backendPort);
-              this.fileUpload.preview = `${backendUrl}${user.UserImage}`;
+        this.ngZone.run(() => {
+          this.currentUser = user;
+          this.patchFormWithUserData(user);
+          if (user.UserImage) {
+            // Ensure the image path is absolute for proper display
+            if (user.UserImage.startsWith('http')) {
+              this.fileUpload.preview = user.UserImage;
             } else {
-              this.fileUpload.preview = `${currentOrigin}${user.UserImage}`;
+              // Construct absolute URL based on current origin
+              const currentOrigin = window.location.origin;
+              const backendPort = ':3000'; // Backend runs on port 3000
+
+              // If frontend is running on different port, use backend port
+              if (!currentOrigin.includes(':3000')) {
+                const backendUrl = currentOrigin.replace(/:\d+$/, backendPort);
+                this.fileUpload.preview = `${backendUrl}${user.UserImage}`;
+              } else {
+                this.fileUpload.preview = `${currentOrigin}${user.UserImage}`;
+              }
             }
           }
-        }
-        // Load user roles from the same user object
-        this.loadUserRolesFromUser(user);
-        this.isLoading = false;
+          // Load user roles from the same user object
+          this.loadUserRolesFromUser(user);
+          this.isLoading$.next(false);
+        });
       },
       error: (error: any) => {
-        console.error('Error loading user:', error);
-        this.handleLoadError(error, retryCount);
+        this.ngZone.run(() => {
+          console.error('Error loading user:', error);
+          this.handleLoadError(error, retryCount);
+        });
       }
     });
 
@@ -286,7 +261,7 @@ export class UserComponent implements OnInit, OnDestroy {
       setTimeout(() => this.loadUserData(retryCount + 1), 2000);
     } else {
       this.errorMessage = 'Failed to load user data. Please try again later.';
-      this.isLoading = false;
+      this.isLoading$.next(false);
     }
   }
 
