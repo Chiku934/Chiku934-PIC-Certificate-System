@@ -120,8 +120,14 @@ export class App implements OnInit {
     const currentRoute = this.getCurrentRoute();
     const routePath = currentRoute?.routeConfig?.path || '';
 
-    // Show sidebar only on setup pages
-    return routePath.startsWith('setup');
+    // Hide sidebar only on dashboard page
+    return routePath !== 'dashboard';
+  }
+
+  isDashboard(): boolean {
+    const currentRoute = this.getCurrentRoute();
+    const routePath = currentRoute?.routeConfig?.path || '';
+    return routePath === 'dashboard';
   }
 
   isActive(route: string): boolean {
