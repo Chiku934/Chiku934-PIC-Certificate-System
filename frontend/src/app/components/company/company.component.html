@@ -94,9 +94,9 @@
                     <div class="col-md-3 text-center">
                       <div class="logo-preview-container">
                         <div class="logo-preview-wrapper">
-                          <img 
+                          <img
                             *ngIf="fileUpload.preview || currentCompany?.CompanyLogo"
-                            [src]="fileUpload.preview || (currentCompany?.CompanyLogo ?? '/assets/images/default-app-icon.png')" 
+                            [src]="fileUpload.preview || (currentCompany?.CompanyLogo ?? '/assets/images/default-app-icon.png')"
                             alt="Company Logo"
                             class="logo-preview-image"
                             onerror="this.src='/assets/images/default-app-icon.png'"
