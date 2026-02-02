@@ -75,6 +75,11 @@ $header-height: 50px;
       padding-left: 0;
       padding-right: 0;
     }
+
+    .logo-section .logo {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   // Active link styles
@@ -121,10 +126,11 @@ $header-height: 50px;
   gap: 0.875rem;
 
   .logo {
-    width: 36px;
-    height: 36px;
+    width: 120px;
+    height: 60px;
     object-fit: contain;
     flex-shrink: 0;
+    max-width: 100%;
   }
 
   .logo-text {

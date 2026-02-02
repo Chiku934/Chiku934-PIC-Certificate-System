@@ -76,7 +76,10 @@ export class CompanyService {
   // Create or update company details
   createOrUpdateCompany(companyData: CompanyDetails, file?: File): Observable<CompanyDetails> {
     const formData = new FormData();
-    
+
+    console.log('Sending companyData:', companyData);
+    console.log('Sending file:', file ? { name: file.name, size: file.size, type: file.type } : null);
+
     // Add company data fields
     Object.keys(companyData).forEach(key => {
       const value = (companyData as any)[key];
@@ -92,6 +95,11 @@ export class CompanyService {
     // Add file if provided
     if (file) {
       formData.append('companyLogo', file, file.name);
+    }
+
+    console.log('FormData contents:');
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
     }
 
     return this.http.post<ApiResponse<CompanyDetails>>(`${this.apiUrl}/company`, formData, { headers: this.getFormDataHeaders() }).pipe(

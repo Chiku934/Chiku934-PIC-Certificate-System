@@ -3,8 +3,7 @@
      [class.mobile-open]="!(sidebarService.isCollapsed$ | async)">
   <div class="sidebar-header">
     <div class="logo-section">
-      <img src="/assets/logos/PIC_Logo-removebg-preview.png" alt="PIC Logo" class="logo">
-      <span class="logo-text" *ngIf="!(sidebarService.isCollapsed$ | async)">PIC Certificate</span>
+      <img [src]="getCompanyLogoUrl()" alt="Company Logo" class="logo" (error)="onLogoError($event)">
     </div>
   </div>
 

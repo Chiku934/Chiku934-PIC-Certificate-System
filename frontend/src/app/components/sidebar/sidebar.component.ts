@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
+import { CompanyService, CompanyDetails } from '../../services/company.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -23,6 +24,7 @@ interface MenuItem {
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   currentUser: any = null;
+  currentCompany: CompanyDetails | null = null;
   isCollapsed = false;
   isMobileOpen = false;
   private sidebarSubscription!: Subscription;
@@ -34,12 +36,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     public sidebarService: SidebarService,
+    private companyService: CompanyService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      this.cdr.detectChanges();
+    });
+
+    // Subscribe to company data changes
+    this.companyService.getCurrentCompanyObservable().subscribe(company => {
+      this.currentCompany = company;
       this.cdr.detectChanges();
     });
 
@@ -210,10 +219,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   formatRole(role: string): string {
     if (!role) return 'User';
-    
+
     // Convert to title case and handle common role variations
     const roleStr = role.toString().toLowerCase();
-    
+
     // Common role mappings
     const roleMap: { [key: string]: string } = {
       'admin': 'Admin',
@@ -238,5 +247,31 @@ export class SidebarComponent implements OnInit, OnDestroy {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  }
+
+  getCompanyLogoUrl(): string {
+    if (this.currentCompany?.CompanyLogo) {
+      // Ensure the image path is absolute for proper display
+      if (this.currentCompany.CompanyLogo.startsWith('http')) {
+        return this.currentCompany.CompanyLogo;
+      }
+
+      // Construct absolute URL based on current origin
+      const currentOrigin = window.location.origin;
+      const backendPort = ':3000'; // Backend runs on port 3000
+
+      // If frontend is running on different port, use backend port
+      if (!currentOrigin.includes(':3000')) {
+        const backendUrl = currentOrigin.replace(/:\d+$/, backendPort);
+        return `${backendUrl}${this.currentCompany.CompanyLogo}`;
+      } else {
+        return `${currentOrigin}${this.currentCompany.CompanyLogo}`;
+      }
+    }
+    return '/assets/logos/PIC_Logo-removebg-preview.png'; // Default logo
+  }
+
+  onLogoError(event: any) {
+    event.target.src = '/assets/logos/PIC_Logo-removebg-preview.png'; // Fallback to default logo
   }
 }
