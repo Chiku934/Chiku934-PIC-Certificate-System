@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 interface MenuItem {
   label: string;
@@ -27,24 +28,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private sidebarSubscription!: Subscription;
   private mobileSubscription!: Subscription;
 
-  menuItems: MenuItem[] = [
-    {
-      label: 'Setup',
-      icon: 'fas fa-cog',
-      route: '/setup',
-      isExpanded: false
-    },
-    {
-      label: 'Certification',
-      icon: 'fas fa-certificate',
-      route: '/certification'
-    },
-    {
-      label: 'Audit',
-      icon: 'fas fa-clipboard-check',
-      route: '/audit'
-    }
-  ];
+  menuItems: MenuItem[] = [];
 
   constructor(
     private authService: AuthService,
@@ -64,6 +48,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.isCollapsed = isCollapsed;
       this.cdr.detectChanges();
     });
+
+    // Initialize menu items based on current route
+    this.initializeMenuItems();
 
     // Initialize responsive state based on screen size
     this.initializeResponsiveState();
@@ -86,7 +73,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   private initializeResponsiveState() {
     const screenWidth = window.innerWidth;
-    
+
     if (screenWidth <= 1200) {
       // Mobile: collapsed by default
       this.sidebarService.collapse();
@@ -96,6 +83,53 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.sidebarService.expand();
       this.isMobileOpen = false;
     }
+  }
+
+  private initializeMenuItems() {
+    const currentUrl = this.router.url;
+
+    if (currentUrl.startsWith('/setup')) {
+      // Setup pages menu
+      this.menuItems = [
+        {
+          label: 'Setup',
+          icon: 'fas fa-cog',
+          route: '/setup'
+        },
+        {
+          label: 'Company Setting',
+          icon: 'fas fa-building',
+          children: [
+            { label: 'Company List', icon: 'fas fa-building', route: '/setup/company' }
+          ],
+          isExpanded: false
+        },
+        {
+          label: 'User',
+          icon: 'fas fa-users',
+          children: [
+            { label: 'User List', icon: 'fas fa-user-friends', route: '/setup/users' }
+          ],
+          isExpanded: false
+        }
+      ];
+    } else {
+      // Default menu for other pages
+      this.menuItems = [
+        {
+          label: 'Certification',
+          icon: 'fas fa-certificate',
+          route: '/certification'
+        },
+        {
+          label: 'Audit',
+          icon: 'fas fa-clipboard-check',
+          route: '/audit'
+        }
+      ];
+    }
+
+    this.cdr.detectChanges();
   }
 
   toggleSubmenu(item: MenuItem) {
