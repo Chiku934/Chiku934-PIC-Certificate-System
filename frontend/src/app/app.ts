@@ -74,6 +74,11 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       const pageTitle = route?.snapshot?.data?.['title'] || '';
       const fullTitle = pageTitle ? `ERP - ${pageTitle}` : 'ERP - My Applications';
       this.titleService.setTitle(fullTitle);
+      
+      // Initialize responsive sidebar state when navigating to setup pages
+      if (this.showSidebar()) {
+        this.sidebarService.initializeResponsiveState();
+      }
     });
 
     // Subscribe to user data changes
@@ -108,6 +113,11 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
         }
       }, 50);
     });
+
+    // Initialize responsive sidebar state on app startup if on setup pages
+    if (this.showSidebar()) {
+      this.sidebarService.initializeResponsiveState();
+    }
   }
 
   ngAfterViewInit() {

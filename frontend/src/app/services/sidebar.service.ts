@@ -20,11 +20,11 @@ export class SidebarService {
         if (saved !== null) return;
 
         // Use 1200px breakpoint for responsiveness when no user preference
-        if (window.innerWidth >= 1200) {
-          const newState = this.getDefaultState();
-          this.isCollapsedSubject.next(newState);
+        if (window.innerWidth > 1200) {
+          // For screens more than 1200px, use default expanded state
+          this.isCollapsedSubject.next(false);
         } else {
-          // For smaller widths, ensure collapsed state
+          // For screens 1200px and below, ensure collapsed state
           this.isCollapsedSubject.next(true);
         }
       });
@@ -47,13 +47,30 @@ export class SidebarService {
   }
 
   private getDefaultState(): boolean {
-    // On larger screens (1200px and above), start with sidebar expanded (collapsed = false)
-    // On smaller screens, start with sidebar collapsed (collapsed = true)
+    // On screens more than 1200px, start with sidebar expanded (collapsed = false)
+    // On screens 1200px and below, start with sidebar collapsed (collapsed = true)
     if (typeof window !== 'undefined') {
-      const isSmallScreen = window.innerWidth < 1200;
+      const isSmallScreen = window.innerWidth <= 1200;
       return isSmallScreen;
     }
     return true; // Default to collapsed for SSR
+  }
+
+  /**
+   * Initialize responsive sidebar state based on screen size
+   * This should be called when the app starts or when switching to setup pages
+   */
+  initializeResponsiveState() {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      if (saved === null) {
+        // No user preference saved, use responsive defaults
+        const defaultState = this.getDefaultState();
+        this.isCollapsedSubject.next(defaultState);
+        this.updateBodyClass(defaultState);
+        console.log('SidebarService.initializeResponsiveState() -> set to', defaultState, 'based on screen size');
+      }
+    }
   }
 
   toggle() {
