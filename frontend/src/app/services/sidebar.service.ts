@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +8,8 @@ export class SidebarService {
   private readonly STORAGE_KEY = 'sidebarCollapsed';
 
   // Initialize with stored preference if available, otherwise use default
-  private isCollapsedSubject = new BehaviorSubject<boolean>(this.getInitialState());
-  isCollapsed$ = this.isCollapsedSubject.asObservable();
+  private collapsedSubject = new BehaviorSubject<boolean>(this.getInitialState());
+  public isCollapsed$: Observable<boolean> = this.collapsedSubject.asObservable();
 
   constructor() {
     // Listen for window resize to adjust sidebar state on screen size changes
@@ -22,28 +22,35 @@ export class SidebarService {
         // Use 1200px breakpoint for responsiveness when no user preference
         if (window.innerWidth > 1200) {
           // For screens more than 1200px, use default expanded state
-          this.isCollapsedSubject.next(false);
+          this.collapsedSubject.next(false);
+          this.updateBodyClass(false);
         } else {
           // For screens 1200px and below, ensure collapsed state
-          this.isCollapsedSubject.next(true);
+          this.collapsedSubject.next(true);
+          this.updateBodyClass(true);
         }
       });
     }
     
-    // Log initial state
     // Make sure body class reflects the initial sidebar state
-    this.updateBodyClass(this.isCollapsedSubject.value);
+    this.updateBodyClass(this.collapsedSubject.value);
+    console.log('SidebarService initialized with state:', this.collapsedSubject.value);
   }
 
   private getInitialState(): boolean {
     if (typeof window !== 'undefined') {
+      // Check if user has a saved preference
       const saved = localStorage.getItem(this.STORAGE_KEY);
       if (saved !== null) {
+        console.log('SidebarService: Using saved preference:', saved);
         return saved === 'true';
       }
-      return this.getDefaultState();
+      // No saved preference, use responsive default
+      const defaultState = this.getDefaultState();
+      console.log('SidebarService: No saved preference, using default:', defaultState);
+      return defaultState;
     }
-    return true;
+    return true; // Default to collapsed for SSR
   }
 
   private getDefaultState(): boolean {
@@ -51,7 +58,7 @@ export class SidebarService {
     // On screens 1200px and below, start with sidebar collapsed (collapsed = true)
     if (typeof window !== 'undefined') {
       const isSmallScreen = window.innerWidth <= 1200;
-      return isSmallScreen;
+      return isSmallScreen; // true for mobile (collapsed), false for desktop (expanded)
     }
     return true; // Default to collapsed for SSR
   }
@@ -59,6 +66,7 @@ export class SidebarService {
   /**
    * Initialize responsive sidebar state based on screen size
    * This should be called when the app starts or when switching to setup pages
+   * Only applies if user has no saved preference
    */
   initializeResponsiveState() {
     if (typeof window !== 'undefined') {
@@ -66,61 +74,112 @@ export class SidebarService {
       if (saved === null) {
         // No user preference saved, use responsive defaults
         const defaultState = this.getDefaultState();
-        this.isCollapsedSubject.next(defaultState);
+        this.collapsedSubject.next(defaultState);
         this.updateBodyClass(defaultState);
         console.log('SidebarService.initializeResponsiveState() -> set to', defaultState, 'based on screen size');
+      } else {
+        console.log('SidebarService.initializeResponsiveState() -> skipped (user has preference)');
       }
     }
   }
 
+  /**
+   * Toggle sidebar state and persist user preference
+   */
   toggle() {
-    const current = this.isCollapsedSubject.value;
+    const current = this.collapsedSubject.value;
     const next = !current;
-    this.isCollapsedSubject.next(next);
+    this.collapsedSubject.next(next);
     this.updateBodyClass(next);
+    
     // Persist user preference
-    try { localStorage.setItem(this.STORAGE_KEY, String(next)); } catch {}
-    console.log(`SidebarService.toggle() -> next=${next}`);
+    try { 
+      localStorage.setItem(this.STORAGE_KEY, String(next)); 
+      console.log(`SidebarService.toggle() -> next=${next} (saved to localStorage)`);
+    } catch (e) {
+      console.error('Failed to save sidebar state:', e);
+    }
   }
 
+  /**
+   * Collapse sidebar and persist user preference
+   */
   collapse() {
-    this.isCollapsedSubject.next(true);
+    this.collapsedSubject.next(true);
     this.updateBodyClass(true);
-    try { localStorage.setItem(this.STORAGE_KEY, 'true'); } catch {}
-    console.log('SidebarService.collapse()');
+    
+    try { 
+      localStorage.setItem(this.STORAGE_KEY, 'true'); 
+      console.log('SidebarService.collapse() (saved to localStorage)');
+    } catch (e) {
+      console.error('Failed to save sidebar state:', e);
+    }
   }
 
+  /**
+   * Expand sidebar and persist user preference
+   */
   expand() {
-    this.isCollapsedSubject.next(false);
+    this.collapsedSubject.next(false);
     this.updateBodyClass(false);
-    try { localStorage.setItem(this.STORAGE_KEY, 'false'); } catch {}
-    console.log('SidebarService.expand()');
+    
+    try { 
+      localStorage.setItem(this.STORAGE_KEY, 'false'); 
+      console.log('SidebarService.expand() (saved to localStorage)');
+    } catch (e) {
+      console.error('Failed to save sidebar state:', e);
+    }
   }
 
   /**
    * Clear any stored user preference and reset to default responsive state
+   * This forces the sidebar to respect screen size breakpoints again
    */
   clearPreference() {
-    try { localStorage.removeItem(this.STORAGE_KEY); } catch {}
+    try { 
+      localStorage.removeItem(this.STORAGE_KEY); 
+      console.log('SidebarService: Cleared localStorage preference');
+    } catch (e) {
+      console.error('Failed to clear sidebar preference:', e);
+    }
+    
     const defaultState = this.getDefaultState();
-    this.isCollapsedSubject.next(defaultState);
+    this.collapsedSubject.next(defaultState);
     this.updateBodyClass(defaultState);
-    console.log('SidebarService.clearPreference() -> reset to', defaultState);
+    console.log('SidebarService.clearPreference() -> reset to', defaultState, 'based on screen size');
   }
 
   /**
    * Synchronously return current collapsed state
    */
   getState(): boolean {
-    return this.isCollapsedSubject.value;
+    return this.collapsedSubject.value;
   }
 
+  /**
+   * Check if user has a saved preference
+   */
+  hasSavedPreference(): boolean {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(this.STORAGE_KEY) !== null;
+    }
+    return false;
+  }
+
+  /**
+   * Update body class to reflect sidebar state
+   * This allows global CSS to respond to sidebar state
+   */
   private updateBodyClass(isCollapsed: boolean) {
-    const body = document.body;
-    if (isCollapsed) {
-      body.classList.add('sidebar-collapsed');
-    } else {
-      body.classList.remove('sidebar-collapsed');
+    if (typeof document !== 'undefined') {
+      const body = document.body;
+      if (isCollapsed) {
+        body.classList.add('sidebar-collapsed');
+        console.log('SidebarService: Added body class "sidebar-collapsed"');
+      } else {
+        body.classList.remove('sidebar-collapsed');
+        console.log('SidebarService: Removed body class "sidebar-collapsed"');
+      }
     }
   }
 }

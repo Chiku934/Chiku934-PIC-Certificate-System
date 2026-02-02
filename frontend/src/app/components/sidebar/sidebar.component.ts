@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -29,9 +29,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   menuItems: MenuItem[] = [
     {
-      label: 'Dashboard',
-      icon: 'fas fa-tachometer-alt',
-      route: '/dashboard'
+      label: 'Setup',
+      icon: 'fas fa-cog',
+      route: '/setup',
+      isExpanded: false
     },
     {
       label: 'Certification',
@@ -42,11 +43,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
       label: 'Audit',
       icon: 'fas fa-clipboard-check',
       route: '/audit'
-    },
-    {
-      label: 'Profile',
-      icon: 'fas fa-user',
-      route: '/profile'
     }
   ];
 
@@ -60,16 +56,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      // Debug: Log the user data to see what's available
-      console.log('SidebarComponent - User data received:', user);
-      console.log('SidebarComponent - firstName:', user?.firstName);
-      console.log('SidebarComponent - lastName:', user?.lastName);
-      console.log('SidebarComponent - displayName:', user?.displayName);
-      console.log('SidebarComponent - username:', user?.username);
-      console.log('SidebarComponent - email:', user?.email);
-      // Log all available properties to see what's actually there
-      console.log('SidebarComponent - All user properties:', Object.keys(user || {}));
-      
       this.cdr.detectChanges();
     });
 
@@ -78,11 +64,37 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.isCollapsed = isCollapsed;
       this.cdr.detectChanges();
     });
+
+    // Initialize responsive state based on screen size
+    this.initializeResponsiveState();
   }
 
   ngOnDestroy() {
     if (this.sidebarSubscription) {
       this.sidebarSubscription.unsubscribe();
+    }
+    if (this.mobileSubscription) {
+      this.mobileSubscription.unsubscribe();
+    }
+  }
+
+  // Handle window resize
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.initializeResponsiveState();
+  }
+
+  private initializeResponsiveState() {
+    const screenWidth = window.innerWidth;
+    
+    if (screenWidth <= 1200) {
+      // Mobile: collapsed by default
+      this.sidebarService.collapse();
+      this.isMobileOpen = false;
+    } else {
+      // Desktop: expanded by default
+      this.sidebarService.expand();
+      this.isMobileOpen = false;
     }
   }
 
@@ -94,11 +106,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   isActive(route: string): boolean {
     return this.router.url === route;
-  }
-
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   getProfileImageUrl(): string {
@@ -161,6 +168,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
     // Fallback to username or a default
     return this.currentUser.username || 'User';
+  }
+
+  hasProfileImage(): boolean {
+    return !!this.currentUser?.UserImage && this.currentUser.UserImage !== '/assets/images/default-profile-icon.png';
   }
 
   formatRole(role: string): string {

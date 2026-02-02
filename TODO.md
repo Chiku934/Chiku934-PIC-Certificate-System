@@ -1,16 +1,20 @@
-# TODO: Fix Angular Compilation Errors
+# Sidebar Responsive Behavior Adjustments
 
-## Sass Deprecations
-- [ ] Replace `darken()` with `color.adjust()` in setup.component.scss (lines 80, 149)
-- [ ] Replace `adjust-color()` with `color.adjust()` in setup.component.scss (line 318)
-- [ ] Replace `lighten()` with `color.adjust()` in sidebar.component.scss (line 535)
+## Completed Tasks
+- [x] Updated SidebarService getDefaultState() to collapse sidebar on screens <=1200px and expand on >1200px
+- [x] Updated SidebarService resize listener to use >1200px for expanded state
+- [x] Updated CSS media queries in app.scss to use min-width: 1201px for large screens and max-width: 1200px for small screens
+- [x] Fixed main content synchronization with sidebar expand/close by updating CSS selectors to use .sidebar-nav.mobile-open and adjusting header positioning
 
-## Import Path Fixes
-- [ ] Correct import paths in company-list.component.ts for CompanyService and AuthService
+## Summary
+The sidebar now defaults to:
+- **Closed** on screens 1200px and below
+- **Expanded** on screens more than 1200px
 
-## AG Grid Installation
-- [ ] Install ag-grid-angular and ag-grid-community packages
-- [ ] Ensure CSS imports are resolved
+The main content now properly syncs with sidebar state:
+- On screens >1200px, main content adjusts margin-left when sidebar is open
+- Header positioning is also synchronized
 
-## Testing
-- [ ] Run `ng s -o` to verify all errors are resolved
+Changes made to:
+- `frontend/src/app/services/sidebar.service.ts`
+- `frontend/src/app/app.scss`

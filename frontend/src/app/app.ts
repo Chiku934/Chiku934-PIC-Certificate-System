@@ -1,5 +1,5 @@
-import { Component, signal, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd, RouterLink } from '@angular/router';
+import { Component, signal, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './components/header/header.component';
@@ -7,7 +7,6 @@ import { FooterComponent } from './components/footer/footer.component';
 
 import { SidebarService } from './services/sidebar.service';
 import { AuthService } from './services/auth.service';
-import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 // Menu item interface for TypeScript type safety
@@ -21,13 +20,12 @@ interface MenuItem {
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, RouterLink, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App implements OnInit, AfterViewInit, OnDestroy {
+export class App implements OnInit {
   protected readonly title = signal('frontend');
-  private sidebarSubscription!: Subscription;
   public sidebarService: SidebarService;
   currentUser: any = null;
 
@@ -75,7 +73,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       const fullTitle = pageTitle ? `ERP - ${pageTitle}` : 'ERP - My Applications';
       this.titleService.setTitle(fullTitle);
       
-      // Initialize responsive sidebar state when navigating to setup pages
+      // Initialize responsive sidebar state when navigating
       if (this.showSidebar()) {
         this.sidebarService.initializeResponsiveState();
       }
@@ -99,45 +97,14 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       this.authService.refreshUserProfile();
     }, 100);
 
-    // Sidebar state changes: keep `.mobile-open` in sync with service
-    this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
-      // Update sidebar DOM class directly so CSS reflects service state
-      setTimeout(() => {
-        const sidebarNav = document.querySelector('.sidebar-nav');
-        if (!sidebarNav) return;
-
-        if (isCollapsed) {
-          sidebarNav.classList.remove('mobile-open');
-        } else {
-          sidebarNav.classList.add('mobile-open');
-        }
-      }, 50);
-    });
-
-    // Initialize responsive sidebar state on app startup if on setup pages
-    if (this.showSidebar()) {
-      this.sidebarService.initializeResponsiveState();
-    }
+    // Initialize responsive state on app load
+    this.sidebarService.initializeResponsiveState();
   }
 
-  ngAfterViewInit() {
-    // Subscribe to sidebar state changes to update layout classes
-    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe(isCollapsed => {
-      const layoutContainer = document.querySelector('.layout-container') as HTMLElement;
-      if (layoutContainer) {
-        if (isCollapsed) {
-          layoutContainer.classList.remove('sidebar-expanded');
-        } else {
-          layoutContainer.classList.add('sidebar-expanded');
-        }
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.sidebarSubscription) {
-      this.sidebarSubscription.unsubscribe();
-    }
+  // Handle window resize
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.sidebarService.initializeResponsiveState();
   }
 
   private getCurrentRoute() {
