@@ -233,8 +233,6 @@ export class EquipmentListExampleComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('Equipment list component initialized');
-    console.log('Auto-refresh will fetch data every 5 seconds...');
   }
 
   /**
@@ -242,7 +240,6 @@ export class EquipmentListExampleComponent implements OnInit, OnDestroy {
    * This is useful when you want to refresh without waiting for the next interval
    */
   refreshNow(): void {
-    console.log('Manual refresh triggered');
     this.equipmentService.refreshNow();
   }
 
@@ -256,11 +253,8 @@ export class EquipmentListExampleComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            console.log(`Equipment ${id} deleted successfully`);
-            // No need to manually refresh - service does it automatically!
           },
           error: (error) => {
-            console.error('Error deleting equipment:', error);
             alert('Failed to delete equipment');
           }
         });
@@ -272,16 +266,12 @@ export class EquipmentListExampleComponent implements OnInit, OnDestroy {
    * Navigate to edit page or open edit dialog
    */
   editEquipment(equipment: Equipment): void {
-    console.log('Edit equipment:', equipment);
-    // TODO: Implement navigation to edit page
-    // this.router.navigate(['/equipment/edit', equipment.Id]);
   }
 
   /**
    * Clean up subscriptions when component is destroyed
    */
   ngOnDestroy(): void {
-    console.log('Equipment list component destroyed');
     this.destroy$.next();
     this.destroy$.complete();
   }

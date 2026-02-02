@@ -167,7 +167,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
       // Load specific company by ID
       sub = this.companyService.getCompanyById(this.companyId).subscribe({
         next: (company) => {
-          console.log('Loaded company by ID:', company);
           this.currentCompany = company || null;
           if (company) {
             this.patchFormWithCompanyData(company);
@@ -178,7 +177,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error: any) => {
-          console.error('Error loading company by ID:', error);
           this.handleLoadError(error, retryCount);
         }
       });
@@ -186,7 +184,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
       // Load current company (default behavior) from cache-backed observable
       sub = this.companyService.getCurrentCompanyObservable().subscribe({
         next: (company) => {
-          console.log('Loaded current company (observable):', company);
           this.currentCompany = company || null;
           // Only auto-patch the form when not editing to avoid overwriting user changes
           const isEditing = this.mode === 'edit' && this.companyForm && this.companyForm.dirty;
@@ -196,12 +193,10 @@ export class CompanyComponent implements OnInit, OnDestroy {
               this.fileUpload.preview = company.CompanyLogo;
             }
           } else if (isEditing) {
-            console.log('Skipping auto-patch because form is dirty (user editing)');
           }
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error loading current company (observable):', error);
           this.handleLoadError(error, retryCount);
         }
       });
@@ -211,15 +206,13 @@ export class CompanyComponent implements OnInit, OnDestroy {
   }
 
   private handleLoadError(error: any, retryCount: number): void {
-    console.error('Error loading company data:', error);
     
     // Check if this is a temporary network error or server not ready
     const isTemporaryError = this.isTemporaryError(error);
     
     if (isTemporaryError && retryCount < 3) {
       // For temporary errors, retry immediately once, then with short delay
-      const delay = retryCount === 0 ? 0 : 1000; // Immediate retry first, then 1 second delay
-      console.log(`Retrying company data load in ${delay}ms (attempt ${retryCount + 1}/3)`);
+      const delay = retryCount === 0 ? 0 : 1000;
       
       setTimeout(() => {
         this.loadCompanyData(retryCount + 1);
@@ -347,7 +340,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
         fileInput.value = '';
       }
     } catch (error) {
-      console.warn('Could not clear file input:', error);
     }
   }
 
@@ -393,7 +385,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isSubmitting = false;
         this.errorMessage = error.message || 'Failed to save company details';
-        console.error('Error saving company:', error);
       }
     });
 

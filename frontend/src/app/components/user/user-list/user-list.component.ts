@@ -235,7 +235,6 @@ export class UserListComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading users:', error);
         this.errorMessage = 'Failed to load users. Please try again.';
         this.isLoading = false;
       }
@@ -268,7 +267,6 @@ export class UserListComponent implements OnInit, OnDestroy {
           setTimeout(() => this.successMessage = '', 3000);
         },
         error: (error) => {
-          console.error('Error deleting user:', error);
           this.errorMessage = 'Failed to delete user. Please try again.';
         }
       });
@@ -394,7 +392,6 @@ export class UserListComponent implements OnInit, OnDestroy {
         try {
           iframe.contentWindow?.print();
         } catch (error) {
-          console.error('PDF export failed:', error);
           alert('PDF export failed. Please try again.');
         } finally {
           document.body.removeChild(iframe);

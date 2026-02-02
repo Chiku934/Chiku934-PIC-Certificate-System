@@ -128,7 +128,6 @@ export class CertificateService {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(() => {
-        console.log('Certificate deleted:', id);
         this.refreshNow();
       })
     );
@@ -173,7 +172,6 @@ export class CertificateService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => this.allCertificates$.next(data),
-      error: (error) => console.error('Error fetching certificates:', error)
     });
   }
 
@@ -185,7 +183,6 @@ export class CertificateService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => this.expiringSoon$.next(data),
-      error: (error) => console.error('Error fetching expiring soon certificates:', error)
     });
   }
 
@@ -197,7 +194,6 @@ export class CertificateService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => this.expired$.next(data),
-      error: (error) => console.error('Error fetching expired certificates:', error)
     });
   }
 }

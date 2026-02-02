@@ -58,8 +58,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    console.log('Profile endpoint called with guard, req.user:', req.user);
-    console.log('Request headers:', req.headers);
     return this.userService.getProfile(req.user.Id);
   }
 

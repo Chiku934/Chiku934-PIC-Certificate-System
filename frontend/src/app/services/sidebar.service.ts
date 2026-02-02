@@ -34,7 +34,6 @@ export class SidebarService {
     
     // Make sure body class reflects the initial sidebar state
     this.updateBodyClass(this.collapsedSubject.value);
-    console.log('SidebarService initialized with state:', this.collapsedSubject.value);
   }
 
   private getInitialState(): boolean {
@@ -42,12 +41,10 @@ export class SidebarService {
       // Check if user has a saved preference
       const saved = localStorage.getItem(this.STORAGE_KEY);
       if (saved !== null) {
-        console.log('SidebarService: Using saved preference:', saved);
         return saved === 'true';
       }
       // No saved preference, use responsive default
       const defaultState = this.getDefaultState();
-      console.log('SidebarService: No saved preference, using default:', defaultState);
       return defaultState;
     }
     return true; // Default to collapsed for SSR
@@ -76,9 +73,7 @@ export class SidebarService {
         const defaultState = this.getDefaultState();
         this.collapsedSubject.next(defaultState);
         this.updateBodyClass(defaultState);
-        console.log('SidebarService.initializeResponsiveState() -> set to', defaultState, 'based on screen size');
       } else {
-        console.log('SidebarService.initializeResponsiveState() -> skipped (user has preference)');
       }
     }
   }
@@ -95,9 +90,7 @@ export class SidebarService {
     // Persist user preference
     try { 
       localStorage.setItem(this.STORAGE_KEY, String(next)); 
-      console.log(`SidebarService.toggle() -> next=${next} (saved to localStorage)`);
     } catch (e) {
-      console.error('Failed to save sidebar state:', e);
     }
   }
 
@@ -110,9 +103,7 @@ export class SidebarService {
     
     try { 
       localStorage.setItem(this.STORAGE_KEY, 'true'); 
-      console.log('SidebarService.collapse() (saved to localStorage)');
     } catch (e) {
-      console.error('Failed to save sidebar state:', e);
     }
   }
 
@@ -125,9 +116,7 @@ export class SidebarService {
     
     try { 
       localStorage.setItem(this.STORAGE_KEY, 'false'); 
-      console.log('SidebarService.expand() (saved to localStorage)');
     } catch (e) {
-      console.error('Failed to save sidebar state:', e);
     }
   }
 
@@ -138,15 +127,12 @@ export class SidebarService {
   clearPreference() {
     try { 
       localStorage.removeItem(this.STORAGE_KEY); 
-      console.log('SidebarService: Cleared localStorage preference');
     } catch (e) {
-      console.error('Failed to clear sidebar preference:', e);
     }
     
     const defaultState = this.getDefaultState();
     this.collapsedSubject.next(defaultState);
     this.updateBodyClass(defaultState);
-    console.log('SidebarService.clearPreference() -> reset to', defaultState, 'based on screen size');
   }
 
   /**
@@ -175,10 +161,8 @@ export class SidebarService {
       const body = document.body;
       if (isCollapsed) {
         body.classList.add('sidebar-collapsed');
-        console.log('SidebarService: Added body class "sidebar-collapsed"');
       } else {
         body.classList.remove('sidebar-collapsed');
-        console.log('SidebarService: Removed body class "sidebar-collapsed"');
       }
     }
   }

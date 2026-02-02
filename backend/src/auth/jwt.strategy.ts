@@ -15,17 +15,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     try {
-      console.log('JWT validate called with payload:', payload);
       const user = await this.userService.findOneForAuth(payload.sub);
-      console.log('JWT validation: User lookup result for ID', payload.sub, ':', user ? 'Found' : 'Not found');
       if (!user) {
-        console.log('JWT validation: User not found for ID:', payload.sub);
         throw new Error('User not found');
       }
-      console.log('JWT validation: User authenticated successfully:', user.Id, user.Email);
       return user;
     } catch (error) {
-      console.error('JWT validation error:', error);
       throw error;
     }
   }

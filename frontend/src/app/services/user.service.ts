@@ -213,10 +213,8 @@ export class UserService {
         next: (user) => {
           // Notify that user profile has been refreshed
           // The auth service should handle this internally
-          console.log('Auth user profile refreshed after update');
         },
         error: (error) => {
-          console.error('Error refreshing auth user profile:', error);
         }
       });
     }

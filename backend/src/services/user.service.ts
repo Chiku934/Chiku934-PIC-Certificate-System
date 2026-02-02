@@ -90,7 +90,6 @@ export class UserService {
       const user = await this.userRepository.findOne({ where: { Id: id, IsDeleted: false } });
       return user;
     } catch (error) {
-      console.error('Error finding user for auth:', error);
       return null;
     }
   }
@@ -144,19 +143,14 @@ export class UserService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { Email: email, IsDeleted: false } });
     if (!user) {
-      console.log(`User not found for email: ${email}`);
       return null;
     }
 
     if (!user.Password) {
-      console.log(
-        `User found but password is null/undefined for email: ${email}`,
-      );
       return null;
     }
 
     if (!password) {
-      console.log(`Password parameter is null/undefined for email: ${email}`);
       return null;
     }
 
@@ -164,7 +158,6 @@ export class UserService {
     if (isValid) {
       return user;
     } else {
-      console.log(`Invalid password for email: ${email}`);
       return null;
     }
   }
@@ -211,23 +204,16 @@ export class UserService {
   }
 
   async getUserMenu(userId: number): Promise<Application[]> {
-    console.log('getUserMenu called for userId:', userId);
-
     const user = await this.userRepository.findOne({
       where: { Id: userId, IsDeleted: false },
       relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
     });
 
-    console.log('User found:', user ? 'Yes' : 'No');
-    console.log('User role mappings:', user?.UserRoleMappings?.length || 0);
-
     if (!user || !user.UserRoleMappings) {
-      console.log('No user or no role mappings found');
       return [];
     }
 
     const roleIds = user.UserRoleMappings.map((urm) => urm.RoleId);
-    console.log('Role IDs:', roleIds);
 
     // Get parent applications that user has access to
     const permissions = await this.userRepository.manager
@@ -239,15 +225,6 @@ export class UserService {
         },
         relations: ['Application'],
       });
-
-    console.log('Permissions found:', permissions.length);
-    permissions.forEach((p) =>
-      console.log(
-        'Permission:',
-        p.ApplicationId,
-        p.Application?.ApplicationName,
-      ),
-    );
 
     const applications: Application[] = [];
 
@@ -327,10 +304,7 @@ export class UserService {
   }
 
   async assignRolesToUser(userId: number, roleNames: string[]): Promise<void> {
-    console.log(`Assigning roles to user ${userId}:`, roleNames);
-
     if (!roleNames || roleNames.length === 0) {
-      console.log('No roles provided to assign');
       return;
     }
 
@@ -361,15 +335,12 @@ export class UserService {
     );
 
     if (validRoles.length === 0) {
-      console.warn(`No valid roles found for names: ${rolesToAssign.join(', ')}`);
       // Don't throw exception, just log warning so user creation doesn't fail completely
       // But if roles are critical, maybe we should throw? 
       // The user said "given roles to this user not save", so we want to ensure they ARE saved.
       // If we can't find them, we can't save them.
       return;
     }
-
-    console.log(`Found ${validRoles.length} valid roles:`, validRoles.map(r => r.RoleName));
 
     // Add new role mappings
     for (const role of validRoles) {

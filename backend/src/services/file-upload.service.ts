@@ -72,7 +72,6 @@ export class FileUploadService {
       }
     } catch (error) {
       // Log error but don't throw to avoid breaking other operations
-      console.error('Error deleting file:', error);
     }
   }
 

@@ -114,7 +114,6 @@ export class EquipmentService {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(() => {
-        console.log('Equipment deleted:', id);
         this.refreshNow(); // Refresh after deletion
       })
     );
@@ -124,7 +123,6 @@ export class EquipmentService {
    * Manually refresh all data immediately
    */
   refreshNow(): void {
-    console.log('🔄 Manual refresh triggered for Equipment');
     this.fetchAllEquipment();
   }
 
@@ -137,10 +135,8 @@ export class EquipmentService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => {
-        console.log('Fetched equipment:', data.length, 'records');
         this.allEquipment$.next(data);
       },
-      error: (error) => console.error('Error fetching equipment:', error)
     });
   }
 }

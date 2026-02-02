@@ -123,7 +123,6 @@ export class LocationService {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(() => {
-        console.log('Location deleted:', id);
         this.refreshNow();
       })
     );
@@ -146,7 +145,6 @@ export class LocationService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => this.allLocations$.next(data),
-      error: (error) => console.error('Error fetching locations:', error)
     });
   }
 
@@ -158,7 +156,6 @@ export class LocationService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => this.activeLocations$.next(data),
-      error: (error) => console.error('Error fetching active locations:', error)
     });
   }
 
@@ -170,7 +167,6 @@ export class LocationService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (data) => this.rootLocations$.next(data),
-      error: (error) => console.error('Error fetching root locations:', error)
     });
   }
 }

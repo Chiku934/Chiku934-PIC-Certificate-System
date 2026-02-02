@@ -163,7 +163,6 @@ export class SetupService {
 
   // Dashboard Statistics
   async getDashboardStats() {
-    console.log('getDashboardStats called');
     try {
       const [
         allUsers,
@@ -183,21 +182,8 @@ export class SetupService {
         this.emailAccountRepository.count({ where: { IsDeleted: false } }),
       ]);
 
-      console.log('Counts retrieved:', {
-        allUsers,
-        activeUsers,
-        inactiveUsers,
-        emailDomains,
-        emailAccounts,
-      });
-
       const companyDetails = await this.findCompanyDetails();
       const letterHead = await this.findLetterHead();
-
-      console.log('Company and letter head retrieved:', {
-        companyDetails: !!companyDetails,
-        letterHead: !!letterHead,
-      });
 
       const result = {
         totalUsers: allUsers,
@@ -210,10 +196,8 @@ export class SetupService {
         emailAccounts,
       };
 
-      console.log('Dashboard stats result:', result);
       return result;
     } catch (error) {
-      console.error('Error in getDashboardStats:', error);
       throw error;
     }
   }

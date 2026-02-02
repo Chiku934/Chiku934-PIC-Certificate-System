@@ -282,7 +282,6 @@ export class CompanyListComponent implements OnInit, OnDestroy {
 
     const sub = this.companyService.getCompanies().subscribe({
       next: (companies: CompanyDetails[]) => {
-        console.log('Loaded companies:', companies);
          this.companies = companies || [];
        
         // Refresh AG Grid with new data
@@ -294,7 +293,6 @@ export class CompanyListComponent implements OnInit, OnDestroy {
             // Fallback: notify via option set
             this.gridApi.setGridOption('rowData', this.companies);
           }
-          console.log('🔄 Grid updated with', this.companies.length, 'companies');
         }
        
          if (this.isLoading) {
@@ -302,7 +300,6 @@ export class CompanyListComponent implements OnInit, OnDestroy {
          }
       },
       error: (error: any) => {
-        console.error('Error loading companies:', error);
         this.errorMessage = 'Failed to load companies. Please try again.';
         this.isLoading = false;
       }
@@ -411,7 +408,6 @@ export class CompanyListComponent implements OnInit, OnDestroy {
           // No need to manually refresh - service handles it with auto-refresh
         },
         error: (error: any) => {
-          console.error('Error deleting company:', error);
           this.errorMessage = error.message || 'Failed to delete company';
         }
       });
@@ -547,7 +543,6 @@ export class CompanyListComponent implements OnInit, OnDestroy {
         try {
           iframe.contentWindow?.print();
         } catch (error) {
-          console.error('PDF export failed:', error);
           alert('PDF export failed. Please try again.');
         } finally {
           document.body.removeChild(iframe);

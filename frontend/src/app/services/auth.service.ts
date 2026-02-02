@@ -70,7 +70,6 @@ export class AuthService {
           this.loadUserProfile();
         }, 100);
       } catch (error) {
-        console.error('Error parsing stored auth data:', error);
         this.logout();
       }
     }
@@ -236,7 +235,6 @@ export class AuthService {
         this.currentUserSubject.next(mappedUser);
       },
       error: (error) => {
-        console.error('Error loading user profile:', error);
         const currentUserData = this.currentUserSubject.value;
         if (token && (!currentUserData || !currentUserData.username || currentUserData.username === 'User')) {
           this.decodeTokenAndSetUser(token);

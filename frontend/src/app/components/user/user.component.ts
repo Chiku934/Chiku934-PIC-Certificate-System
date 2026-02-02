@@ -195,7 +195,6 @@ export class UserComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         this.ngZone.run(() => {
-          console.error('Error loading user:', error);
           this.handleLoadError(error, retryCount);
         });
       }
@@ -384,7 +383,6 @@ export class UserComponent implements OnInit, OnDestroy {
         }, 1500);
       },
       error: (error: any) => {
-        console.error('Error submitting user form:', error);
         this.errorMessage = error.error?.message || `Failed to ${this.mode === 'create' ? 'create' : 'update'} user. Please try again.`;
         this.isSubmitting = false;
       }

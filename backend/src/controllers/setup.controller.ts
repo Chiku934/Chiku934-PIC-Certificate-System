@@ -31,9 +31,7 @@ export class SetupController {
   // Dashboard
   @Get('dashboard')
   async getDashboard(@Request() req: any) {
-    console.log('getDashboard called, user:', req.user);
     const stats = await this.setupService.getDashboardStats();
-    console.log('getDashboard returning stats:', stats);
     return {
       stats,
       user: req.user,
@@ -49,16 +47,12 @@ export class SetupController {
     @Request() req: any,
   ) {
     try {
-      console.log('Received createDto:', createDto);
-      console.log('Received file:', file ? { filename: file.filename, size: file.size } : null);
-      console.log('User:', req.user);
 
       let logoPath = createDto.CompanyLogo;
 
       // Handle file upload if provided
       if (file) {
         logoPath = await this.fileUploadService.uploadFile(file);
-        console.log('Logo uploaded to path:', logoPath);
       }
 
       const result = await this.setupService.createOrUpdateCompanyDetails({
@@ -66,8 +60,6 @@ export class SetupController {
         CompanyLogo: logoPath,
         CreatedBy: req.user.Id,
       });
-
-      console.log('Company saved successfully:', result);
 
       return {
         success: true,
@@ -77,7 +69,6 @@ export class SetupController {
         data: result,
       };
     } catch (error: any) {
-      console.error('Error saving company:', error);
       return {
         success: false,
         message: error.message || 'An error occurred',

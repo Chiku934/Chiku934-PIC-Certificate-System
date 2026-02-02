@@ -56,7 +56,6 @@ export class DashboardComponent implements OnInit {
           this.cdr.detectChanges(); // Force change detection
         },
         error: (error) => {
-          console.error('Error loading user menu:', error);
           this.applications = [];
         }
       });
