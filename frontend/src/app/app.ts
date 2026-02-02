@@ -81,6 +81,11 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       this.currentUser = user;
       // Trigger change detection when user data changes
       this.cdr.detectChanges();
+      
+      // Auto-redirect to dashboard if user is authenticated and on login page
+      if (user && this.router.url === '/login') {
+        this.router.navigate(['/dashboard']);
+      }
     });
 
     // Force refresh user profile to ensure correct username is displayed

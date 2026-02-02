@@ -14,6 +14,13 @@ interface LoginResponse {
   };
 }
 
+interface StoredAuthData {
+  token: string;
+  user: User;
+  rememberMe: boolean;
+  expirationTime: number;
+}
+
 interface User {
   id: number;
   username: string;
@@ -39,12 +46,33 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      // Decode token to get initial user data
-      const decoded = this.decodeTokenAndSetUser(token);
-      // Do not load profile here to avoid circular dependency with Http Interceptor.
-      // Full profile will be loaded on-demand via `refreshUserProfile()` or after login.
+    this.checkAutoLogin();
+  }
+
+  private checkAutoLogin(): void {
+    const storedData = localStorage.getItem('auth_data');
+    if (storedData) {
+      try {
+        const authData: StoredAuthData = JSON.parse(storedData);
+        
+        // Check if session has expired
+        if (authData.expirationTime && Date.now() > authData.expirationTime) {
+          this.logout();
+          return;
+        }
+
+        // Set user data and token
+        this.currentUserSubject.next(authData.user);
+        localStorage.setItem('access_token', authData.token);
+        
+        // Load full profile if needed
+        setTimeout(() => {
+          this.loadUserProfile();
+        }, 100);
+      } catch (error) {
+        console.error('Error parsing stored auth data:', error);
+        this.logout();
+      }
     }
   }
 
@@ -81,7 +109,7 @@ export class AuthService {
 
   login(credentials: { email: string; password: string; rememberMe?: boolean }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_URL}/users/login`, credentials).pipe(
-      tap(response => this.handleAuthentication(response))
+      tap(response => this.handleAuthentication(response, credentials.rememberMe || false))
     );
   }
 
@@ -143,10 +171,26 @@ export class AuthService {
     return currentUser.username || 'User';
   }
 
-  private handleAuthentication(response: LoginResponse): void {
+  private handleAuthentication(response: LoginResponse, rememberMe: boolean = false): void {
     localStorage.setItem('access_token', response.access_token);
     // Set user from response first
     this.currentUserSubject.next(response.user);
+    
+    // Store auth data with expiration if remember me is checked
+    if (rememberMe) {
+      const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; // 1 week
+      const expirationTime = Date.now() + oneWeekInMs;
+      
+      const authData: StoredAuthData = {
+        token: response.access_token,
+        user: response.user,
+        rememberMe: true,
+        expirationTime: expirationTime
+      };
+      
+      localStorage.setItem('auth_data', JSON.stringify(authData));
+    }
+    
     // Defer profile loading to avoid circular dependency
     setTimeout(() => {
       this.loadUserProfile();
