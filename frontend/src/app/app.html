@@ -2,9 +2,12 @@
 <div class="layout-wrapper">
   <!-- Layout Container -->
   <div class="layout-container">
+    <!-- Sidebar Component -->
+    <app-sidebar></app-sidebar>
+
     <!-- Main Content Area -->
-    <div class="main-content-area">
-      <app-header></app-header>
+    <div class="main-content-area" [class.sidebar-collapsed]="sidebarService.getState()">
+      <app-header [class.sidebar-collapsed]="sidebarService.getState()"></app-header>
       <main class="main-content">
         <router-outlet />
       </main>

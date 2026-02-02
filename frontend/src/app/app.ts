@@ -4,6 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 import { SidebarService } from './services/sidebar.service';
 import { AuthService } from './services/auth.service';
@@ -20,7 +21,7 @@ interface MenuItem {
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent, SidebarComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
