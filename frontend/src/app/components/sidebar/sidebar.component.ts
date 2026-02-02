@@ -58,6 +58,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     });
 
+    // Subscribe to route changes to update menu items
+    this.mobileSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.initializeMenuItems();
+    });
+
     // Initialize menu items based on current route
     this.initializeMenuItems();
 
@@ -122,6 +129,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
           isExpanded: false
         }
       ];
+      
+      // Initialize sidebar state for setup pages to ensure correct menu display
+      this.sidebarService.initializeSetupState();
     } else {
       // Default menu for other pages
       this.menuItems = [
@@ -136,6 +146,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
           route: '/audit'
         }
       ];
+      
+      // Initialize responsive state for non-setup pages
+      this.sidebarService.initializeResponsiveState();
     }
 
     this.cdr.detectChanges();

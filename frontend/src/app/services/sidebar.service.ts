@@ -74,7 +74,28 @@ export class SidebarService {
         this.collapsedSubject.next(defaultState);
         this.updateBodyClass(defaultState);
       } else {
+        // User has a saved preference, respect it
+        const savedState = saved === 'true';
+        this.collapsedSubject.next(savedState);
+        this.updateBodyClass(savedState);
       }
+    }
+  }
+
+  /**
+   * Initialize sidebar state for setup pages
+   * This ensures setup pages show the correct menu items regardless of saved preference
+   */
+  initializeSetupState() {
+    if (typeof window !== 'undefined') {
+      // For setup pages, always use responsive defaults regardless of saved preference
+      // This ensures users see the correct menu items for setup pages
+      const defaultState = this.getDefaultState();
+      this.collapsedSubject.next(defaultState);
+      this.updateBodyClass(defaultState);
+      
+      // Note: We don't save this to localStorage to avoid overriding user preference
+      // when they navigate back to other pages
     }
   }
 
