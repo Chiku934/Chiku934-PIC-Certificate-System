@@ -390,3 +390,16 @@ local.properties
 .worksheet
 # Markdown files (Documentation)
 *.md
+
+# SQL files (Database scripts and documentation)
+*.sql
+
+# CSV files (Data files)
+*.csv
+
+# PowerShell scripts (Import scripts)
+*.ps1
+
+# Temporary files
+*.tmp
+*.temp
