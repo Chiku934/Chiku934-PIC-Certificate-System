@@ -15,7 +15,10 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CertificateService } from '../services/certificate.service';
 import { CreateCertificateDto } from '../dto/create-certificate.dto';
 import { UpdateCertificateDto } from '../dto/update-certificate.dto';
-import { CertificateType, CertificateStatus } from '../entities/certificate.entity';
+import {
+  CertificateType,
+  CertificateStatus,
+} from '../entities/certificate.entity';
 
 @Controller('certificates')
 export class CertificateController {
@@ -78,9 +81,7 @@ export class CertificateController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.certificateService.remove(id);
   }
 
@@ -103,6 +104,10 @@ export class CertificateController {
     @Body('rejectionReason') rejectionReason: string,
     @Body('approvedById', ParseIntPipe) approvedById: number,
   ) {
-    return this.certificateService.rejectCertificate(id, rejectionReason, approvedById);
+    return this.certificateService.rejectCertificate(
+      id,
+      rejectionReason,
+      approvedById,
+    );
   }
 }

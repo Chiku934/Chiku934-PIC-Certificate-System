@@ -22,7 +22,9 @@ export class AdminUserSeeder {
         where: { Email: 'admin@drs2026.co.in' },
       });
 
-      this.logger.log(`Admin user lookup result: ${existingAdmin ? 'Found' : 'Not found'}`);
+      this.logger.log(
+        `Admin user lookup result: ${existingAdmin ? 'Found' : 'Not found'}`,
+      );
 
       if (existingAdmin && existingAdmin.Password) {
         this.logger.log(
@@ -72,7 +74,6 @@ export class AdminUserSeeder {
       this.logger.log(
         `Admin user created successfully with ID: ${savedUser.UserId}`,
       );
-
     } catch (error) {
       this.logger.error('Error seeding admin user:', error);
       throw error;

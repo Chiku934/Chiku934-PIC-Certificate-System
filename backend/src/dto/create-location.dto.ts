@@ -9,7 +9,6 @@ import {
   Max,
 } from 'class-validator';
 
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 export class CreateLocationDto {
   @IsNotEmpty()
   @IsString()

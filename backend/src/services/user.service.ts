@@ -29,9 +29,7 @@ export class UserService {
     });
 
     if (existingUser) {
-      throw new ConflictException(
-        'User with this email already exists',
-      );
+      throw new ConflictException('User with this email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.Password, 10);
@@ -46,9 +44,11 @@ export class UserService {
     const savedUser = await this.userRepository.save(user);
 
     // Assign roles to the user if roles are provided
-    if (createUserDto.Roles &&
-        Array.isArray(createUserDto.Roles) &&
-        createUserDto.Roles.length > 0) {
+    if (
+      createUserDto.Roles &&
+      Array.isArray(createUserDto.Roles) &&
+      createUserDto.Roles.length > 0
+    ) {
       await this.assignRolesToUser(savedUser.UserId, createUserDto.Roles);
     }
 
@@ -60,11 +60,11 @@ export class UserService {
   }
 
   async findOne(id: number): Promise<any> {
-    const user = await this.userRepository.findOne({ 
+    const user = await this.userRepository.findOne({
       where: { UserId: id },
-      relations: ['UserRoleMappings', 'UserRoleMappings.Role']
+      relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
     });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -74,7 +74,7 @@ export class UserService {
       user.UserRoleMappings?.map(
         (mapping) => mapping.Role?.RoleName || 'User',
       ) || [];
-    
+
     return {
       ...user,
       roles,
@@ -177,7 +177,7 @@ export class UserService {
 
   private generateLoginResponse(user: User, rememberMe: boolean = false) {
     const displayName = `${user.FirstName || ''} ${user.LastName || ''}`.trim();
-    
+
     const payload = {
       email: user.Email,
       sub: user.UserId,
@@ -223,7 +223,11 @@ export class UserService {
     const applications: Application[] = [];
 
     for (const permission of permissions) {
-      if (!applications.find((app) => app.ApplicationId === permission.ApplicationId)) {
+      if (
+        !applications.find(
+          (app) => app.ApplicationId === permission.ApplicationId,
+        )
+      ) {
         const app = permission.Application;
         app.Children = [];
 
@@ -281,9 +285,9 @@ export class UserService {
       user.UserRoleMappings?.map(
         (mapping) => mapping.Role?.RoleName || 'User',
       ) || [];
-    
+
     const displayName = `${user.FirstName || ''} ${user.LastName || ''}`.trim();
-    
+
     return {
       ...user,
       roles,
@@ -324,13 +328,15 @@ export class UserService {
       .getRepository(Role)
       .find();
 
-    const validRoles = allRoles.filter(role => 
-      rolesToAssign.some((r) => r.toLowerCase() === role.RoleName.toLowerCase())
+    const validRoles = allRoles.filter((role) =>
+      rolesToAssign.some(
+        (r) => r.toLowerCase() === role.RoleName.toLowerCase(),
+      ),
     );
 
     if (validRoles.length === 0) {
       // Don't throw exception, just log warning so user creation doesn't fail completely
-      // But if roles are critical, maybe we should throw? 
+      // But if roles are critical, maybe we should throw?
       // The user said "given roles to this user not save", so we want to ensure they ARE saved.
       // If we can't find them, we can't save them.
       return;

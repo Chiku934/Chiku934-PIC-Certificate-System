@@ -20,14 +20,18 @@ export class CertificateService {
     private readonly certificateRepository: Repository<Certificate>,
   ) {}
 
-  async create(createCertificateDto: CreateCertificateDto): Promise<Certificate> {
+  async create(
+    createCertificateDto: CreateCertificateDto,
+  ): Promise<Certificate> {
     // Validate certificate number uniqueness
     const existingCertificate = await this.certificateRepository.findOne({
       where: { CertificateNumber: createCertificateDto.CertificateNumber },
     });
 
     if (existingCertificate) {
-      throw new BadRequestException(`Certificate number ${createCertificateDto.CertificateNumber} already exists`);
+      throw new BadRequestException(
+        `Certificate number ${createCertificateDto.CertificateNumber} already exists`,
+      );
     }
 
     // Validate expiry date is after issue date
@@ -62,24 +66,36 @@ export class CertificateService {
     return certificate;
   }
 
-  async update(id: number, updateCertificateDto: UpdateCertificateDto): Promise<Certificate> {
+  async update(
+    id: number,
+    updateCertificateDto: UpdateCertificateDto,
+  ): Promise<Certificate> {
     const certificate = await this.findOne(id);
 
     // Validate certificate number uniqueness if being changed
-    if (updateCertificateDto.CertificateNumber && updateCertificateDto.CertificateNumber !== certificate.CertificateNumber) {
+    if (
+      updateCertificateDto.CertificateNumber &&
+      updateCertificateDto.CertificateNumber !== certificate.CertificateNumber
+    ) {
       const existingCertificate = await this.certificateRepository.findOne({
         where: { CertificateNumber: updateCertificateDto.CertificateNumber },
       });
 
       if (existingCertificate) {
-        throw new BadRequestException(`Certificate number ${updateCertificateDto.CertificateNumber} already exists`);
+        throw new BadRequestException(
+          `Certificate number ${updateCertificateDto.CertificateNumber} already exists`,
+        );
       }
     }
 
     // Validate dates if being updated
     if (updateCertificateDto.IssueDate || updateCertificateDto.ExpiryDate) {
-      const issueDate = new Date(updateCertificateDto.IssueDate || certificate.IssueDate);
-      const expiryDate = new Date(updateCertificateDto.ExpiryDate || certificate.ExpiryDate);
+      const issueDate = new Date(
+        updateCertificateDto.IssueDate || certificate.IssueDate,
+      );
+      const expiryDate = new Date(
+        updateCertificateDto.ExpiryDate || certificate.ExpiryDate,
+      );
 
       if (expiryDate <= issueDate) {
         throw new BadRequestException('Expiry date must be after issue date');
@@ -154,16 +170,23 @@ export class CertificateService {
       .leftJoinAndSelect('certificate.createdBy', 'createdBy')
       .leftJoinAndSelect('certificate.approvedBy', 'approvedBy')
       .where('certificate.ExpiryDate < :today', { today: new Date() })
-      .andWhere('certificate.Status = :status', { status: CertificateStatus.APPROVED })
+      .andWhere('certificate.Status = :status', {
+        status: CertificateStatus.APPROVED,
+      })
       .orderBy('certificate.ExpiryDate', 'DESC')
       .getMany();
   }
 
-  async approveCertificate(id: number, approvedById: number): Promise<Certificate> {
+  async approveCertificate(
+    id: number,
+    approvedById: number,
+  ): Promise<Certificate> {
     const certificate = await this.findOne(id);
 
     if (certificate.Status !== CertificateStatus.PENDING_APPROVAL) {
-      throw new BadRequestException('Certificate must be in pending approval status to be approved');
+      throw new BadRequestException(
+        'Certificate must be in pending approval status to be approved',
+      );
     }
 
     certificate.Status = CertificateStatus.APPROVED;
@@ -172,11 +195,17 @@ export class CertificateService {
     return await this.certificateRepository.save(certificate);
   }
 
-  async rejectCertificate(id: number, rejectionReason: string, approvedById: number): Promise<Certificate> {
+  async rejectCertificate(
+    id: number,
+    rejectionReason: string,
+    approvedById: number,
+  ): Promise<Certificate> {
     const certificate = await this.findOne(id);
 
     if (certificate.Status !== CertificateStatus.PENDING_APPROVAL) {
-      throw new BadRequestException('Certificate must be in pending approval status to be rejected');
+      throw new BadRequestException(
+        'Certificate must be in pending approval status to be rejected',
+      );
     }
 
     certificate.Status = CertificateStatus.REJECTED;
@@ -190,7 +219,9 @@ export class CertificateService {
     const certificate = await this.findOne(id);
 
     if (certificate.Status !== CertificateStatus.DRAFT) {
-      throw new BadRequestException('Only draft certificates can be submitted for approval');
+      throw new BadRequestException(
+        'Only draft certificates can be submitted for approval',
+      );
     }
 
     certificate.Status = CertificateStatus.PENDING_APPROVAL;
@@ -206,25 +237,39 @@ export class CertificateService {
     expired: number;
     expiringSoon: number;
   }> {
-    const [total, approved, pending, rejected, expired, expiringSoon] = await Promise.all([
-      this.certificateRepository.count(),
-      this.certificateRepository.count({ where: { Status: CertificateStatus.APPROVED } }),
-      this.certificateRepository.count({ where: { Status: CertificateStatus.PENDING_APPROVAL } }),
-      this.certificateRepository.count({ where: { Status: CertificateStatus.REJECTED } }),
-      this.certificateRepository
-        .createQueryBuilder('certificate')
-        .where('certificate.ExpiryDate < :today', { today: new Date() })
-        .andWhere('certificate.Status = :status', { status: CertificateStatus.APPROVED })
-        .getCount(),
-      this.certificateRepository
-        .createQueryBuilder('certificate')
-        .where('certificate.ExpiryDate <= :futureDate', { futureDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) })
-        .andWhere('certificate.ExpiryDate > :today', { today: new Date() })
-        .andWhere('certificate.Status IN (:...statuses)', {
-          statuses: [CertificateStatus.APPROVED, CertificateStatus.UNDER_REVIEW],
-        })
-        .getCount(),
-    ]);
+    const [total, approved, pending, rejected, expired, expiringSoon] =
+      await Promise.all([
+        this.certificateRepository.count(),
+        this.certificateRepository.count({
+          where: { Status: CertificateStatus.APPROVED },
+        }),
+        this.certificateRepository.count({
+          where: { Status: CertificateStatus.PENDING_APPROVAL },
+        }),
+        this.certificateRepository.count({
+          where: { Status: CertificateStatus.REJECTED },
+        }),
+        this.certificateRepository
+          .createQueryBuilder('certificate')
+          .where('certificate.ExpiryDate < :today', { today: new Date() })
+          .andWhere('certificate.Status = :status', {
+            status: CertificateStatus.APPROVED,
+          })
+          .getCount(),
+        this.certificateRepository
+          .createQueryBuilder('certificate')
+          .where('certificate.ExpiryDate <= :futureDate', {
+            futureDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          })
+          .andWhere('certificate.ExpiryDate > :today', { today: new Date() })
+          .andWhere('certificate.Status IN (:...statuses)', {
+            statuses: [
+              CertificateStatus.APPROVED,
+              CertificateStatus.UNDER_REVIEW,
+            ],
+          })
+          .getCount(),
+      ]);
 
     return { total, approved, pending, rejected, expired, expiringSoon };
   }

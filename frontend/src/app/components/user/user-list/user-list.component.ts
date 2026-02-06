@@ -67,6 +67,16 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.loadUsers();
     // Force refresh to ensure data is loaded
     this.userService.refreshNow();
+    
+    // Set up auto-refresh for real-time updates
+    this.setupAutoRefresh();
+  }
+
+  private setupAutoRefresh(): void {
+    // Refresh data every 30 seconds to keep it up-to-date
+    setInterval(() => {
+      this.loadUsers();
+    }, 30000);
   }
 
   ngOnDestroy(): void {
@@ -190,13 +200,13 @@ export class UserListComponent implements OnInit, OnDestroy {
 
     return `
       <div class="action-buttons">
-        <button class="btn btn-sm btn-outline-info me-1" onclick="window.viewUser(${user.Id})" title="View Details">
+        <button class="btn btn-sm btn-outline-info me-1" onclick="window.viewUser(${user.UserId})" title="View Details">
           <i class="fas fa-eye"></i>
         </button>
-        <button class="btn btn-sm btn-outline-primary me-1" onclick="window.editUser(${user.Id})" title="Edit User">
+        <button class="btn btn-sm btn-outline-primary me-1" onclick="window.editUser(${user.UserId})" title="Edit User">
           <i class="fas fa-edit"></i>
         </button>
-        <button class="btn btn-sm btn-outline-danger" onclick="window.deleteUser(${user.Id})" title="Delete User">
+        <button class="btn btn-sm btn-outline-danger" onclick="window.deleteUser(${user.UserId})" title="Delete User">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -256,7 +266,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   onDeleteUser(userId: number): void {
-    const user = this.users.find(u => u.Id === userId);
+    const user = this.users.find(u => u.UserId === userId);
     const userName = user ? this.getFullName(user) : 'Unknown User';
     
     if (confirm(`Are you sure you want to delete user "${userName}"?`)) {

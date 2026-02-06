@@ -47,7 +47,6 @@ export class SetupController {
     @Request() req: any,
   ) {
     try {
-
       let logoPath = createDto.CompanyLogo;
 
       // Handle file upload if provided
@@ -203,7 +202,11 @@ export class SetupController {
   }
 
   @Patch('letter-head/:id')
-  updateLetterHead(@Param('id') id: string, @Body() updateDto: any, @Request() req) {
+  updateLetterHead(
+    @Param('id') id: string,
+    @Body() updateDto: any,
+    @Request() req,
+  ) {
     return this.setupService.updateLetterHead(+id, {
       ...updateDto,
       UpdatedBy: req.user.Id,

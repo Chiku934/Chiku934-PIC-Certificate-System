@@ -204,8 +204,8 @@ export class AuthService {
         // raw API response received
         
         const mappedUser = {
-          Id: user.Id,
-          id: user.Id,
+          Id: user.UserId,
+          id: user.UserId,
           username: user.UserName || user.username,
           Email: user.Email,
           email: user.Email,
@@ -218,8 +218,8 @@ export class AuthService {
           displayName: user.displayName,
           Address: user.Address,
           address: user.Address,
-          PhoneNumber: user.PhoneNumber,
-          phoneNumber: user.PhoneNumber,
+          PhoneNumber: user.PhoneNo,
+          phoneNumber: user.PhoneNo,
           UserImage: user.UserImage,
           userImage: user.UserImage,
           profileImage: user.UserImage,

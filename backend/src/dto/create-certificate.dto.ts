@@ -14,7 +14,6 @@ import {
   CertificateStatus,
 } from '../entities/certificate.entity';
 
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 export class CreateCertificateDto {
   @IsNotEmpty()
   @IsEnum(CertificateType)

@@ -46,7 +46,11 @@ export class UserController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginUserDto: LoginUserDto) {
-    return this.userService.login(loginUserDto.email, loginUserDto.password, loginUserDto.rememberMe || false);
+    return this.userService.login(
+      loginUserDto.email,
+      loginUserDto.password,
+      loginUserDto.rememberMe || false,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -94,9 +98,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.userService.remove(id);
   }
 }

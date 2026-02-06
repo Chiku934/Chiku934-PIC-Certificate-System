@@ -9,9 +9,7 @@ import { AdminUserSeeder } from '../seeders/admin-user.seeder';
   exports: [AdminUserSeeder],
 })
 export class SeederModule implements OnModuleInit {
-  constructor(
-    private readonly adminUserSeeder: AdminUserSeeder
-  ) {}
+  constructor(private readonly adminUserSeeder: AdminUserSeeder) {}
 
   async onModuleInit(): Promise<void> {
     await this.adminUserSeeder.seed();

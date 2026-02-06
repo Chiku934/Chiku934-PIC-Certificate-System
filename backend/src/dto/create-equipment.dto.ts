@@ -6,7 +6,6 @@ import {
   IsDateString,
 } from 'class-validator';
 
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 export class CreateEquipmentDto {
   @IsNotEmpty()
   @IsString()

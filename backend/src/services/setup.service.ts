@@ -154,23 +154,18 @@ export class SetupService {
 
   // Dashboard Statistics
   async getDashboardStats() {
-    const [
-      allUsers,
-      activeUsers,
-      inactiveUsers,
-      emailDomains,
-      emailAccounts,
-    ] = await Promise.all([
-      this.userRepository.count(),
-      this.userRepository.count({
-        where: { IsActive: true },
-      }),
-      this.userRepository.count({
-        where: { IsActive: false },
-      }),
-      this.emailDomainRepository.count(),
-      this.emailAccountRepository.count(),
-    ]);
+    const [allUsers, activeUsers, inactiveUsers, emailDomains, emailAccounts] =
+      await Promise.all([
+        this.userRepository.count(),
+        this.userRepository.count({
+          where: { IsActive: true },
+        }),
+        this.userRepository.count({
+          where: { IsActive: false },
+        }),
+        this.emailDomainRepository.count(),
+        this.emailAccountRepository.count(),
+      ]);
 
     const companyDetails = await this.findCompanyDetails();
     const letterHead = await this.findLetterHead();

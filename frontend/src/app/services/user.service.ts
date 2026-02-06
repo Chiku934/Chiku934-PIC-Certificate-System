@@ -4,12 +4,12 @@ import { Observable, interval, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 export interface User {
-  Id: number;
+  UserId: number;
   Email: string;
   FirstName?: string;
   MiddleName?: string;
   LastName?: string;
-  PhoneNumber?: string;
+  PhoneNo?: string;
   Address?: string;
   UserImage?: string;
   IsActive?: boolean;

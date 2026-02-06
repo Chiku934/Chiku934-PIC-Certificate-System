@@ -72,9 +72,7 @@ export class LocationController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.locationService.remove(id);
   }
 }

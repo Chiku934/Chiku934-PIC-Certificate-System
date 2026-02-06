@@ -46,6 +46,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.router.navigate(['/login']);
         }
       });
+    
+    // Force refresh user profile to ensure we have the latest data
+    this.authService.refreshUserProfile();
   }
 
   ngOnDestroy() {
@@ -75,6 +78,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     };
 
     return roleMap[roleStr] || role;
+  }
+
+  getFullName(): string {
+    if (!this.currentUser) return 'User';
+    const parts = [this.currentUser.FirstName, this.currentUser.MiddleName, this.currentUser.LastName].filter(p => p);
+    return parts.length ? parts.join(' ') : this.currentUser.Email || 'User';
   }
 }
 

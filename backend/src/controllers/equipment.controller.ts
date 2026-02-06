@@ -54,9 +54,7 @@ export class EquipmentController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.equipmentService.remove(id);
   }
 }

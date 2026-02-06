@@ -235,7 +235,7 @@ export class UserComponent implements OnInit, OnDestroy {
       FirstName: user.FirstName,
       MiddleName: user.MiddleName,
       LastName: user.LastName,
-      PhoneNumber: user.PhoneNumber,
+      PhoneNumber: user.PhoneNo,
       Address: user.Address,
       UserImage: user.UserImage,
       IsActive: user.IsActive
@@ -404,7 +404,7 @@ export class UserComponent implements OnInit, OnDestroy {
   getFullName(user: User | null): string {
     if (!user) return 'New User';
     const parts = [user.FirstName, user.MiddleName, user.LastName].filter(p => p);
-    return parts.length ? parts.join(' ') : user.Email;
+    return parts.length ? parts.join(' ') : user.Email || '';
   }
 
   getRoleIcon(role: string): string {
