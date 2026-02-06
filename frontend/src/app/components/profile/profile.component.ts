@@ -41,7 +41,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
         for (const av of this.availableRoles) {
           this.roleChecked[av] = roleSet.has(av.toLowerCase().trim());
         }
-        if (!user) {
+        // Only redirect to login if user is null/undefined and we're not already on login page
+        if (!user && this.router.url !== '/login') {
           this.router.navigate(['/login']);
         }
       });
@@ -52,9 +53,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  goBack() {
-    this.router.navigate(['/dashboard']);
-  }
 
   formatRole(role: string): string {
     if (!role) return 'User';

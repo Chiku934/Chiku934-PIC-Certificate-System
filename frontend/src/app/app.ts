@@ -120,14 +120,26 @@ export class App implements OnInit {
     const currentRoute = this.getCurrentRoute();
     const routePath = currentRoute?.routeConfig?.path || '';
 
-    // Hide sidebar only on dashboard page
-    return routePath !== 'dashboard';
+    // Hide sidebar on login, register, dashboard, and profile pages
+    return routePath !== 'login' && routePath !== 'register' && routePath !== 'dashboard' && routePath !== 'profile';
   }
 
   isDashboard(): boolean {
     const currentRoute = this.getCurrentRoute();
     const routePath = currentRoute?.routeConfig?.path || '';
     return routePath === 'dashboard';
+  }
+
+  isLoginLayout(): boolean {
+    const currentRoute = this.getCurrentRoute();
+    const routePath = currentRoute?.routeConfig?.path || '';
+    return routePath === 'login' || routePath === 'register';
+  }
+
+  isProfileLayout(): boolean {
+    const currentRoute = this.getCurrentRoute();
+    const routePath = currentRoute?.routeConfig?.path || '';
+    return routePath === 'profile';
   }
 
   isActive(route: string): boolean {

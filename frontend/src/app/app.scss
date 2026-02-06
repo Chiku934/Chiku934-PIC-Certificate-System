@@ -43,6 +43,24 @@ $header-height: 50px;
   @media (max-width: 1200px) {
     margin-left: 0;
   }
+
+  // Login/Register pages: Remove all sidebar-related margins
+  &.login-layout {
+    margin-left: 0 !important;
+
+    @media (min-width: 1201px) {
+      margin-left: 0 !important;
+    }
+  }
+
+  // Profile page: Remove all sidebar-related margins
+  &.profile-layout {
+    margin-left: 0 !important;
+
+    @media (min-width: 1201px) {
+      margin-left: 0 !important;
+    }
+  }
 }
 
 app-header {

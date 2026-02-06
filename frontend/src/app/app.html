@@ -6,7 +6,7 @@
     <app-sidebar *ngIf="showSidebar()"></app-sidebar>
 
     <!-- Main Content Area -->
-    <div class="main-content-area" [class.sidebar-collapsed]="sidebarService.getState()" [class.dashboard-layout]="isDashboard()">
+    <div class="main-content-area" [class.sidebar-collapsed]="sidebarService.getState()" [class.dashboard-layout]="isDashboard()" [class.login-layout]="isLoginLayout()" [class.profile-layout]="isProfileLayout()">
       <app-header [class.sidebar-collapsed]="sidebarService.getState()" [class.dashboard-layout]="isDashboard()"></app-header>
       <main class="main-content">
         <router-outlet />
