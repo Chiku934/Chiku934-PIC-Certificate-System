@@ -79,20 +79,37 @@ export class AuthService {
     try {
       // Simple JWT decode (without verification on client side)
       const payload = JSON.parse(atob(token.split('.')[1]));
-      
+
       // Try different possible field names for username
       const username = payload.username || payload.name || payload.sub || payload.email;
       const email = payload.email || payload.sub;
-      
+
+      let firstName = payload.firstName || payload.given_name || payload.first_name || null;
+      let lastName = payload.lastName || payload.family_name || payload.last_name || null;
+      let displayName = payload.displayName || null;
+
+      // If firstName and lastName are not available but displayName is, parse it
+      if ((!firstName || !lastName) && displayName) {
+        const nameParts = displayName.trim().split(' ');
+        if (nameParts.length >= 2) {
+          firstName = firstName || nameParts[0];
+          lastName = lastName || nameParts.slice(1).join(' ');
+        } else if (nameParts.length === 1) {
+          firstName = firstName || nameParts[0];
+        }
+      }
+
       const user = {
         id: payload.sub || Date.now(),
         username: username || 'User',
         email: email || '',
-        firstName: payload.firstName || payload.given_name || payload.first_name || null,
-        lastName: payload.lastName || payload.family_name || payload.last_name || null,
-        displayName: payload.displayName || null,
+        firstName: firstName,
+        lastName: lastName,
+        displayName: displayName,
+        phoneNumber: undefined, // Default when profile API fails
+        roles: ['User'], // Default role when profile API fails
       };
-      
+
       this.currentUserSubject.next(user);
       return true;
     } catch (error) {
@@ -206,7 +223,7 @@ export class AuthService {
         const mappedUser = {
           Id: user.UserId,
           id: user.UserId,
-          username: user.UserName || user.username,
+          username: user.UserName,
           Email: user.Email,
           email: user.Email,
           FirstName: user.FirstName,
@@ -218,6 +235,7 @@ export class AuthService {
           displayName: user.displayName,
           Address: user.Address,
           address: user.Address,
+          PhoneNo: user.PhoneNo,
           PhoneNumber: user.PhoneNo,
           phoneNumber: user.PhoneNo,
           UserImage: user.UserImage,

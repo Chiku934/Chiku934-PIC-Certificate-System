@@ -106,11 +106,20 @@ export class UserService {
       updateUserDto.Password = await bcrypt.hash(updateUserDto.Password, 10);
     }
 
-    Object.assign(user, {
+    // Handle field name mapping from DTO to entity
+    const updateData: any = {
       ...updateUserDto,
       UpdatedDate: new Date(),
       UpdatedBy: updateUserDto.UpdatedBy,
-    });
+    };
+
+    // Map PhoneNumber (DTO) to PhoneNo (Entity)
+    if (updateUserDto.PhoneNumber !== undefined) {
+      updateData.PhoneNo = updateUserDto.PhoneNumber;
+      delete updateData.PhoneNumber;
+    }
+
+    Object.assign(user, updateData);
 
     // Save user first
     const savedUser = await this.userRepository.save(user);
@@ -289,15 +298,21 @@ export class UserService {
     const displayName = `${user.FirstName || ''} ${user.LastName || ''}`.trim();
 
     return {
-      ...user,
+      UserId: user.UserId,
+      UserName: user.Email,
+      Email: user.Email,
+      FirstName: user.FirstName,
+      MiddleName: user.MiddleName,
+      LastName: user.LastName,
+      PhoneNo: user.PhoneNo,
+      Address: user.Address,
+      UserImage: user.UserImage,
       roles,
       displayName,
-      role: roles[0] || 'User', // For backward compatibility
-      userRole: roles[0] || 'User', // For backward compatibility
-      roleName: roles[0] || 'User', // For backward compatibility
-      userType: roles[0] || 'User', // For backward compatibility
-      Address: user.Address, // Include Address field
-      PhoneNumber: user.PhoneNo, // Include PhoneNumber field
+      role: roles[0] || 'User',
+      userRole: roles[0] || 'User',
+      roleName: roles[0] || 'User',
+      userType: roles[0] || 'User',
     };
   }
 
@@ -335,10 +350,8 @@ export class UserService {
     );
 
     if (validRoles.length === 0) {
-      // Don't throw exception, just log warning so user creation doesn't fail completely
-      // But if roles are critical, maybe we should throw?
-      // The user said "given roles to this user not save", so we want to ensure they ARE saved.
-      // If we can't find them, we can't save them.
+      console.log(`No valid roles found for: ${rolesToAssign.join(', ')}`);
+      console.log(`Available roles: ${allRoles.map(r => r.RoleName).join(', ')}`);
       return;
     }
 
@@ -354,6 +367,7 @@ export class UserService {
         },
       );
       await this.userRepository.manager.save(userRoleMapping);
+      console.log(`Assigned role ${role.RoleName} to user ${userId}`);
     }
   }
 }

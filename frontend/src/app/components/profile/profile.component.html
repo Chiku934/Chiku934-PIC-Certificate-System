@@ -31,7 +31,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Phone No</label>
-                        <input type="text" class="form-input" [value]="currentUser?.PhoneNo || currentUser?.phoneNumber || ''" readonly>
+                        <input type="text" class="form-input" [value]="currentUser?.PhoneNo || currentUser?.PhoneNumber || currentUser?.phoneNumber || 'Not provided'" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Roles</label>

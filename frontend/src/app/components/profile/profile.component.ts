@@ -33,14 +33,35 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentUser = user;
-        // normalize roles into simple array and boolean map for template binding
-        const normalized = (user?.roles || []).map((r: any) => r?.toString().toLowerCase().trim());
-        this.userRoles = normalized;
+        
+        // Get user roles from the user object
+        const userRolesFromDB = user?.roles || [];
+        
+        // Normalize roles for comparison (convert to lowercase and trim)
+        const normalizedRoles = userRolesFromDB.map((r: any) => r?.toString().toLowerCase().trim());
+        
+        // Update userRoles array
+        this.userRoles = userRolesFromDB;
+        
+        // Create roleChecked map - check if user has each available role
         this.roleChecked = {};
-        const roleSet = new Set(normalized);
         for (const av of this.availableRoles) {
-          this.roleChecked[av] = roleSet.has(av.toLowerCase().trim());
+          const normalizedAv = av.toLowerCase().trim();
+          this.roleChecked[av] = normalizedRoles.includes(normalizedAv);
         }
+        
+        // Also add any roles that exist in DB but not in availableRoles
+        for (const role of userRolesFromDB) {
+          const normalizedRole = role?.toString().toLowerCase().trim();
+          if (!this.availableRoles.some(av => av.toLowerCase().trim() === normalizedRole)) {
+            // Add this role to availableRoles if it's not already there
+            if (!this.availableRoles.includes(role)) {
+              this.availableRoles.push(role);
+            }
+            this.roleChecked[role] = true;
+          }
+        }
+        
         // Only redirect to login if user is null/undefined and we're not already on login page
         if (!user && this.router.url !== '/login') {
           this.router.navigate(['/login']);
