@@ -80,10 +80,8 @@ export class CertificateController {
   @UseGuards(JwtAuthGuard)
   remove(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
   ) {
-    const userId = req.user?.sub;
-    return this.certificateService.remove(id, userId);
+    return this.certificateService.remove(id);
   }
 
   @Post(':id/submit-approval')

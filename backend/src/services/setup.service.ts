@@ -48,9 +48,6 @@ export class SetupService {
       DateOfIncorporation: createDto.DateOfIncorporation
         ? new Date(createDto.DateOfIncorporation)
         : undefined,
-      CreatedBy: createDto.CreatedBy,
-      UpdatedBy: createDto.CreatedBy,
-      IsDeleted: false,
     });
     return this.companyDetailsRepository.save(companyDetails);
   }
@@ -106,21 +103,19 @@ export class SetupService {
 
   async findAllCompanyDetails(): Promise<CompanyDetails[]> {
     return this.companyDetailsRepository.find({
-      where: { IsDeleted: false },
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findCompanyDetails(): Promise<CompanyDetails | null> {
     return this.companyDetailsRepository.findOne({
-      where: { IsDeleted: false },
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findOneCompanyDetails(id: number): Promise<CompanyDetails> {
     const companyDetails = await this.companyDetailsRepository.findOne({
-      where: { Id: id, IsDeleted: false },
+      where: { Id: id },
     });
     if (!companyDetails) {
       throw new NotFoundException('Company details not found');
@@ -128,12 +123,9 @@ export class SetupService {
     return companyDetails;
   }
 
-  async removeCompanyDetails(id: number, deletedBy?: number): Promise<void> {
+  async removeCompanyDetails(id: number): Promise<void> {
     const companyDetails = await this.findOneCompanyDetails(id);
-    companyDetails.DeletedDate = new Date();
-    companyDetails.DeletedBy = deletedBy;
-    companyDetails.IsDeleted = true;
-    await this.companyDetailsRepository.save(companyDetails);
+    await this.companyDetailsRepository.remove(companyDetails);
   }
 
   // Letter Head
@@ -144,14 +136,13 @@ export class SetupService {
 
   async findLetterHead(): Promise<LetterHead | null> {
     return this.letterHeadRepository.findOne({
-      where: { IsDeleted: false },
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async updateLetterHead(id: number, updateDto: any): Promise<LetterHead> {
     const letterHead = await this.letterHeadRepository.findOne({
-      where: { Id: id, IsDeleted: false },
+      where: { Id: id },
     });
     if (!letterHead) {
       throw new NotFoundException('Letter head not found');
@@ -163,42 +154,38 @@ export class SetupService {
 
   // Dashboard Statistics
   async getDashboardStats() {
-    try {
-      const [
-        allUsers,
-        activeUsers,
-        inactiveUsers,
-        emailDomains,
-        emailAccounts,
-      ] = await Promise.all([
-        this.userRepository.count({ where: { IsDeleted: false } }),
-        this.userRepository.count({
-          where: { IsActive: true, IsDeleted: false },
-        }),
-        this.userRepository.count({
-          where: { IsActive: false, IsDeleted: false },
-        }),
-        this.emailDomainRepository.count({ where: { IsDeleted: false } }),
-        this.emailAccountRepository.count({ where: { IsDeleted: false } }),
-      ]);
+    const [
+      allUsers,
+      activeUsers,
+      inactiveUsers,
+      emailDomains,
+      emailAccounts,
+    ] = await Promise.all([
+      this.userRepository.count(),
+      this.userRepository.count({
+        where: { IsActive: true },
+      }),
+      this.userRepository.count({
+        where: { IsActive: false },
+      }),
+      this.emailDomainRepository.count(),
+      this.emailAccountRepository.count(),
+    ]);
 
-      const companyDetails = await this.findCompanyDetails();
-      const letterHead = await this.findLetterHead();
+    const companyDetails = await this.findCompanyDetails();
+    const letterHead = await this.findLetterHead();
 
-      const result = {
-        totalUsers: allUsers,
-        activeUsers,
-        inactiveUsers,
-        systemUsers: 0, // TODO: Implement user types
-        companyConfigured: !!companyDetails,
-        letterHeadConfigured: !!letterHead,
-        emailDomains,
-        emailAccounts,
-      };
+    const result = {
+      totalUsers: allUsers,
+      activeUsers,
+      inactiveUsers,
+      systemUsers: 0, // TODO: Implement user types
+      companyConfigured: !!companyDetails,
+      letterHeadConfigured: !!letterHead,
+      emailDomains,
+      emailAccounts,
+    };
 
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    return result;
   }
 }

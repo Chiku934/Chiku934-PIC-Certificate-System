@@ -1,9 +1,16 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('AuditLogs')
-export class AuditLog extends BaseEntity {
+export class AuditLog {
+  @PrimaryGeneratedColumn()
+  Id: number;
   @Column()
   ActivityLogTypeId: number;
 

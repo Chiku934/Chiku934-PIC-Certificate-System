@@ -1,38 +1,44 @@
-import { Entity, Column } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { EmailDomain } from './email-domain.entity';
 
 @Entity('EmailAccounts')
-export class EmailAccount extends BaseEntity {
-  @Column({ length: 255 })
-  AccountName: string;
-
+export class EmailAccount {
+  @PrimaryGeneratedColumn()
+  Id: number;
   @Column({ length: 255 })
   EmailAddress: string;
 
+  @Column({ length: 255 })
+  Domain: string;
+
+  @Column({ length: 255 })
+  EmailAccountName: string;
+
+  @Column({ length: 500 })
+  EmailPassword: string;
+
+  @Column({ length: 255, nullable: true })
+  AlternativeEmailAddress?: string;
+
+  @Column({ type: 'text', nullable: true })
+  EmailSignature?: string;
+
   @Column({ length: 500, nullable: true })
-  Description?: string;
+  EmailLogo?: string;
 
-  @Column({ length: 100 })
-  SMTPHost: string;
+  @Column({ type: 'bit' })
+  IsDefaultSending: boolean;
 
-  @Column({ type: 'int', default: 587 })
-  SMTPPort: number;
-
-  @Column({ length: 255 })
-  Username: string;
-
-  @Column({ length: 255 })
-  Password: string;
-
-  @Column({ default: true })
-  UseSSL: boolean;
-
-  @Column({ default: true })
-  UseTLS: boolean;
-
-  @Column({ default: true })
-  IsActive: boolean;
-
-  @Column({ type: 'int', nullable: true })
+  @Column({ nullable: true })
   EmailDomainId?: number;
+
+  @ManyToOne(() => EmailDomain, { nullable: true })
+  @JoinColumn({ name: 'EmailDomainId' })
+  emailDomain?: EmailDomain;
 }

@@ -9,7 +9,6 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { LocationService } from '../services/location.service';
@@ -26,23 +25,9 @@ export class LocationController {
   }
 
   @Get()
-  findAll(
-    @Query('companyId') companyId?: string,
-    @Query('type') type?: string,
-    @Query('active') active?: string,
-    @Query('search') search?: string,
-  ) {
-    if (search) {
-      return this.locationService.searchLocations(search);
-    }
+  findAll(@Query('companyId') companyId?: string) {
     if (companyId) {
       return this.locationService.findByCompany(parseInt(companyId));
-    }
-    if (type) {
-      return this.locationService.findByType(type);
-    }
-    if (active === 'true') {
-      return this.locationService.findActive();
     }
     return this.locationService.findAll();
   }
@@ -89,24 +74,7 @@ export class LocationController {
   @UseGuards(JwtAuthGuard)
   remove(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
   ) {
-    const userId = req.user?.sub;
-    return this.locationService.remove(id, userId);
-  }
-
-  @Get('bounds/:northEastLat/:northEastLng/:southWestLat/:southWestLng')
-  getLocationsByBounds(
-    @Param('northEastLat') northEastLat: string,
-    @Param('northEastLng') northEastLng: string,
-    @Param('southWestLat') southWestLat: string,
-    @Param('southWestLng') southWestLng: string,
-  ) {
-    return this.locationService.getLocationsByBounds(
-      parseFloat(northEastLat),
-      parseFloat(northEastLng),
-      parseFloat(southWestLat),
-      parseFloat(southWestLng),
-    );
+    return this.locationService.remove(id);
   }
 }

@@ -31,7 +31,7 @@ export class AdminUserSeeder {
         // Update existing user with new information
         existingAdmin.FirstName = 'DRS';
         existingAdmin.LastName = '@2026';
-        existingAdmin.PhoneNumber = '9348178871';
+        existingAdmin.PhoneNo = '9348178871';
         existingAdmin.Address = 'Jharkhand';
         existingAdmin.IsActive = true;
         await this.userRepository.save(existingAdmin);
@@ -47,7 +47,7 @@ export class AdminUserSeeder {
         // UserName field removed - using Email as primary identifier
         existingAdmin.FirstName = 'DRS';
         existingAdmin.LastName = '@2026';
-        existingAdmin.PhoneNumber = '9348178871';
+        existingAdmin.PhoneNo = '9348178871';
         existingAdmin.IsActive = true;
         await this.userRepository.save(existingAdmin);
         this.logger.log('Admin user updated with password successfully');
@@ -63,14 +63,14 @@ export class AdminUserSeeder {
         Password: hashedPassword,
         FirstName: 'DRS',
         LastName: '@2026',
-        PhoneNumber: '9348178871',
+        PhoneNo: '9348178871',
         Address: 'Jharkhand',
         IsActive: true,
       });
 
       const savedUser = await this.userRepository.save(adminUser);
       this.logger.log(
-        `Admin user created successfully with ID: ${savedUser.Id}`,
+        `Admin user created successfully with ID: ${savedUser.UserId}`,
       );
 
     } catch (error) {

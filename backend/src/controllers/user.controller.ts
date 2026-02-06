@@ -93,12 +93,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
   remove(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
   ) {
-    const userId = req.user?.sub;
-    return this.userService.remove(id, userId);
+    return this.userService.remove(id);
   }
 }

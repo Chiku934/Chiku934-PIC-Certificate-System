@@ -9,6 +9,7 @@ import { UserModule } from './modules/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SeederModule } from './modules/seeder.module';
 import { SetupModule } from './modules/setup.module';
+import { LetterHeadModule } from './modules/letter-head.module';
 import { FileUploadService } from './services/file-upload.service';
 import { User } from './entities/user.entity';
 import { Company } from './entities/company.entity';
@@ -22,7 +23,6 @@ import { UserRoleMapping } from './entities/user-role-mapping.entity';
 import { Application } from './entities/application.entity';
 import { RoleAndApplicationWisePermission } from './entities/role-and-application-wise-permission.entity';
 import { AuditLog } from './entities/audit-log.entity';
-import { CompanyDetails } from './entities/company-details.entity';
 import { LetterHead } from './entities/letter-head.entity';
 import { EmailDomain } from './entities/email-domain.entity';
 import { EmailAccount } from './entities/email-account.entity';
@@ -49,7 +49,6 @@ import { EmailAccount } from './entities/email-account.entity';
         Application,
         RoleAndApplicationWisePermission,
         AuditLog,
-        CompanyDetails,
         LetterHead,
         EmailDomain,
         EmailAccount,
@@ -70,6 +69,7 @@ import { EmailAccount } from './entities/email-account.entity';
     AuthModule,
     SeederModule,
     SetupModule,
+    LetterHeadModule,
   ],
   controllers: [AppController],
   providers: [AppService, FileUploadService],

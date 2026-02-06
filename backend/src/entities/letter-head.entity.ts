@@ -1,32 +1,33 @@
-import { Entity, Column } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('LetterHeads')
-export class LetterHead extends BaseEntity {
+export class LetterHead {
+  @PrimaryGeneratedColumn()
+  Id: number;
   @Column({ length: 255 })
   LetterHeadName: string;
 
   @Column({ length: 500, nullable: true })
   LetterHeadImage?: string;
 
-  @Column({ length: 50, nullable: true })
-  LetterHeadImageHeight?: string;
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  LetterHeadImageHeight?: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  LetterHeadImageWidth?: number;
 
   @Column({ length: 50, nullable: true })
-  LetterHeadImageWidth?: string;
-
-  @Column({ length: 20, default: 'center' })
-  LetterHeadAlign: string;
+  LetterHeadAlign?: string;
 
   @Column({ length: 500, nullable: true })
   LetterHeadFooterImage?: string;
 
-  @Column({ length: 50, nullable: true })
-  LetterHeadImageFooterHeight?: string;
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  LetterHeadImageFooterHeight?: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  LetterHeadImageFooterWidth?: number;
 
   @Column({ length: 50, nullable: true })
-  LetterHeadImageFooterWidth?: string;
-
-  @Column({ length: 20, default: 'center' })
-  LetterHeadFooterAlign: string;
+  LetterHeadFooterAlign?: string;
 }

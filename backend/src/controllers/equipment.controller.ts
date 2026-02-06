@@ -56,9 +56,7 @@ export class EquipmentController {
   @UseGuards(JwtAuthGuard)
   remove(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
   ) {
-    const userId = req.user?.sub;
-    return this.equipmentService.remove(id, userId);
+    return this.equipmentService.remove(id);
   }
 }

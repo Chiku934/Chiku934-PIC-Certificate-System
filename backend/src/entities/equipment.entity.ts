@@ -1,9 +1,16 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Company } from './company.entity';
 
-@Entity('Equipment')
-export class Equipment extends BaseEntity {
+@Entity('Equipments')
+export class Equipment {
+  @PrimaryGeneratedColumn()
+  Id: number;
   @Column({ length: 255 })
   EquipmentName: string;
 

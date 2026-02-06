@@ -1,5 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { Equipment } from './equipment.entity';
 import { Location } from './location.entity';
 import { User } from './user.entity';
@@ -24,7 +23,9 @@ export enum CertificateStatus {
 }
 
 @Entity('Certificates')
-export class Certificate extends BaseEntity {
+export class Certificate {
+  @PrimaryGeneratedColumn()
+  Id: number;
   @Column({ type: 'varchar', length: 50 })
   CertificateType: CertificateType;
 

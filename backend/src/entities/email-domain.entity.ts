@@ -1,32 +1,36 @@
-import { Entity, Column } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('EmailDomains')
-export class EmailDomain extends BaseEntity {
+export class EmailDomain {
+  @PrimaryGeneratedColumn()
+  Id: number;
   @Column({ length: 255 })
   DomainName: string;
 
-  @Column({ length: 500, nullable: true })
-  Description?: string;
+  @Column({ length: 255 })
+  IncomingServer: string;
 
-  @Column({ default: true })
-  IsActive: boolean;
+  @Column({ type: 'int' })
+  IncomingPort: number;
 
-  @Column({ length: 100, nullable: true })
-  SMTPHost?: string;
+  @Column({ type: 'bit' })
+  IncomingIsIMAP: boolean;
 
-  @Column({ type: 'int', nullable: true })
-  SMTPPort?: number;
+  @Column({ type: 'bit' })
+  IncomingIsSsl: boolean;
 
-  @Column({ default: false })
-  RequiresAuthentication: boolean;
+  @Column({ type: 'bit' })
+  IncomingIsStartTLs: boolean;
 
-  @Column({ length: 255, nullable: true })
-  Username?: string;
+  @Column({ length: 255 })
+  OutingServer: string;
 
-  @Column({ length: 255, nullable: true })
-  Password?: string;
+  @Column({ type: 'int' })
+  OutgoingPort: number;
 
-  @Column({ default: false })
-  UseSSL: boolean;
+  @Column({ type: 'bit' })
+  OutgoingIsTLs: boolean;
+
+  @Column({ type: 'bit' })
+  OutgoingIsSsl: boolean;
 }

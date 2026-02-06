@@ -28,47 +28,12 @@ export class ApplicationRoleSeeder {
     try {
       this.logger.log('Starting application and role seeding...');
 
-      // Seed Applications
-      const applications = [
-        {
-          ApplicationName: 'Setup',
-          Url: '/setup',
-          IconImageUrl: '/assets/setup-icon.png',
-          AreaName: 'Setup',
-          IsGroup: false,
-        },
-        {
-          ApplicationName: 'Certification',
-          Url: '/certification',
-          IconImageUrl: '/assets/certification-icon.png',
-          AreaName: 'Certification',
-          IsGroup: false,
-        },
-        {
-          ApplicationName: 'Audit',
-          Url: '/audit',
-          IconImageUrl: '/assets/audit-icon.png',
-          AreaName: 'Audit',
-          IsGroup: false,
-        },
-      ];
+      // Skip application seeding as applications already exist in database
+      this.logger.log('Skipping application seeding - applications already exist in database');
 
-      const savedApplications: Application[] = [];
-
-      for (const appData of applications) {
-        let app = await this.applicationRepository.findOne({
-          where: { ApplicationName: appData.ApplicationName }
-        });
-
-        if (!app) {
-          app = this.applicationRepository.create(appData);
-          app = await this.applicationRepository.save(app);
-          this.logger.log(`Created application: ${app.ApplicationName} with ID: ${app.Id}`);
-        } else {
-          this.logger.log(`Application already exists: ${app.ApplicationName} with ID: ${app.Id}`);
-        }
-        savedApplications.push(app);
-      }
+      // Get existing applications
+      const savedApplications: Application[] = await this.applicationRepository.find();
+      this.logger.log(`Found ${savedApplications.length} existing applications`);
 
       // Seed Roles
       const roles = [
@@ -97,12 +62,12 @@ export class ApplicationRoleSeeder {
       if (adminRole) {
         for (const app of savedApplications) {
           let permission = await this.permissionRepository.findOne({
-            where: { ApplicationId: app.Id, RoleId: adminRole.Id }
+            where: { ApplicationId: app.ApplicationId, RoleId: adminRole.Id }
           });
 
           if (!permission) {
             permission = this.permissionRepository.create({
-              ApplicationId: app.Id,
+              ApplicationId: app.ApplicationId,
               RoleId: adminRole.Id,
             });
             await this.permissionRepository.save(permission);
@@ -125,12 +90,12 @@ export class ApplicationRoleSeeder {
         // Assign Administrator role
         if (administratorRole) {
           let userRoleMapping = await this.userRoleMappingRepository.findOne({
-            where: { UserId: adminUser.Id, RoleId: administratorRole.Id }
+            where: { UserId: adminUser.UserId, RoleId: administratorRole.Id }
           });
 
           if (!userRoleMapping) {
             userRoleMapping = this.userRoleMappingRepository.create({
-              UserId: adminUser.Id,
+              UserId: adminUser.UserId,
               RoleId: administratorRole.Id,
             });
             await this.userRoleMappingRepository.save(userRoleMapping);
@@ -141,12 +106,12 @@ export class ApplicationRoleSeeder {
         // Assign Admin role
         if (adminRole) {
           let userRoleMapping = await this.userRoleMappingRepository.findOne({
-            where: { UserId: adminUser.Id, RoleId: adminRole.Id }
+            where: { UserId: adminUser.UserId, RoleId: adminRole.Id }
           });
 
           if (!userRoleMapping) {
             userRoleMapping = this.userRoleMappingRepository.create({
-              UserId: adminUser.Id,
+              UserId: adminUser.UserId,
               RoleId: adminRole.Id,
             });
             await this.userRoleMappingRepository.save(userRoleMapping);

@@ -15,26 +15,20 @@ export class LocationService {
   ) {}
 
   async create(createLocationDto: CreateLocationDto): Promise<Location> {
-    const location = this.locationRepository.create({
-      ...createLocationDto,
-      CreatedBy: createLocationDto.CreatedBy,
-      UpdatedBy: createLocationDto.CreatedBy,
-      IsDeleted: false,
-    });
+    const location = this.locationRepository.create(createLocationDto);
     return await this.locationRepository.save(location);
   }
 
   async findAll(): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { IsDeleted: false },
       relations: ['company', 'parentLocation', 'childLocations'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Location> {
     const location = await this.locationRepository.findOne({
-      where: { Id: id, IsDeleted: false },
+      where: { Id: id },
       relations: ['company', 'parentLocation', 'childLocations'],
     });
 
@@ -50,59 +44,36 @@ export class LocationService {
     updateLocationDto: UpdateLocationDto,
   ): Promise<Location> {
     const location = await this.findOne(id);
-    Object.assign(location, {
-      ...updateLocationDto,
-      UpdatedDate: new Date(),
-      UpdatedBy: updateLocationDto.UpdatedBy,
-    });
+    Object.assign(location, updateLocationDto);
     return await this.locationRepository.save(location);
   }
 
-  async remove(id: number, deletedBy?: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     const location = await this.findOne(id);
-    location.IsDeleted = true;
-    location.DeletedDate = new Date();
-    location.DeletedBy = deletedBy;
-    await this.locationRepository.save(location);
+    await this.locationRepository.remove(location);
   }
 
   async findByCompany(companyId: number): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { CompanyId: companyId, IsDeleted: false },
+      where: { CompanyId: companyId },
       relations: ['company', 'parentLocation', 'childLocations'],
-      order: { CreatedDate: 'DESC' },
-    });
-  }
-
-  async findByType(locationType: string): Promise<Location[]> {
-    return await this.locationRepository.find({
-      where: { LocationType: locationType, IsDeleted: false },
-      relations: ['company', 'parentLocation', 'childLocations'],
-      order: { CreatedDate: 'DESC' },
-    });
-  }
-
-  async findActive(): Promise<Location[]> {
-    return await this.locationRepository.find({
-      where: { IsActive: true, IsDeleted: false },
-      relations: ['company', 'parentLocation', 'childLocations'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findRootLocations(): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { ParentLocationId: null, IsDeleted: false },
+      where: { ParentLocationId: null },
       relations: ['company', 'childLocations'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findChildLocations(parentId: number): Promise<Location[]> {
     return await this.locationRepository.find({
-      where: { ParentLocationId: parentId, IsDeleted: false },
+      where: { ParentLocationId: parentId },
       relations: ['company', 'parentLocation', 'childLocations'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
@@ -118,43 +89,5 @@ export class LocationService {
   async getLocationAncestors(locationId: number): Promise<Location[]> {
     const location = await this.findOne(locationId);
     return await this.locationTreeRepository.findAncestors(location);
-  }
-
-  async searchLocations(searchTerm: string): Promise<Location[]> {
-    return await this.locationRepository
-      .createQueryBuilder('location')
-      .leftJoinAndSelect('location.company', 'company')
-      .leftJoinAndSelect('location.parentLocation', 'parentLocation')
-      .where(
-        'location.LocationName LIKE :searchTerm OR location.LocationCode LIKE :searchTerm OR location.Address LIKE :searchTerm OR location.City LIKE :searchTerm',
-        {
-          searchTerm: `%${searchTerm}%`,
-        },
-      )
-      .andWhere('location.IsDeleted = :isDeleted', { isDeleted: false })
-      .orderBy('location.CreatedDate', 'DESC')
-      .getMany();
-  }
-
-  async getLocationsByBounds(
-    northEastLat: number,
-    northEastLng: number,
-    southWestLat: number,
-    southWestLng: number,
-  ): Promise<Location[]> {
-    return await this.locationRepository
-      .createQueryBuilder('location')
-      .leftJoinAndSelect('location.company', 'company')
-      .where('location.Latitude BETWEEN :southWestLat AND :northEastLat', {
-        southWestLat,
-        northEastLat,
-      })
-      .andWhere('location.Longitude BETWEEN :southWestLng AND :northEastLng', {
-        southWestLng,
-        northEastLng,
-      })
-      .andWhere('location.IsDeleted = :isDeleted', { isDeleted: false })
-      .orderBy('location.CreatedDate', 'DESC')
-      .getMany();
   }
 }

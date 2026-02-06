@@ -1,9 +1,17 @@
-import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { RoleAndApplicationWisePermission } from './role-and-application-wise-permission.entity';
 
 @Entity('Applications')
-export class Application extends BaseEntity {
+export class Application {
+  @PrimaryGeneratedColumn({ name: 'ApplicationId' })
+  ApplicationId: number;
   @Column({ length: 255 })
   ApplicationName: string;
 
@@ -25,13 +33,18 @@ export class Application extends BaseEntity {
   @Column({ length: 100 })
   AreaName: string;
 
-  @ManyToOne(() => Application, application => application.Children, { nullable: true })
+  @ManyToOne(() => Application, (application) => application.Children, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'Parent' })
   ParentApplication?: Application;
 
-  @OneToMany(() => Application, application => application.ParentApplication)
+  @OneToMany(() => Application, (application) => application.ParentApplication)
   Children: Application[];
 
-  @OneToMany(() => RoleAndApplicationWisePermission, permission => permission.Application)
+  @OneToMany(
+    () => RoleAndApplicationWisePermission,
+    (permission) => permission.Application,
+  )
   RoleAndApplicationWisePermissions: RoleAndApplicationWisePermission[];
 }

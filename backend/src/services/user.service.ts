@@ -40,9 +40,6 @@ export class UserService {
       ...createUserDto,
       Password: hashedPassword,
       IsActive: true,
-      CreatedBy: createUserDto.CreatedBy,
-      UpdatedBy: createUserDto.CreatedBy,
-      IsDeleted: false,
     });
 
     // Save user first to get the user ID
@@ -52,19 +49,19 @@ export class UserService {
     if (createUserDto.Roles &&
         Array.isArray(createUserDto.Roles) &&
         createUserDto.Roles.length > 0) {
-      await this.assignRolesToUser(savedUser.Id, createUserDto.Roles);
+      await this.assignRolesToUser(savedUser.UserId, createUserDto.Roles);
     }
 
     return savedUser;
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.find({ where: { IsDeleted: false } });
+    return this.userRepository.find();
   }
 
   async findOne(id: number): Promise<any> {
     const user = await this.userRepository.findOne({ 
-      where: { Id: id, IsDeleted: false },
+      where: { UserId: id },
       relations: ['UserRoleMappings', 'UserRoleMappings.Role']
     });
     
@@ -87,7 +84,7 @@ export class UserService {
 
   async findOneForAuth(id: number): Promise<User | null> {
     try {
-      const user = await this.userRepository.findOne({ where: { Id: id, IsDeleted: false } });
+      const user = await this.userRepository.findOne({ where: { UserId: id } });
       return user;
     } catch (error) {
       return null;
@@ -95,7 +92,7 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { Email: email, IsDeleted: false } });
+    const user = await this.userRepository.findOne({ where: { Email: email } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -122,26 +119,23 @@ export class UserService {
     if (updateUserDto.Roles !== undefined) {
       // If roles array is provided (even empty), assign those roles
       if (Array.isArray(updateUserDto.Roles)) {
-        await this.assignRolesToUser(savedUser.Id, updateUserDto.Roles);
+        await this.assignRolesToUser(savedUser.UserId, updateUserDto.Roles);
       } else if (typeof updateUserDto.Roles === 'string') {
         // Handle single role as string (convert to array)
-        await this.assignRolesToUser(savedUser.Id, [updateUserDto.Roles]);
+        await this.assignRolesToUser(savedUser.UserId, [updateUserDto.Roles]);
       }
     }
 
     return savedUser;
   }
 
-  async remove(id: number, deletedBy?: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
-    user.IsDeleted = true;
-    user.DeletedDate = new Date();
-    user.DeletedBy = deletedBy;
-    await this.userRepository.save(user);
+    await this.userRepository.remove(user);
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { Email: email, IsDeleted: false } });
+    const user = await this.userRepository.findOne({ where: { Email: email } });
     if (!user) {
       return null;
     }
@@ -168,7 +162,7 @@ export class UserService {
 
   async register(createUserDto: CreateUserDto) {
     const user = await this.create(createUserDto);
-    await this.updateLastLogin(user.Id);
+    await this.updateLastLogin(user.UserId);
     return this.generateLoginResponse(user, false);
   }
 
@@ -177,7 +171,7 @@ export class UserService {
     if (!user) {
       throw new Error('Invalid credentials');
     }
-    await this.updateLastLogin(user.Id);
+    await this.updateLastLogin(user.UserId);
     return this.generateLoginResponse(user, rememberMe);
   }
 
@@ -186,7 +180,7 @@ export class UserService {
     
     const payload = {
       email: user.Email,
-      sub: user.Id,
+      sub: user.UserId,
       displayName,
     };
     const expiresIn = rememberMe ? '30d' : '24h'; // 30 days if remember me, 24 hours otherwise
@@ -194,7 +188,7 @@ export class UserService {
     return {
       access_token: this.jwtService.sign(payload, { expiresIn }),
       user: {
-        id: user.Id,
+        id: user.UserId,
         displayName,
         email: user.Email,
         firstName: user.FirstName,
@@ -205,7 +199,7 @@ export class UserService {
 
   async getUserMenu(userId: number): Promise<Application[]> {
     const user = await this.userRepository.findOne({
-      where: { Id: userId, IsDeleted: false },
+      where: { UserId: userId },
       relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
     });
 
@@ -229,7 +223,7 @@ export class UserService {
     const applications: Application[] = [];
 
     for (const permission of permissions) {
-      if (!applications.find((app) => app.Id === permission.ApplicationId)) {
+      if (!applications.find((app) => app.ApplicationId === permission.ApplicationId)) {
         const app = permission.Application;
         app.Children = [];
 
@@ -239,7 +233,7 @@ export class UserService {
           .find({
             where: {
               RoleId: In(roleIds),
-              Application: { Parent: app.Id },
+              Application: { Parent: app.ApplicationId },
             },
             relations: ['Application'],
           });
@@ -254,7 +248,7 @@ export class UserService {
             .find({
               where: {
                 RoleId: In(roleIds),
-                Application: { Parent: childApp.Id },
+                Application: { Parent: childApp.ApplicationId },
               },
               relations: ['Application'],
             });
@@ -274,7 +268,7 @@ export class UserService {
 
   async getProfile(userId: number): Promise<any> {
     const user = await this.userRepository.findOne({
-      where: { Id: userId, IsDeleted: false },
+      where: { UserId: userId },
       relations: ['UserRoleMappings', 'UserRoleMappings.Role'],
     });
 
@@ -299,7 +293,7 @@ export class UserService {
       roleName: roles[0] || 'User', // For backward compatibility
       userType: roles[0] || 'User', // For backward compatibility
       Address: user.Address, // Include Address field
-      PhoneNumber: user.PhoneNumber, // Include PhoneNumber field
+      PhoneNumber: user.PhoneNo, // Include PhoneNumber field
     };
   }
 
@@ -312,7 +306,7 @@ export class UserService {
     const rolesToAssign = Array.isArray(roleNames) ? roleNames : [roleNames];
 
     const user = await this.userRepository.findOne({
-      where: { Id: userId },
+      where: { UserId: userId },
       relations: ['UserRoleMappings'],
     });
 

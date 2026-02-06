@@ -38,26 +38,20 @@ export class CertificateService {
       throw new BadRequestException('Expiry date must be after issue date');
     }
 
-    const certificate = this.certificateRepository.create({
-      ...createCertificateDto,
-      CreatedBy: createCertificateDto.CreatedById,
-      UpdatedBy: createCertificateDto.CreatedById,
-      IsDeleted: false,
-    });
+    const certificate = this.certificateRepository.create(createCertificateDto);
     return await this.certificateRepository.save(certificate);
   }
 
   async findAll(): Promise<Certificate[]> {
     return await this.certificateRepository.find({
-      where: { IsDeleted: false },
       relations: ['equipment', 'location', 'createdBy', 'approvedBy'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Certificate> {
     const certificate = await this.certificateRepository.findOne({
-      where: { Id: id, IsDeleted: false },
+      where: { Id: id },
       relations: ['equipment', 'location', 'createdBy', 'approvedBy'],
     });
 
@@ -92,51 +86,44 @@ export class CertificateService {
       }
     }
 
-    Object.assign(certificate, {
-      ...updateCertificateDto,
-      UpdatedDate: new Date(),
-      UpdatedBy: updateCertificateDto.UpdatedBy,
-    });
+    Object.assign(certificate, updateCertificateDto);
     return await this.certificateRepository.save(certificate);
   }
 
-  async remove(id: number, deletedBy?: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     const certificate = await this.findOne(id);
-    certificate.IsDeleted = true;
-    certificate.DeletedDate = new Date();
-    certificate.DeletedBy = deletedBy;
-    await this.certificateRepository.save(certificate);
+    await this.certificateRepository.remove(certificate);
   }
 
   async findByEquipment(equipmentId: number): Promise<Certificate[]> {
     return await this.certificateRepository.find({
-      where: { EquipmentId: equipmentId, IsDeleted: false },
+      where: { EquipmentId: equipmentId },
       relations: ['equipment', 'location', 'createdBy', 'approvedBy'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findByLocation(locationId: number): Promise<Certificate[]> {
     return await this.certificateRepository.find({
-      where: { LocationId: locationId, IsDeleted: false },
+      where: { LocationId: locationId },
       relations: ['equipment', 'location', 'createdBy', 'approvedBy'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findByType(certificateType: CertificateType): Promise<Certificate[]> {
     return await this.certificateRepository.find({
-      where: { CertificateType: certificateType, IsDeleted: false },
+      where: { CertificateType: certificateType },
       relations: ['equipment', 'location', 'createdBy', 'approvedBy'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
   async findByStatus(status: CertificateStatus): Promise<Certificate[]> {
     return await this.certificateRepository.find({
-      where: { Status: status, IsDeleted: false },
+      where: { Status: status },
       relations: ['equipment', 'location', 'createdBy', 'approvedBy'],
-      order: { CreatedDate: 'DESC' },
+      order: { Id: 'DESC' },
     });
   }
 
@@ -155,7 +142,6 @@ export class CertificateService {
       .andWhere('certificate.Status IN (:...statuses)', {
         statuses: [CertificateStatus.APPROVED, CertificateStatus.UNDER_REVIEW],
       })
-      .andWhere('certificate.IsDeleted = :isDeleted', { isDeleted: false })
       .orderBy('certificate.ExpiryDate', 'ASC')
       .getMany();
   }
@@ -169,7 +155,6 @@ export class CertificateService {
       .leftJoinAndSelect('certificate.approvedBy', 'approvedBy')
       .where('certificate.ExpiryDate < :today', { today: new Date() })
       .andWhere('certificate.Status = :status', { status: CertificateStatus.APPROVED })
-      .andWhere('certificate.IsDeleted = :isDeleted', { isDeleted: false })
       .orderBy('certificate.ExpiryDate', 'DESC')
       .getMany();
   }
@@ -183,7 +168,6 @@ export class CertificateService {
 
     certificate.Status = CertificateStatus.APPROVED;
     certificate.ApprovedById = approvedById;
-    certificate.UpdatedDate = new Date();
 
     return await this.certificateRepository.save(certificate);
   }
@@ -198,7 +182,6 @@ export class CertificateService {
     certificate.Status = CertificateStatus.REJECTED;
     certificate.RejectionReason = rejectionReason;
     certificate.ApprovedById = approvedById;
-    certificate.UpdatedDate = new Date();
 
     return await this.certificateRepository.save(certificate);
   }
@@ -211,7 +194,6 @@ export class CertificateService {
     }
 
     certificate.Status = CertificateStatus.PENDING_APPROVAL;
-    certificate.UpdatedDate = new Date();
 
     return await this.certificateRepository.save(certificate);
   }
@@ -225,15 +207,14 @@ export class CertificateService {
     expiringSoon: number;
   }> {
     const [total, approved, pending, rejected, expired, expiringSoon] = await Promise.all([
-      this.certificateRepository.count({ where: { IsDeleted: false } }),
-      this.certificateRepository.count({ where: { Status: CertificateStatus.APPROVED, IsDeleted: false } }),
-      this.certificateRepository.count({ where: { Status: CertificateStatus.PENDING_APPROVAL, IsDeleted: false } }),
-      this.certificateRepository.count({ where: { Status: CertificateStatus.REJECTED, IsDeleted: false } }),
+      this.certificateRepository.count(),
+      this.certificateRepository.count({ where: { Status: CertificateStatus.APPROVED } }),
+      this.certificateRepository.count({ where: { Status: CertificateStatus.PENDING_APPROVAL } }),
+      this.certificateRepository.count({ where: { Status: CertificateStatus.REJECTED } }),
       this.certificateRepository
         .createQueryBuilder('certificate')
         .where('certificate.ExpiryDate < :today', { today: new Date() })
         .andWhere('certificate.Status = :status', { status: CertificateStatus.APPROVED })
-        .andWhere('certificate.IsDeleted = :isDeleted', { isDeleted: false })
         .getCount(),
       this.certificateRepository
         .createQueryBuilder('certificate')
@@ -242,7 +223,6 @@ export class CertificateService {
         .andWhere('certificate.Status IN (:...statuses)', {
           statuses: [CertificateStatus.APPROVED, CertificateStatus.UNDER_REVIEW],
         })
-        .andWhere('certificate.IsDeleted = :isDeleted', { isDeleted: false })
         .getCount(),
     ]);
 
